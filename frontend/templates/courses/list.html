@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Виберіть мову — MOVLY{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=6.0">
+<style>
+    .selection-hub {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin: 3rem 0;
+    }
+
+    .lang-tile {
+        background: white;
+        border-radius: 32px;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .lang-tile::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        z-index: 0;
+    }
+
+    .lang-tile:hover {
+        transform: translateY(-12px) scale(1.05);
+        box-shadow: 0 30px 60px rgba(99, 102, 241, 0.15);
+        border-color: var(--accent);
+    }
+
+    .lang-tile.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+    }
+
+    .lang-tile.active .lang-name,
+    .lang-tile.active .lang-count {
+        color: white;
+    }
+
+    .lang-tile>* {
+        position: relative;
+        z-index: 1;
+    }
+
+    .lang-flag {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block;
+        filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+    }
+
+    .lang-name {
+        font-weight: 900;
+        font-size: 1.4rem;
+        color: #1e293b;
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .lang-count {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 700;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .courses-header-section {
+        text-align: center;
+        padding: 4rem 0 2rem;
+    }
+
+    .courses-header-section h1 {
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        margin-bottom: 1rem;
+    }
+
+    .courses-header-section p {
+        font-size: 1.25rem;
+        color: #64748b;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    #courses-container {
+        transition: opacity 0.4s ease;
+    }
+
+    .section-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+        margin: 4rem 0;
+    }
+
+    #reset-filter {
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    #reset-filter.show {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="courses-header-section" data-aos="fade-down">
+    <div class="badge-pill"
+        style="background: rgba(99, 102, 241, 0.1); color: var(--accent); padding: 8px 20px; border-radius: 100px; font-weight: 800; display: inline-block; margin-bottom: 1.5rem; font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">
+        Ваша подорож починається тут
+    </div>
+    <h1>Чого бажаєте навчитися?</h1>
+    <p>Виберіть мову, яку хочете опанувати, та знайдіть ідеальний курс для свого рівня.</p>
+</div>
+
+<div class="selection-hub" data-aos="fade-up" data-aos-delay="200">
+    {% regroup courses by language as language_list %}
+    {% for lang in language_list %}
+    {% if lang.grouper != 'pl' %}
+    <div class="lang-tile" data-lang="{{ lang.grouper }}" onclick="filterCourses('{{ lang.grouper }}', this)">
+        <span class="lang-flag">
+            {{ lang.list.0.get_flag }}
+        </span>
+        <span class="lang-name">
+            {{ lang.list.0.get_language_display }}
+        </span>
+        <span class="lang-count">{{ lang.list|length }} курси</span>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<div class="text-center" style="margin-top: -1rem; margin-bottom: 3rem;">
+    <button id="reset-filter" onclick="resetFilter()" class="btn btn-secondary"
+        style="border-radius: 100px; padding: 12px 30px;">
+        <i class="fas fa-th-large" style="margin-right: 8px;"></i> Показати всі мови
+    </button>
+</div>
+
+<div class="section-divider"></div>
+
+<div id="courses-container" style="display: none;">
+    <div id="language-title-group" style="margin-bottom: 3rem; text-align: left;" data-aos="fade-right">
+        <h2 id="selected-lang-name"
+            style="font-size: 2.5rem; font-weight: 900; font-family: 'Space Grotesk', sans-serif;">Курси</h2>
+    </div>
+
+    {% if courses %}
+    <div class="courses-grid" id="courses-grid">
+        {% for course in courses %}
+        {% if course.language != 'pl' %}
+        <a href="{% url 'courses:course-detail' course.id %}" class="course-card" data-lang="{{ course.language }}"
+            data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+            <div class="course-badge-flag">
+                <div class="course-flag-wrapper">{{ course.get_flag }}</div>
+                <div class="course-greeting-pill">{{ course.get_greeting }}!</div>
+                <div class="course-flag-shimmer"></div>
+            </div>
+            <div class="course-card-content">
+                <div class="course-card-decal">{{ course.get_code }}</div>
+                <div class="course-header">
+                    <div>
+                        <span class="course-language-tag">{{ course.get_language_display }}</span>
+                        <h3>{{ course.title }}</h3>
+                    </div>
+                </div>
+                <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                <div class="course-footer">
+                    <div class="course-meta-item">
+                        <i class="fas fa-layer-group"></i>
+                        <span>{{ course.get_level_display }}</span>
+                    </div>
+                    <div class="course-meta-item">
+                        <i class="fas fa-book-open"></i>
+                        <span>{{ course.lessons.count }} уроків</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-courses">
+        <div style="font-size: 5rem; margin-bottom: 1.5rem; opacity: 0.3;">📚</div>
+        <h3>Поки що курсів немає</h3>
+        <p>Завітайте пізніше або виберіть іншу мову.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function filterCourses(lang, element) {
+        const cards = document.querySelectorAll('.course-card');
+        const tiles = document.querySelectorAll('.lang-tile');
+        const titleGroup = document.getElementById('language-title-group');
+        const langNameDisplay = document.getElementById('selected-lang-name');
+        const resetButton = document.getElementById('reset-filter');
+        const container = document.getElementById('courses-container');
+
+        tiles.forEach(t => t.classList.remove('active'));
+        element.classList.add('active');
+
+        const langName = element.querySelector('.lang-name').textContent;
+        langNameDisplay.textContent = 'Курси: ' + langName;
+
+        container.style.opacity = '0';
+        container.style.display = 'block';
+        resetButton.classList.add('show');
+
+        setTimeout(() => {
+            cards.forEach(card => {
+                if (card.getAttribute('data-lang') === lang) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            container.style.opacity = '1';
+
+            window.scrollTo({
+                top: container.offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }, 400);
+    }
+
+    function resetFilter() {
+        const cards = document.querySelectorAll('.course-card');
+        const tiles = document.querySelectorAll('.lang-tile');
+        const resetButton = document.getElementById('reset-filter');
+        const container = document.getElementById('courses-container');
+
+        tiles.forEach(t => t.classList.remove('active'));
+        resetButton.classList.remove('show');
+
+        container.style.opacity = '0';
+
+        setTimeout(() => {
+            cards.forEach(card => card.style.display = 'flex');
+            container.style.display = 'none';
+            container.style.opacity = '1';
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }, 400);
+    }
+
+    document.querySelectorAll('.lang-tile').forEach(tile => {
+        tile.addEventListener('click', function () {
+            filterCourses(this.dataset.lang, this);
+        });
+    });
+</script>
+{% endblock %}

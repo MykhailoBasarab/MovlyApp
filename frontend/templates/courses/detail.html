@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}
+{{ course.title }} — MOVLY
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=12.0">
+{% endblock %}
+
+{% block content %}
+<div class="course-detail-container">
+    <div class="course-hero" data-aos="zoom-out">
+        <div style="position: relative; z-index: 2;">
+            <div class="badge-pill"
+                style="background: rgba(255,255,255,0.2); color: white; padding: 6px 16px; border-radius: 100px; display: inline-block; margin-bottom: 1.5rem; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase;">
+                {{ course.get_level_display }}
+            </div>
+            <h1 style="color: white; margin-bottom: 1rem;">
+                {{ course.title }}
+            </h1>
+            <div class="course-meta">
+                <span>
+                    <i class="fas fa-globe-americas" style="margin-right: 8px;"></i>
+                    {{ course.get_language_display }}
+                </span>
+                <span>
+                    <i class="fas fa-book" style="margin-right: 8px;"></i>
+                    {{ lessons|length }} уроків
+                </span>
+            </div>
+            <p style="font-size: 1.1rem; opacity: 0.9; max-width: 600px; line-height: 1.6;">
+                {{ course.description }}
+            </p>
+        </div>
+        <div
+            style="position: absolute; right: 40px; bottom: -20px; font-size: 15rem; opacity: 0.1; transform: rotate(-10deg); pointer-events: none;">
+            {{ course.get_flag }}
+        </div>
+    </div>
+
+    <div class="lessons-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2
+                style="font-size: 2rem; font-weight: 900; color: #1e293b; margin: 0; font-family: 'Space Grotesk', sans-serif;">
+                Програма курсу
+            </h2>
+            <div style="color: #64748b; font-weight: 700;">
+                <i class="fas fa-tasks"></i> {{ lessons|length }} етапів
+            </div>
+        </div>
+
+        <div class="lessons-grid">
+            {% for lesson in lessons %}
+            <a href="{% url 'courses:lesson-detail' lesson.id %}"
+                class="premium-lesson-item {% if lesson.id in user_progress %}completed{% endif %}" data-aos="fade-up"
+                data-aos-delay="100">
+                <div class="num">
+                    {% if lesson.id in user_progress %}
+                    <i class="fas fa-check"></i>
+                    {% else %}
+                    {{ forloop.counter }}
+                    {% endif %}
+                </div>
+                <div style="flex: 1;">
+                    <h3 style="font-size: 1.35rem; font-weight: 800; color: #1e293b; margin-bottom: 0.4rem;">
+                        {{ lesson.title }}
+                    </h3>
+                    <p style="color: #64748b; font-size: 0.95rem; margin: 0;">
+                        {{ lesson.description|truncatewords:10 }}
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    <div
+                        style="font-size: 0.8rem; font-weight: 900; color: #a855f7; text-transform: uppercase; margin-bottom: 0.3rem;">
+                        {{ lesson.exercises.count }} вправ
+                    </div>
+                    {% if lesson.id in user_progress %}
+                    {% with progress=user_progress|get_item:lesson.id %}
+                    {% if progress.is_completed %}
+                    <div style="color: #059669; font-weight: 800;">
+                        {{ progress.score }}%
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    {% else %}
+                    <div style="color: #94a3b8; font-size: 1.2rem;">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

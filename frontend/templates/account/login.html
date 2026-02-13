@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block title %}Вхід — MOVLY{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="decorative-float float-1">Aa</div>
+    <div class="decorative-float float-2">文</div>
+    <div class="decorative-float float-3">Ω</div>
+
+    <div class="form-container">
+        <h2>Вхід</h2>
+
+        <form class="login" id="login_form" method="POST" action="{% url 'account_login' %}">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                <div class="error-message show">
+                    {{ field.errors|first }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+
+            <button class="btn btn-primary" type="submit" style="width: 100%; margin-top: 1rem;">Увійти</button>
+        </form>
+
+        <div class="social-login-separator">
+            <span>або</span>
+        </div>
+
+        <div class="social-login">
+            <a href="{% provider_login_url 'google' %}" class="btn btn-google" style="width: 100%;">
+                <i class="fab fa-google"></i> Увійти через Google
+            </a>
+        </div>
+
+        <div class="form-footer">
+            Немає акаунту? <a href="{% url 'account_signup' %}">Зареєструватися</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

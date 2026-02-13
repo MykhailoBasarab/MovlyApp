@@ -1,0 +1,431 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профіль {{ user.username }} — MOVLY{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=3.0">
+<style>
+    .profile-container {
+        position: relative;
+        z-index: 10;
+        min-height: 100vh;
+        overflow: visible;
+    }
+
+    .profile-bg-blob {
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: -1;
+        opacity: 0.15;
+        pointer-events: none;
+    }
+
+    .bg-blob-1 {
+        top: -100px;
+        right: -100px;
+        background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+        animation: floatSlow 15s infinite alternate;
+    }
+
+    .bg-blob-2 {
+        bottom: -100px;
+        left: -100px;
+        background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+        animation: floatSlow 20s infinite alternate-reverse;
+    }
+
+    @keyframes floatSlow {
+        0% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        100% {
+            transform: translate(50px, 50px) scale(1.1);
+        }
+    }
+
+    .profile-header {
+        background: rgba(255, 255, 255, 0.4) !important;
+        backdrop-filter: blur(30px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .streak-banner {
+        background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%) !important;
+        color: white;
+        padding: 2rem !important;
+        border-radius: 32px !important;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 40px rgba(245, 158, 11, 0.25) !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .streak-banner::before {
+        content: '🔥';
+        position: absolute;
+        right: -10px;
+        bottom: -20px;
+        font-size: 10rem !important;
+        opacity: 0.2 !important;
+        transform: rotate(-15deg);
+    }
+
+    .streak-number {
+        font-size: 4.5rem !important;
+        font-weight: 900 !important;
+        font-family: 'Outfit', sans-serif !important;
+        line-height: 1;
+        text-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card {
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        background: rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(10px) !important;
+        border-radius: 32px !important;
+        padding: 2.5rem !important;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-12px) scale(1.02) !important;
+        background: white !important;
+        border-color: var(--accent) !important;
+    }
+
+    .course-progress-card {
+        background: rgba(255, 255, 255, 0.6) !important;
+        backdrop-filter: blur(10px) !important;
+        border-radius: 32px !important;
+        padding: 2rem !important;
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .default-avatar {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+        color: white;
+        font-weight: 800;
+        font-size: 4rem !important;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .profile-card {
+        background: rgba(255, 255, 255, 0.6) !important;
+        backdrop-filter: blur(20px) !important;
+        border-radius: 32px !important;
+        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        padding: 2rem !important;
+    }
+
+    .btn-secondary {
+        border-radius: 20px !important;
+        padding: 12px 24px !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        background: white !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+        border-color: var(--accent) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-bg-blob bg-blob-1"></div>
+<div class="profile-bg-blob bg-blob-2"></div>
+
+<div class="profile-container">
+    <header class="profile-header" data-aos="fade-down" data-aos-duration="1000">
+        <div class="profile-avatar-wrapper">
+            <div class="profile-avatar" id="avatar-preview">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" class="avatar-img">
+                {% else %}
+                <div class="default-avatar">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                {% endif %}
+            </div>
+            <button class="edit-avatar-btn" onclick="document.getElementById('id_avatar').click();"
+                title="Змінити аватар">
+                <i class="fas fa-camera"></i>
+            </button>
+        </div>
+        <div class="profile-title-group">
+            <h1 class="profile-name" style="font-size: clamp(2rem, 5vw, 4rem);">{{ user.username }}</h1>
+            <div class="profile-badges">
+                <span class="badge badge-level"
+                    style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">{{ user.get_level_display
+                    }}</span>
+                <span class="badge badge-xp" style="background: #fffbeb; border: 1px solid #fde68a;"><i
+                        class="fas fa-star" style="color: #f59e0b;"></i> {{ progress.total_xp }}
+                    XP</span>
+            </div>
+        </div>
+        <div class="profile-actions">
+            <button class="btn btn-secondary" id="toggle-edit">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="profile-main-layout">
+        <div id="view-mode" class="profile-grid">
+            <div class="profile-main-content">
+                <div class="streak-banner" data-aos="fade-up" data-aos-delay="200">
+                    <div class="streak-number">{{ progress.current_streak }}</div>
+                    <div class="streak-info">
+                        <h3 style="font-size: 1.5rem; font-weight: 800;">Днів у навчанні!</h3>
+                        <p style="font-size: 1.1rem; opacity: 0.95;">{% if progress.current_streak > 0 %}Ви молодець!
+                            Продовжуйте в тому ж дусі.{% else %}Почніть навчання сьогодні, щоб розпочати серію!{% endif
+                            %}</p>
+                    </div>
+                </div>
+
+                <section class="profile-section" data-aos="fade-up" data-aos-delay="400">
+                    <h2 class="section-title">Ваші успіхи</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="500">
+                            <div class="stat-icon icon-lessons"
+                                style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value"
+                                    style="font-size: 2.5rem;">{{progress.total_lessons_completed}}</span>
+                                <span class="stat-label">Уроків</span>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="600">
+                            <div class="stat-icon icon-exercises"
+                                style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value"
+                                    style="font-size: 2.5rem;">{{progress.total_exercises_completed}}</span>
+                                <span class="stat-label">Вправ</span>
+                            </div>
+                        </div>
+                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="700">
+                            <div class="stat-icon icon-streak"
+                                style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" style="font-size: 2.5rem;">{{ completed_courses_count }}</span>
+                                <span class="stat-label">Курсів</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="profile-section" style="margin-top: 2rem;" data-aos="fade-up" data-aos-delay="800">
+                    <h2 class="section-title">Пройдені курси</h2>
+                    <div class="completed-courses-grid" style="display: grid; gap: 1.5rem;">
+                        {% if completed_courses %}
+                        {% for course in completed_courses %}
+                        <div class="course-progress-card" data-aos="fade-left"
+                            data-aos-delay="{{ forloop.counter|add:8 }}00">
+                            <div class="course-icon" style="font-size: 2.5rem;">
+                                {% if course.language == 'en' %}🇬🇧{% elif course.language == 'de' %}🇩🇪{% elif
+                                course.language == 'fr' %}🇫🇷{% else %}🌍{% endif %}
+                            </div>
+                            <div class="course-info-meta">
+                                <h4 style="font-size: 1.3rem; font-weight: 800;">{{ course.title }}</h4>
+                                <div class="progress-bar-container"
+                                    style="height: 12px; border-radius: 100px; background: rgba(0,0,0,0.05);">
+                                    <div class="progress-fill"
+                                        style="width: 100%; background: linear-gradient(90deg, #10b981, #34d399);">
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                                    <span style="font-size: 0.9rem; color: #059669; font-weight: 800;">ЗАВЕРШЕНО</span>
+                                    <span style="font-size: 0.9rem; color: #64748b; font-weight: 700;">100%</span>
+                                </div>
+                            </div>
+                            <div
+                                style="width: 60px; height: 60px; background: #fffbeb; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-certificate" style="color: #f59e0b; font-size: 1.8rem;"></i>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="empty-state"
+                            style="text-align: center; padding: 4rem 2rem; background: rgba(255,255,255,0.4); backdrop-filter: blur(10px); border-radius: 40px; border: 2px dashed rgba(0,0,0,0.05);">
+                            <div
+                                style="width: 100px; height: 100px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                                <i class="fas fa-graduation-cap" style="font-size: 3rem; color: #94a3b8;"></i>
+                            </div>
+                            <h3 style="font-weight: 800; color: #1e293b; margin-bottom: 0.5rem;">Поки що пусто</h3>
+                            <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 2rem;">Ви ще не завершили
+                                жодного курсу. Час почати!</p>
+                            <a href="{% url 'courses:courses-list' %}" class="btn btn-hero-primary"
+                                style="padding: 16px 32px; border-radius: 18px;">До списку курсів</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <aside class="profile-sidebar" data-aos="fade-left" data-aos-delay="600">
+                <div class="profile-card info-card" style="box-shadow: 0 20px 40px rgba(0,0,0,0.05) !important;">
+                    <h3 class="card-subtitle"
+                        style="font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.25rem; margin-bottom: 1.5rem;">
+                        Інформація</h3>
+                    <div class="info-list">
+                        <div class="info-item" data-aos="fade-left" data-aos-delay="700">
+                            <div class="info-icon"
+                                style="background: rgba(99, 102, 241, 0.1); color: #4f46e5; border-radius: 14px;">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="info-content">
+                                <span class="info-label">Email</span>
+                                <span class="info-value" style="word-break: break-all;">{{ user.email }}</span>
+                            </div>
+                        </div>
+                        <div class="info-item" data-aos="fade-left" data-aos-delay="800">
+                            <div class="info-icon"
+                                style="background: rgba(16, 185, 129, 0.1); color: #059669; border-radius: 14px;">
+                                <i class="fas fa-language"></i>
+                            </div>
+                            <div class="info-content">
+                                <span class="info-label">Рідна мова</span>
+                                <span class="info-value">{{ user.get_native_language_display }}</span>
+                            </div>
+                        </div>
+                        <div class="info-item" data-aos="fade-left" data-aos-delay="900">
+                            <div class="info-icon"
+                                style="background: rgba(245, 158, 11, 0.1); color: #d97706; border-radius: 14px;">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="info-content">
+                                <span class="info-label">Вивчаю</span>
+                                <span class="info-value">{{ user.get_learning_language_display }}</span>
+                            </div>
+                        </div>
+                        <div class="info-item" data-aos="fade-left" data-aos-delay="1000">
+                            <div class="info-icon"
+                                style="background: rgba(100, 116, 139, 0.1); color: #475569; border-radius: 14px;">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <span class="info-label">На сайті з</span>
+                                <span class="info-value">{{ user.created_at|date:"d.m.Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if progress.last_activity_date %}
+                <div class="activity-card profile-card"
+                    style="margin-top: 1.5rem; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important; color: white !important; padding: 1.5rem !important;"
+                    data-aos="zoom-in" data-aos-delay="1100">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div
+                                style="width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-bolt" style="color: #fbbf24;"></i>
+                            </div>
+                            <span style="font-size: 0.95rem; font-weight: 700;">Активність</span>
+                        </div>
+                        <span
+                            style="font-size: 1rem; font-weight: 800; background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 8px;">{{
+                            progress.last_activity_date|date:"d.m" }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </aside>
+        </div>
+
+        <!-- Edit Mode -->
+        <div id="edit-mode" style="display: none;" class="animate-slide-up">
+            <div class="edit-card">
+                <h2 class="section-title">Налаштування профілю</h2>
+                <form method="post" enctype="multipart/form-data" class="profile-form">
+                    {% csrf_token %}
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>{{ form.username.label }}</label>
+                            {{ form.username }}
+                        </div>
+                        <div class="form-group">
+                            <label>{{ form.email.label }}</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="form-group">
+                            <label>{{ form.native_language.label }}</label>
+                            {{ form.native_language }}
+                        </div>
+                        <div class="form-group">
+                            <label>{{ form.learning_language.label }}</label>
+                            {{ form.learning_language }}
+                        </div>
+                        <div class="form-group">
+                            <label>{{ form.level.label }}</label>
+                            {{ form.level }}
+                        </div>
+                        <div style="display: none;">{{ form.avatar }}</div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-edit">Скасувати</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const v = document.getElementById('view-mode'),
+            e = document.getElementById('edit-mode'),
+            t = document.getElementById('toggle-edit'),
+            c = document.getElementById('cancel-edit');
+
+        if (t) t.onclick = () => {
+            v.style.display = 'none';
+            e.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        if (c) c.onclick = () => {
+            v.style.display = 'grid';
+            e.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const ai = document.getElementById('id_avatar');
+        if (ai) ai.onchange = function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    document.getElementById('avatar-preview').innerHTML = `<img src="${ev.target.result}" class="avatar-img">`;
+                };
+                reader.readAsDataURL(this.files[0]);
+                if (v.style.display !== 'none') t.onclick();
+            }
+        };
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,129 @@
+ {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Фінальний тест: {{ course.title }} — MOVLY{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="test-start-container">
+    <div class="test-card" data-aos="zoom-in">
+        <div class="test-header">
+            <h1>Фінальний тест</h1>
+            <h2>{{ course.title }}</h2>
+        </div>
+
+        <div class="test-info">
+            <p class="test-description">{{ test.description }}</p>
+
+            <div class="test-meta">
+                <div class="meta-item">
+                    <span class="label">Питань:</span>
+                    <span class="value">{{ test.questions.count }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="label">Прохідний бал:</span>
+                    <span class="value">{{ test.passing_score }}%</span>
+                </div>
+            </div>
+
+            <div class="test-warning">
+                <p>⚠️ Тест можна пройти повторно, але враховується лише найкращий результат.</p>
+            </div>
+        </div>
+
+        <div class="test-actions">
+            <a href="{% url 'courses:course-test-take' course.id %}" class="btn btn-primary btn-lg">
+                Почати тест
+            </a>
+            <a href="{% url 'courses:course-detail' course.id %}" class="btn btn-secondary">
+                Назад до курсу
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .test-start-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .test-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .test-header h1 {
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+
+    .test-header h2 {
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+        margin-bottom: 30px;
+    }
+
+    .test-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 40px;
+    }
+
+    .test-meta {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-bottom: 40px;
+    }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .meta-item .label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .meta-item .value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .test-warning {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        color: #ffc107;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 40px;
+    }
+
+    .test-actions {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .btn-lg {
+        padding: 15px 40px;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}

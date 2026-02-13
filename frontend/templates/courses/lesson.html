@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}
+{{ lesson.title }} — MOVLY
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=12.0">
+<style>
+    .lesson-content-box h3 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-top: 2.5rem;
+        margin-bottom: 1.25rem;
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .lesson-content-box ul {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .lesson-content-box li {
+        background: #f8fafc;
+        margin-bottom: 0.75rem;
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .lesson-content-box li::before {
+        content: '\f058';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        color: #6366f1;
+    }
+
+    .exc-form .form-check {
+        background: white;
+        padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+        border-radius: 20px;
+        margin-bottom: 1rem;
+        border: 2px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="course-detail-container">
+    <div class="lesson-page-header" data-aos="fade-down">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <a href="{% url 'courses:course-detail' lesson.course.id %}"
+                style="text-decoration: none; color: #64748b; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+            <div
+                style="background: rgba(99, 102, 241, 0.1); color: #6366f1; padding: 6px 16px; border-radius: 100px; font-weight: 800; font-size: 0.85rem;">
+                Урок {{ lesson.order }} з {{ lesson.course.lessons.count }}
+            </div>
+        </div>
+        <h1
+            style="font-size: 3rem; font-weight: 900; color: #1e293b; margin-bottom: 0.5rem; font-family: 'Space Grotesk', sans-serif;">
+            {{ lesson.title }}
+        </h1>
+        <p style="font-size: 1.2rem; color: #64748b; font-weight: 500;">
+            {{ lesson.description }}
+        </p>
+    </div>
+
+    <div class="lesson-content-box" data-aos="fade-up">
+        {{ lesson.content|safe }}
+    </div>
+
+    <div class="exercises-section">
+        {% for ex in exercises %}
+        <div class="exercise-modern-card" data-aos="fade-up">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                    <span
+                        style="width: 32px; height: 32px; background: #6366f1; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900;">
+                        {{ forloop.counter }}
+                    </span>
+                    <h3 style="margin:0; font-size:1.2rem; font-weight:800;">
+                        {{ ex.get_exercise_type_display }}
+                    </h3>
+                </div>
+            </div>
+
+            <div
+                style="background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(0,0,0,0.03); margin-bottom: 1.5rem;">
+                <p style="font-size: 1.15rem; color: #1e293b; font-weight: 700; margin: 0;">
+                    {{ ex.question }}
+                </p>
+            </div>
+
+            {% with at=attempts|get_item:ex.id %}
+            {% if at and at.is_correct %}
+            <div style="padding:1.5rem; border-radius:20px; background:#ecfdf5;">
+                <div style="font-weight:800; color:#065f46;">
+                    ✓ Правильно!
+                </div>
+                <p style="margin-top: 0.5rem; margin-bottom: 0;">Твоя відповідь: <strong>{{ at.user_answer }}</strong>
+                </p>
+            </div>
+            {% else %}
+            {% if at %}
+            <div
+                style="padding:1.25rem; border-radius:20px; background:#fef2f2; margin-bottom: 1.5rem; border: 1px solid #fee2e2;">
+                <div style="font-weight:800; color:#991b1b; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-redo"></i> Спробуй ще раз!
+                </div>
+                <p style="margin-top:0.5rem;margin-bottom:0;color:#b91c1c;">Попередня
+                    відповідь:<strong>{{at.user_answer}}</strong></p>
+            </div>
+            {% endif %}
+            <form method="post" action="{% url 'courses:submit-exercise' ex.id %}" class="exc-form">
+                {% csrf_token %}
+                {% if ex.exercise_type == 'multiple_choice' %}
+                <div class="options-grid" style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                    {% for opt in ex.options %}
+                    <div class="form-check" style="margin-bottom: 0; position: relative;">
+                        <input class="form-check-input" type="radio" name="answer"
+                            id="opt{{ ex.id }}_{{ forloop.counter }}" value="{{ opt }}" required
+                            style="position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%);">
+                        <label class="form-check-label" for="opt{{ ex.id }}_{{ forloop.counter }}"
+                            style="cursor:pointer;display:block;width:100%;font-weight:600;color:#334155;">{{opt}}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <input type="text" name="answer" class="form-control"
+                    style="width: 100%; padding: 1.25rem; border-radius: 20px; border: 2px solid #e2e8f0; font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem; transition: all 0.3s;"
+                    placeholder="Введіть вашу відповідь тут..." required>
+                {% endif %}
+                <button type="submit" class="btn btn-primary"
+                    style="padding: 1.1rem 3rem; border-radius: 100px; font-weight: 850; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.3s ease;">
+                    Перевірити відповідь
+                </button>
+            </form>
+            {% endif %}
+            {% endwith %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

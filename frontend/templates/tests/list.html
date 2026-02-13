@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Тести — MOVLY{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>IELTS-подібні тести</h1>
+
+<form method="get" class="filters">
+    <div class="form-group">
+        {{ form.language.label_tag }}
+        {{ form.language }}
+    </div>
+    <div class="form-group">
+        {{ form.level.label_tag }}
+        {{ form.level }}
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Фільтрувати</button>
+        <a href="{% url 'tests:tests-list' %}" class="btn btn-secondary">Скинути</a>
+    </div>
+</form>
+
+{% if tests %}
+    <div class="courses-grid">
+        {% for test in tests %}
+            <a href="{% url 'tests:test-detail' test.id %}" class="course-card">
+                <div class="course-header">
+                    <h3>{{ test.title }}</h3>
+                    <span class="course-language">{{ test.get_language_display }}</span>
+                </div>
+                <p class="course-description">{{ test.description|truncatewords:20 }}</p>
+                <div class="course-footer">
+                    <span class="course-level">{{ test.get_level_display }}</span>
+                    <span class="course-lessons">{{ test.sections.count }} секцій</span>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="no-courses">
+        <p>Тести не знайдено. Спробуйте змінити фільтри.</p>
+    </div>
+{% endif %}
+{% endblock %}
+

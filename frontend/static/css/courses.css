@@ -1,0 +1,225 @@
+:root {
+  --font-serif: 'Space Grotesk', sans-serif;
+}
+
+.courses-page {
+  padding: 1rem 0;
+}
+
+h1:first-of-type {
+  font-family: var(--font-serif);
+  font-size: 3.5rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  color: #0f172a;
+  letter-spacing: -0.04em;
+}
+
+/* Language Hub Styles */
+.selection-hub {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.lang-tile {
+  background: white;
+  border-radius: 32px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.lang-tile:hover {
+  transform: translateY(-12px) scale(1.05);
+  box-shadow: 0 30px 60px rgba(99, 102, 241, 0.15);
+  border-color: #6366f1;
+}
+
+.lang-tile.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: white !important;
+}
+
+.lang-tile.active .lang-name,
+.lang-tile.active .lang-count {
+  color: white !important;
+}
+
+.lang-flag {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+}
+
+.lang-name {
+  font-weight: 900;
+  font-size: 1.4rem;
+  color: #1e293b;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.lang-count {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+/* Course Cards Grid */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+  margin-top: 3rem;
+}
+
+.course-card {
+  position: relative;
+  background: white;
+  border-radius: 42px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-15px);
+  border-color: #6366f1;
+  box-shadow: 0 40px 80px rgba(99, 102, 241, 0.12);
+}
+
+.course-badge-flag {
+  height: 200px;
+  background: linear-gradient(135deg, #f8faff 0%, #f1f5f9 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.course-flag-wrapper {
+  font-size: 6.5rem;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.1));
+}
+
+.course-card-content {
+  padding: 30px;
+  flex: 1;
+}
+
+/* Course Detail & Lessons Premium Styles */
+.course-detail-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.course-hero {
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  border-radius: 40px;
+  padding: 4rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 3rem;
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+}
+
+.course-hero h1 {
+  font-size: 3.5rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  color: white;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.course-hero .course-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.course-hero .course-meta span {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 18px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+}
+
+.premium-lesson-item {
+  background: white;
+  border-radius: 24px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+.premium-lesson-item:hover {
+  transform: translateX(10px);
+  border-color: #6366f1;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.premium-lesson-item .num {
+  width: 50px;
+  height: 50px;
+  background: #f1f5f9;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+/* Lesson Content Decoration */
+.lesson-content-box {
+  background: white;
+  border-radius: 32px;
+  padding: 3rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 3rem;
+  line-height: 1.8;
+}
+
+.exercise-modern-card {
+  background: #f8fafb;
+  border-radius: 28px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+  margin: 4rem 0;
+}

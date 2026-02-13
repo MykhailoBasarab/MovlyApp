@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Завершення реєстрації — MOVLY{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="decorative-float float-1">Aa</div>
+    <div class="decorative-float float-2">文</div>
+    <div class="decorative-float float-3">Ω</div>
+    <div class="decorative-float float-4"></div>
+    <div class="decorative-float float-5"></div>
+
+    <div class="form-container">
+        <h2>Завершення реєстрації</h2>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-muted);">
+            Ви використовуєте свій акаунт {{ account.get_provider.name }}. Останній крок: оберіть ім'я користувача та
+            підтвердіть email.
+        </p>
+
+        <form class="signup" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                <div class="error-message show">
+                    {{ field.errors|first }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                Зареєструватися
+            </button>
+        </form>
+
+        <div class="form-footer">
+            Вже є акаунт? <a href="{% url 'users:login' %}">Увійти</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

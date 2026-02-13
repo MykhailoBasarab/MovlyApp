@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Social Network Login Failure" %} — MOVLY{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="decorative-float float-1">Aa</div>
+    <div class="decorative-float float-2">文</div>
+
+    <div class="form-container">
+        <h2 style="color: #ef4444;">{% trans "Social Network Login Failure" %}</h2>
+        <p style="text-align: center; margin-bottom: 2rem; color: var(--text-muted);">
+            {% trans "An error occurred while attempting to login via your social network account." %}
+        </p>
+
+        <div class="social-login">
+            <a href="{% url 'users:login' %}" class="btn btn-primary" style="width: 100%;">
+                {% trans "Back to Login" %}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

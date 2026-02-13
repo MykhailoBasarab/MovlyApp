@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Лідерборд — MOVLY{% endblock %}
+
+{% block extra_css %}
+<style>
+    .leaderboard-container {
+        padding: 4rem 0;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .leaderboard-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .leaderboard-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .leaderboard-subtitle {
+        color: #64748b;
+        font-size: 1.2rem;
+    }
+
+    .top-three {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 2rem;
+        margin-bottom: 5rem;
+        padding-top: 2rem;
+    }
+
+    .podium-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+
+    .podium-rank {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: white;
+        margin-bottom: -20px;
+        z-index: 2;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .rank-1 {
+        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+
+    .rank-2 {
+        background: linear-gradient(135deg, #94a3b8 0%, #475569 100%);
+    }
+
+    .rank-3 {
+        background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
+    }
+
+    .podium-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 30px;
+        overflow: hidden;
+        border: 4px solid white;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        background: #f1f5f9;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #64748b;
+    }
+
+    .item-1 .podium-avatar {
+        width: 130px;
+        height: 130px;
+        border-color: #fef3c7;
+        border-width: 6px;
+    }
+
+    .item-2 .podium-avatar {
+        border-color: #f1f5f9;
+    }
+
+    .item-3 .podium-avatar {
+        border-color: #fff7ed;
+    }
+
+    .podium-name {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .podium-xp {
+        font-weight: 700;
+        color: #6366f1;
+        font-size: 0.9rem;
+    }
+
+    .leaderboard-list {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px);
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        padding: 1.5rem;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.05);
+    }
+
+    .leaderboard-item {
+        display: grid;
+        grid-template-columns: 60px 60px 1fr 120px;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .leaderboard-item:hover {
+        background: white;
+        transform: scale(1.02);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    .leaderboard-item.is-current {
+        background: linear-gradient(90deg, rgba(99, 102, 241, 0.05) 0%, transparent 100%);
+        border: 1px solid rgba(99, 102, 241, 0.1);
+    }
+
+    .item-rank {
+        font-weight: 800;
+        color: #94a3b8;
+        font-size: 1.1rem;
+    }
+
+    .item-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #64748b;
+        margin-right: 1rem;
+        overflow: hidden;
+    }
+
+    .item-name {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .item-xp {
+        text-align: right;
+        font-weight: 800;
+        color: #6366f1;
+    }
+
+    .user-footer-rank {
+        margin-top: 3rem;
+        text-align: center;
+        padding: 2rem;
+        background: #1e293b;
+        border-radius: 24px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .footer-rank-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .footer-rank-number {
+        font-size: 2rem;
+        font-weight: 900;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="leaderboard-container">
+    <header class="leaderboard-header" data-aos="fade-down">
+        <h1 class="leaderboard-title">Лідерборд</h1>
+        <p class="leaderboard-subtitle">Найкращі студенти MOVLY цього тижня</p>
+    </header>
+
+    <div class="top-three">
+        {% if top_users|length >= 2 %}
+        <div class="podium-item item-2" data-aos="fade-up" data-aos-delay="100">
+            <div class="podium-rank rank-2">2</div>
+            <div class="podium-avatar">
+                {% if top_users.1.user.avatar %}
+                <img src="{{ top_users.1.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                {{ top_users.1.user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <span class="podium-name">{{ top_users.1.user.username }}</span>
+            <span class="podium-xp">{{ top_users.1.total_xp }} XP</span>
+        </div>
+        {% endif %}
+
+        {% if top_users|length >= 1 %}
+        <div class="podium-item item-1" data-aos="fade-up">
+            <div class="podium-rank rank-1">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="podium-avatar">
+                {% if top_users.0.user.avatar %}
+                <img src="{{ top_users.0.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                {{ top_users.0.user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <span class="podium-name">{{ top_users.0.user.username }}</span>
+            <span class="podium-xp">{{ top_users.0.total_xp }} XP</span>
+        </div>
+        {% endif %}
+
+        {% if top_users|length >= 3 %}
+        <div class="podium-item item-3" data-aos="fade-up" data-aos-delay="200">
+            <div class="podium-rank rank-3">3</div>
+            <div class="podium-avatar">
+                {% if top_users.2.user.avatar %}
+                <img src="{{ top_users.2.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                {{ top_users.2.user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <span class="podium-name">{{ top_users.2.user.username }}</span>
+            <span class="podium-xp">{{ top_users.2.total_xp }} XP</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="leaderboard-list" data-aos="fade-up" data-aos-delay="300">
+        {% for entry in top_users %}
+        {% if forloop.counter > 3 %}
+        <div class="leaderboard-item {% if entry.user == request.user %}is-current{% endif %}">
+            <span class="item-rank">#{{ forloop.counter }}</span>
+            <div class="item-avatar">
+                {% if entry.user.avatar %}
+                <img src="{{ entry.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                {{ entry.user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <span class="item-name">{{ entry.user.username }}</span>
+            <span class="item-xp">{{ entry.total_xp }} XP</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if user_rank > 10 %}
+    <div class="user-footer-rank" data-aos="zoom-in">
+        <div class="footer-rank-info">
+            <span class="footer-rank-number">#{{ user_rank }}</span>
+            <div class="item-avatar" style="background: rgba(255,255,255,0.1); color: white;">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                {{ user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <div style="text-align: left;">
+                <div style="font-weight: 800; font-size: 1.2rem;">{{ user.username }} (Ви)</div>
+                <div style="font-size: 0.9rem; opacity: 0.7;">Продовжуйте вчитися, щоб піднятися вище!</div>
+            </div>
+        </div>
+        <div class="item-xp" style="color: #818cf8; font-size: 1.3rem;">{{ request.user.progress.total_xp }} XP</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

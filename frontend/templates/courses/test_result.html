@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Результати тесту: {{ course.title }} — MOVLY{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="result-container" data-aos="fade-up">
+    <div class="result-card {% if passed %}passed{% else %}failed{% endif %}">
+        <h1 class="result-title">{% if passed %}Вітаємо!{% else %}Спробуйте ще раз{% endif %}</h1>
+
+        <div class="score-display">
+            <div class="score-circle">
+                <span class="score-value">{{ percentage }}%</span>
+                <span class="score-label">Результат</span>
+            </div>
+        </div>
+
+        <p class="result-message">
+            {% if passed %}
+            Ви успішно склали фінальний тест курсу <strong>{{ course.title }}</strong>!
+            {% else %}
+            На жаль, ви не набрали прохідний бал ({{ test.passing_score }}%).
+            {% endif %}
+        </p>
+
+        <div class="action-buttons">
+            <a href="{% url 'courses:course-detail' course.id %}" class="btn btn-secondary">
+                До курсу
+            </a>
+            {% if not passed %}
+            <a href="{% url 'courses:course-test-take' course.id %}" class="btn btn-primary">
+                Спробувати знову
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detailed-results">
+        <h3>Детальні результати</h3>
+
+        {% for result in results %}
+        <div class="result-item {% if result.is_correct %}correct{% else %}incorrect{% endif %}" data-aos="fade-up"
+            data-aos-delay="{{ forloop.counter0 }}00">
+            <div class="question-text">
+                <span class="q-num">{{ forloop.counter }}.</span>
+                {{ result.question.question }}
+            </div>
+
+            <div class="answer-comparison">
+                <div class="user-answer">
+                    <span class="label">Ваша відповідь:</span>
+                    <span class="value">{{ result.user_answer }}</span>
+                    <span class="icon">{% if result.is_correct %}✓{% else %}✗{% endif %}</span>
+                </div>
+
+                {% if not result.is_correct %}
+                <div class="correct-answer">
+                    <span class="label">Правильна відповідь:</span>
+                    <span class="value">{{ result.correct_answer }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="points-badge">
+                {{ result.question.points }} балів
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .result-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .result-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        padding: 40px;
+        text-align: center;
+        margin-bottom: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .result-card.passed {
+        border-color: rgba(76, 205, 196, 0.3);
+        background: linear-gradient(145deg, rgba(76, 205, 196, 0.1), rgba(0, 0, 0, 0));
+    }
+
+    .result-card.failed {
+        border-color: rgba(255, 107, 107, 0.3);
+        background: linear-gradient(145deg, rgba(255, 107, 107, 0.1), rgba(0, 0, 0, 0));
+    }
+
+    .score-circle {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 8px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 30px auto;
+    }
+
+    .passed .score-circle {
+        border-color: #4ECDC4;
+        color: #4ECDC4;
+    }
+
+    .failed .score-circle {
+        border-color: #FF6B6B;
+        color: #FF6B6B;
+    }
+
+    .score-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+    }
+
+    /* Detailed Results Styling */
+    .detailed-results h3 {
+        margin-bottom: 24px;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .result-item {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        position: relative;
+        border-left: 4px solid transparent;
+    }
+
+    .result-item.correct {
+        border-left-color: #4ECDC4;
+    }
+
+    .result-item.incorrect {
+        border-left-color: #FF6B6B;
+    }
+
+    .question-text {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        font-weight: 500;
+    }
+
+    .answer-comparison {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    .user-answer,
+    .correct-answer {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        min-width: 120px;
+    }
+
+    .value {
+        font-weight: 600;
+    }
+
+    .result-item.correct .value {
+        color: #4ECDC4;
+    }
+
+    .result-item.incorrect .user-answer .value {
+        color: #FF6B6B;
+    }
+
+    .points-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}

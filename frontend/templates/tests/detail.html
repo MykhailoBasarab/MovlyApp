@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ test.title }} — MOVLY{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="course-info">
+    <h1>{{ test.title }}</h1>
+    <p class="course-meta">
+        <span>{{ test.get_language_display }}</span>
+        <span>{{ test.get_level_display }}</span>
+        <span>{{ test.test_type.name }}</span>
+    </p>
+    <p class="course-description">{{ test.description }}</p>
+</div>
+
+<div class="lessons-section">
+    <h2>Секції тесту</h2>
+    <div class="lessons-list">
+        {% for section in sections %}
+            <div class="lesson-item">
+                <div class="lesson-number">{{ forloop.counter }}</div>
+                <div class="lesson-content">
+                    <h3>{{ section.title }}</h3>
+                    <p>{{ section.description|truncatewords:15 }}</p>
+                    <div class="lesson-meta">
+                        <span>{{ section.questions.count }} питань</span>
+                        <span>{{ section.duration_minutes }} хвилин</span>
+                        <span>Макс. бал: {{ section.max_score }}</span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+    {% if active_attempt %}
+        <div class="test-action">
+            <a href="{% url 'tests:test-attempt' active_attempt.id %}" class="btn btn-primary btn-lg">
+                Продовжити тест
+            </a>
+        </div>
+    {% else %}
+        <div class="test-action">
+            <a href="{% url 'tests:start-test' test.id %}" class="btn btn-primary btn-lg">
+                Почати тест
+            </a>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="test-action">
+        <p>Для проходження тесту необхідно <a href="{% url 'users:login' %}">увійти</a> або 
+        <a href="{% url 'users:register' %}">зареєструватися</a></p>
+    </div>
+{% endif %}
+{% endblock %}
+

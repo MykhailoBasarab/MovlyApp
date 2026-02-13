@@ -1,0 +1,1150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .hero {
+        padding: 60px 0 80px;
+        position: relative;
+        overflow: visible;
+
+    }
+
+    .hero-content {
+        display: flex;
+
+        align-items: center;
+        gap: 0;
+
+        position: relative;
+        z-index: 10;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .hero-text {
+        flex: 1.1;
+        position: relative;
+        z-index: 20;
+
+        padding-right: 50px;
+    }
+
+    .hero-text h1 {
+        font-family: var(--font-serif);
+        font-size: clamp(4.5rem, 10vw, 7.5rem);
+
+        line-height: 0.85;
+        font-weight: 900;
+        letter-spacing: -0.06em;
+        margin-bottom: 15px;
+        color: #1e293b;
+        transform: translateX(-5px);
+
+    }
+
+    .text-gradient-alt {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
+    }
+
+    .hero-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: rgba(99, 102, 241, 0.06);
+        color: #4f46e5;
+        padding: 8px 18px;
+        border-radius: 100px;
+        font-weight: 800;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 20px;
+        border: 1px solid rgba(99, 102, 241, 0.12);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 10px rgba(99, 102, 241, 0.05);
+    }
+
+    .hero-label i {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    .subtitle {
+        font-size: 1.4rem;
+        color: #475569;
+        line-height: 1.5;
+        max-width: 42ch;
+        margin-bottom: 25px;
+        opacity: 0.9;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 20px;
+    }
+
+    .btn-hero-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 20px 48px;
+        border-radius: 24px;
+        font-weight: 700;
+        font-size: 1.15rem;
+        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-hero-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: 0.8s;
+    }
+
+    .btn-hero-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-hero-primary:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 30px 60px rgba(79, 70, 229, 0.45);
+        background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+    }
+
+    .btn-hero-secondary {
+        background: white;
+        color: #1e293b;
+        padding: 20px 44px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-hero-secondary:hover {
+        transform: translateY(-5px);
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+
+    .hero-visual {
+        flex: 0.9;
+        position: relative;
+        height: 600px;
+        margin-left: -100px;
+
+    }
+
+    .visual-stack {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        width: 100%;
+        height: 100%;
+    }
+
+    .floating-card {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: 36px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow:
+            0 30px 60px -12px rgba(0, 0, 0, 0.08),
+            0 18px 36px -18px rgba(0, 0, 0, 0.03);
+        padding: 24px;
+        z-index: 2;
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card-preview {
+        top: 15%;
+        left: 10%;
+        width: 100%;
+        height: 380px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(241, 245, 249, 0.5));
+        z-index: 1;
+        transform: perspective(1000px) rotateY(-18deg) rotateX(12deg) skewX(-2deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .card-preview::after {
+        content: '';
+        position: absolute;
+        width: 150%;
+        height: 150%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .card-stats {
+        bottom: 5%;
+        right: -20px;
+        width: 320px;
+        z-index: 10;
+        animation: floatOrbital 8s ease-in-out infinite reverse;
+    }
+
+    .card-user {
+        top: 0;
+        left: -80px;
+
+        width: 260px;
+        z-index: 10;
+
+        animation: floatOrbital 10s ease-in-out infinite;
+    }
+
+    @keyframes floatOrbital {
+
+        0%,
+        100% {
+            transform: translate(0, 0) rotate(0deg);
+        }
+
+        33% {
+            transform: translate(15px, -20px) rotate(1deg);
+        }
+
+        66% {
+            transform: translate(-10px, 15px) rotate(-1deg);
+        }
+    }
+
+
+    .blob {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        filter: blur(80px);
+        pointer-events: none;
+    }
+
+    .blob-1 {
+        top: -10%;
+        right: 10%;
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .blob-2 {
+        bottom: -10%;
+        left: 30%;
+        background: rgba(236, 72, 153, 0.05);
+    }
+
+    @media (max-width: 1200px) {
+        .hero-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .hero-text {
+            padding-right: 0;
+            margin-bottom: 40px;
+        }
+
+        .hero-visual {
+            margin-left: 0;
+            width: 100%;
+            height: 500px;
+            max-width: 600px;
+        }
+
+        .card-user {
+            left: 0;
+            top: -40px;
+        }
+
+        .card-preview {
+            left: 0;
+            width: 100%;
+        }
+
+        .subtitle {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+</style>
+
+<div class="bg-dots"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-text" data-aos="fade-right" data-aos-delay="100">
+
+            <h1>Вивчай мови <br><span class="text-gradient-alt">без обмежень</span></h1>
+            <p class="subtitle" data-aos="fade-up" data-aos-delay="300">
+                Найкращий простір для тих, хто прагне більшого. Створюй своє майбутнє з нашою мовною системою.
+            </p>
+            {% if not user.is_authenticated %}
+            <div class="hero-actions" data-aos="fade-up" data-aos-delay="500">
+                <a href="{% url 'users:register' %}" class="btn-hero-primary">Розпочати подорож</a>
+                <a href="#features" class="btn-hero-secondary">Дізнатись деталі</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="hero-visual" data-aos="zoom-in" data-aos-delay="400" data-aos-duration="1200">
+            <div class="visual-stack">
+
+                <div class="floating-card card-preview">
+                    <i class="fas fa-shapes" style="font-size: 6rem; color: rgba(148, 163, 184, 0.2);"></i>
+                </div>
+
+
+                <div class="floating-card card-user">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div
+                            style="width: 54px; height: 54px; border-radius: 18px; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-fire-flame-curved" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 800; color: #1e293b; font-size: 1.2rem;">Стрік: 12 днів</div>
+                            <div style="font-size: 0.85rem; color: #64748b;">Ти на правильному шляху!</div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="floating-card card-stats">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div style="font-weight: 800; color: #1e293b; font-size: 1.1rem;">Тижнева активність</div>
+                        <div
+                            style="background: #ecfdf5; color: #10b981; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 900;">
+                            +24%</div>
+                    </div>
+                    <div style="display: flex; align-items: flex-end; gap: 8px; height: 60px; margin-bottom: 12px;">
+                        <div style="flex: 1; height: 40%; background: #e2e8f0; border-radius: 4px;"></div>
+                        <div style="flex: 1; height: 75%; background: #e2e8f0; border-radius: 4px;"></div>
+                        <div style="flex: 1; height: 55%; background: #e2e8f0; border-radius: 4px;"></div>
+                        <div style="flex: 1; height: 90%; background: #6366f1; border-radius: 4px;"></div>
+                        <div style="flex: 1; height: 65%; background: #e2e8f0; border-radius: 4px;"></div>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #64748b;">Найкращий день: <strong>Четвер</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features" id="features">
+    <div class="features-intro" data-aos="fade-right" data-aos-offset="200">
+        <div class="section-header-alt">
+            <span class="section-number-large"
+                style="font-size: 6rem; opacity: 0.05; position: absolute; left: 0; top: -40px;">01</span>
+            <div class="section-header-content">
+                <h2 style="font-size: 3rem; font-weight: 900;">Можливості платформи</h2>
+                <p class="section-subtitle" style="font-size: 1.2rem; color: #64748b;">Твій успіх — це сукупність наших
+                    найкращих технологій</p>
+            </div>
+        </div>
+    </div>
+    <style>
+        .features-section {
+            padding: 40px 0;
+            position: relative;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: 180px;
+
+            gap: 24px;
+            margin-top: 30px;
+        }
+
+        .bento-card {
+            position: relative;
+            border-radius: 32px;
+            padding: 40px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            box-shadow:
+                0 10px 30px -10px rgba(0, 0, 0, 0.05),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-10px) scale(1.01);
+            box-shadow:
+                0 30px 60px -15px rgba(99, 102, 241, 0.15),
+                0 0 0 1px rgba(99, 102, 241, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+
+        .card-main {
+            grid-column: span 7;
+            grid-row: span 3;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-main:hover {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            box-shadow: 0 40px 100px rgba(15, 23, 42, 0.3);
+        }
+
+        .card-step {
+            grid-column: span 5;
+            grid-row: span 2;
+        }
+
+        .card-mini {
+            grid-column: span 5;
+            grid-row: span 1;
+            padding: 30px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .card-highlight {
+            grid-column: span 12;
+            grid-row: span 2;
+            background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+            flex-direction: row;
+            align-items: center;
+            padding: 0;
+        }
+
+
+        .card-icon-wrapper {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent);
+            box-shadow:
+                0 8px 16px rgba(99, 102, 241, 0.1),
+                inset 0 0 0 1px rgba(99, 102, 241, 0.05);
+            margin-bottom: 24px;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            flex-shrink: 0;
+        }
+
+        .card-mini .card-icon-wrapper {
+            margin-bottom: 0;
+        }
+
+        .card-main .card-icon-wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .bento-card:hover .card-icon-wrapper {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .bento-card h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+            color: #1e293b;
+        }
+
+        .card-main h3 {
+            color: white;
+            font-size: 2.2rem;
+        }
+
+        .bento-card p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .card-main p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            max-width: 40ch;
+        }
+
+
+        .card-number-bg {
+            position: absolute;
+            top: -20px;
+            right: -10px;
+            font-size: 10rem;
+            font-weight: 900;
+            opacity: 0.03;
+            color: var(--accent);
+            pointer-events: none;
+            user-select: none;
+            font-family: var(--font-serif);
+        }
+
+        .card-main .card-number-bg {
+            opacity: 0.1;
+            color: white;
+        }
+
+        .highlight-content {
+            padding: 60px;
+            flex: 1;
+        }
+
+        .highlight-visual {
+            flex: 1;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(255, 255, 255, 0) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .stats-mockup {
+            width: 70%;
+            height: 60%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mock-line {
+            height: 10px;
+            border-radius: 5px;
+            background: #f1f5f9;
+        }
+
+        .mock-progress {
+            height: 20px;
+            background: var(--accent);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 2s ease-out;
+        }
+
+        .bento-card:hover .mock-progress {
+            width: 85%;
+        }
+
+        @media (max-width: 1024px) {
+            .bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-auto-rows: auto;
+                gap: 20px;
+            }
+
+            .card-main,
+            .card-step,
+            .card-mini,
+            .card-highlight {
+                grid-column: span 2;
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-main,
+            .card-step,
+            .card-mini,
+            .card-highlight {
+                grid-column: span 1;
+            }
+
+            .card-highlight {
+                flex-direction: column;
+            }
+
+            .highlight-visual {
+                height: 200px;
+                width: 100%;
+            }
+        }
+    </style>
+
+    <div class="bento-grid">
+
+        <div class="bento-card card-main" data-aos="fade-up" data-aos-duration="1000"
+            data-aos-anchor-placement="top-bottom">
+            <div class="card-number-bg">01</div>
+            <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                <div>
+                    <div class="card-icon-wrapper">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3>Структуровані курси</h3>
+                    <p>Наша унікальна методика дозволяє освоїти мову втричі швидше завдяки правильній побудові програми.
+                    </p>
+                </div>
+                <div style="margin-top: 30px;">
+                    <a href="{% url 'courses:courses-list' %}" class="btn btn-primary"
+                        style="background: white; color: #0f172a; border: none;">Почати безкоштовно</a>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="bento-card card-step" data-aos="fade-up" data-aos-delay="200"
+            data-aos-anchor-placement="top-bottom">
+            <div class="card-number-bg">02</div>
+            <div>
+                <div class="card-icon-wrapper">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h3>IELTS Підготовка</h3>
+                <p>Спеціалізовані тренажери, які повністю імітують умови реального міжнародного іспиту.</p>
+            </div>
+        </div>
+
+
+        <div class="bento-card card-mini" data-aos="fade-up" data-aos-delay="400"
+            data-aos-anchor-placement="top-bottom">
+            <div class="card-number-bg">03</div>
+            <div class="card-icon-wrapper" style="margin: 0;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 4px;">Спільнота</h3>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span
+                        style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+                    <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">1,240 онлайн</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bento-card card-highlight" data-aos="fade-up" data-aos-delay="100"
+            data-aos-anchor-placement="top-bottom">
+            <div class="highlight-content">
+                <span class="card-badge"
+                    style="background: var(--accent-soft); color: var(--accent); margin-bottom: 20px;">Аналітика</span>
+                <h3>Професійний моніторинг прогресу</h3>
+                <p>Ваші показники успішності оновлюються в реальному часі. Ви точно знаєте, на чому варто зосередитись
+                    сьогодні.</p>
+            </div>
+            <div class="card-number-bg" style="opacity: 0.05;">04</div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .languages-section {
+        padding: 100px 0;
+        position: relative;
+        background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 40%),
+            radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.03), transparent 40%);
+        overflow: hidden;
+    }
+
+    .languages-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+    }
+
+    .lang-card-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 24px;
+        margin-top: 60px;
+    }
+
+    .lang-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 32px;
+        padding: 40px 24px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow:
+            0 10px 30px -10px rgba(0, 0, 0, 0.04),
+            0 20px 40px -20px rgba(0, 0, 0, 0.02);
+
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+            box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+            background 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        overflow: hidden;
+    }
+
+    .lang-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .lang-card:hover {
+        transform: translateY(-15px) scale(1.03) rotateX(10deg);
+        box-shadow:
+            0 45px 90px -20px rgba(99, 102, 241, 0.2),
+            0 25px 45px -10px rgba(0, 0, 0, 0.08);
+        border-color: rgba(99, 102, 241, 0.4);
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .lang-card:hover::before {
+        opacity: 1;
+    }
+
+
+    .lang-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent);
+        transition: 0.6s;
+        z-index: 3;
+    }
+
+    .lang-card:hover::after {
+        left: 150%;
+    }
+
+    .lang-flag-wrapper {
+        font-size: 3.8rem;
+        margin-bottom: 24px;
+        filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.12));
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 2;
+    }
+
+    .lang-card:hover .lang-flag-wrapper {
+        transform: scale(1.25) translateY(-5px) rotate(8deg);
+    }
+
+    .lang-name {
+        font-family: var(--font-serif);
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #1e293b;
+        letter-spacing: -0.02em;
+        z-index: 2;
+        transition: color 0.3s ease;
+    }
+
+    .lang-card:hover .lang-name {
+        color: var(--accent);
+    }
+
+    .lang-card.featured {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(224, 231, 255, 0.4));
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .lang-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 5px 12px;
+        border-radius: 100px;
+        background: var(--accent);
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        z-index: 3;
+        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .bg-circle {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    @media (max-width: 1100px) {
+        .lang-card-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .lang-card-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .languages-section {
+            padding: 60px 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .lang-card-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .promo-mobile {
+        background: radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.05) 0%, transparent 40%),
+            #ffffff;
+        text-align: center;
+        padding: 120px 0;
+        position: relative;
+        overflow: hidden;
+        margin-top: 100px;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
+        left: 0;
+    }
+
+    .promo-mobile::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(99, 102, 241, 0.1) 1.5px, transparent 1.5px);
+        background-size: 40px 40px;
+        opacity: 0.3;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .promo-content {
+        position: relative;
+        z-index: 20;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .promo-title {
+        font-family: var(--font-serif);
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-weight: 900;
+        color: #1e293b;
+        margin-bottom: 4rem;
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+    }
+
+    .store-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 1.25rem;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 1rem 2.5rem;
+        text-decoration: none !important;
+        color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        min-width: 220px;
+        height: 80px;
+    }
+
+    .store-btn:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 30px 60px -15px rgba(99, 102, 241, 0.2);
+        background: rgba(255, 255, 255, 0.9);
+        border-color: #a5b4fc;
+    }
+
+    .store-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+    }
+
+    .promo-trust {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        opacity: 0.8;
+    }
+
+    .trust-text {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    .trust-indicator {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #ecfdf5;
+        color: #10b981;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .trust-dot {
+        width: 6px;
+        height: 6px;
+        background: currentColor;
+        border-radius: 50%;
+        animation: pulseIndicator 2s infinite;
+    }
+
+    @keyframes pulseIndicator {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.5);
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .floating-blob {
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .glass-chip {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 14px;
+        padding: 8px 16px;
+        font-family: var(--font-serif);
+        font-weight: 700;
+        font-size: 0.8rem;
+        color: var(--accent);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+        z-index: 5;
+        pointer-events: none;
+        animation: floatOrbital 12s ease-in-out infinite;
+        opacity: 0.35;
+        white-space: nowrap;
+    }
+
+    .chip-1 {
+        top: 15%;
+        left: calc(50% - 700px);
+        transform: rotate(-10deg);
+        color: #6366f1;
+        --rot: -10deg;
+    }
+
+    .chip-2 {
+        top: 20%;
+        left: calc(50% + 500px);
+        transform: rotate(8deg);
+        color: #ec4899;
+        --rot: 8deg;
+    }
+
+    .chip-3 {
+        bottom: 15%;
+        left: calc(50% - 600px);
+        transform: rotate(5deg);
+        color: #10b981;
+        --rot: 5deg;
+    }
+
+    .chip-4 {
+        bottom: 10%;
+        left: calc(50% + 550px);
+        transform: rotate(-8deg);
+        color: #f59e0b;
+        --rot: -8deg;
+    }
+
+    @media (max-width: 1400px) {
+        .glass-chip {
+            display: none;
+        }
+    }
+
+    @keyframes floatOrbital {
+
+        0%,
+        100% {
+            transform: translate(0, 0) rotate(var(--rot, -5deg));
+        }
+
+        50% {
+            transform: translate(10px, -15px) rotate(calc(var(--rot, -5deg) + 3deg));
+        }
+    }
+</style>
+
+<div class="bg-circle" style="top: -100px; left: -100px; opacity: 0.4;"></div>
+<div class="bg-circle" style="bottom: -100px; right: -100px; opacity: 0.4;"></div>
+
+
+
+<div class="languages-container">
+    <div class="languages-text">
+        <h2 style="font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; letter-spacing: -0.05em; color: #0f172a;"
+            data-aos="fade-down" data-aos-duration="1000">
+            Обери свою мову</h2>
+        <p class="languages-description"
+            style="font-size: 1.2rem; color: #64748b; max-width: 500px; margin: 15px auto 0; font-weight: 500;"
+            data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
+            Розкрий нові горизонти разом з найкращою спільнотою у світі.
+        </p>
+    </div>
+
+    <div class="lang-card-grid">
+        <div class="lang-card featured" data-aos="flip-left" data-aos-delay="100" data-aos-duration="1200">
+            <span class="lang-badge">Популярно</span>
+            <div class="lang-flag-wrapper">🇬🇧</div>
+            <div class="lang-name">English</div>
+        </div>
+        <div class="lang-card" data-aos="flip-left" data-aos-delay="200" data-aos-duration="1200">
+            <div class="lang-flag-wrapper">🇩🇪</div>
+            <div class="lang-name">Deutsch</div>
+        </div>
+        <div class="lang-card" data-aos="flip-left" data-aos-delay="300" data-aos-duration="1200">
+            <div class="lang-flag-wrapper">🇫🇷</div>
+            <div class="lang-name">Français</div>
+        </div>
+        <div class="lang-card" data-aos="flip-left" data-aos-delay="400" data-aos-duration="1200">
+            <div class="lang-flag-wrapper">🇪🇸</div>
+            <div class="lang-name">Español</div>
+        </div>
+        <div class="lang-card" data-aos="flip-left" data-aos-delay="500" data-aos-duration="1200">
+            <div class="lang-flag-wrapper">🇮🇹</div>
+            <div class="lang-name">Italiano</div>
+        </div>
+    </div>
+</div>
+</section>
+
+<section class="promo-mobile">
+    <div class="promo-content" data-aos="zoom-in-up" data-aos-duration="1200" data-aos-anchor-placement="center-bottom">
+        <h2 class="promo-title">Навчайтеся будь-де,<br>будь-коли</h2>
+
+        <div class="store-buttons">
+            <a href="#" class="store-btn apple-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">
+                    <path
+                        d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516.024.034 1.52.087 2.475-1.258.955-1.345.762-2.391.728-2.43Zm3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422.212-2.189 1.675-2.789 1.698-2.854.023-.065-.597-.79-1.254-1.157a3.692 3.692 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116-.508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-.125-1.333.131-1.824.328-.49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56.244.729.625 1.924 1.273 2.796.576.984 1.34 1.667 1.659 1.899.319.232 1.219.386 1.843.067.502-.308 1.408-.485 1.766-.472.357.013 1.061.154 1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758.347-.79.505-1.217.473-1.282Z" />
+                </svg>
+                <div class="btn-text">
+                    <span>Завантажити з</span>
+                    <strong>App Store</strong>
+                </div>
+            </a>
+            <a href="#" class="store-btn google-btn">
+                <svg viewBox="0 0 512 512" width="30" height="30">
+                    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#ff6d00" />
+                    <path d="M25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0c-13 6.8-21.7 19.2-21.7 35.3z"
+                        fill="#32c5ff" />
+                    <path
+                        d="M486.7 234.2c10.9 6.3 18.2 17.9 18.2 30.8s-7.3 24.5-18.2 30.8l-80.8 46.7L287.5 234.3l99.2-101.9 100 101.8z"
+                        fill="#ff3d00" />
+                    <path d="M104.6 499l280.8-161.4-97.9-97.9-182.9 259.3z" fill="#afb42b" />
+                </svg>
+                <div class="btn-text">
+                    <span>Завантажити з</span>
+                    <strong>Google Play</strong>
+                </div>
+            </a>
+        </div>
+
+        <div class="promo-trust">
+            <p class="trust-text">Приєднуйся до 50,000+ студентів по всьому світу</p>
+        </div>
+
+        <div class="glass-chip chip-1" style="--rot: -10deg;">A1 — Beginner</div>
+        <div class="glass-chip chip-2" style="--rot: 8deg;">C2 — Mastery</div>
+        <div class="glass-chip chip-3" style="--rot: 5deg;">Fluent Speaker</div>
+        <div class="glass-chip chip-4" style="--rot: -8deg;">Language AI</div>
+
+        <div class="floating-blob" style="top: -300px; left: -300px;"></div>
+        <div class="floating-blob"
+            style="bottom: -300px; right: -300px; background: radial-gradient(circle, rgba(236, 72, 153, 0.03) 0%, transparent 70%);">
+        </div>
+</section>
+{% endblock %}
