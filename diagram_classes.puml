@@ -1,0 +1,218 @@
+@startuml MovlyApp_ClassDiagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle Bold
+skinparam classBackgroundColor #FFFDE7
+skinparam classBorderColor #8D6E63
+skinparam arrowColor #6D4C41
+skinparam shadowing false
+skinparam linetype ortho
+
+title MovlyApp — Діаграма класів
+
+class CustomUser {
+    - id : Integer
+    + username : String
+    + email : String
+    - password : String
+    + first_name : String
+    + last_name : String
+    + native_language : String
+    + learning_language : String
+    + level : String
+    + avatar : ImageField
+    + created_at : DateTime
+    + updated_at : DateTime
+    --
+    + __str__() : String
+}
+
+class UserProgress {
+    - id : Integer
+    + total_lessons_completed : Integer
+    + total_exercises_completed : Integer
+    + current_streak : Integer
+    + longest_streak : Integer
+    + total_xp : Integer
+    + daily_xp : Integer
+    + daily_goal : Integer
+    + last_activity_date : Date
+    --
+    + level : Integer          <<property>>
+    + xp_to_next_level : Integer <<property>>
+    + update_activity() : void
+    + add_xp(amount) : Boolean
+    + award_badge(type, value) : Boolean
+}
+
+class Badge {
+    - id : Integer
+    + name : String
+    + description : Text
+    + icon : String
+    + criteria_type : String
+    + criteria_value : Integer
+    + created_at : DateTime
+    --
+    + __str__() : String
+}
+
+class Course {
+    - id : Integer
+    + title : String
+    + description : Text
+    + language : String
+    + level : String
+    + image : ImageField
+    + is_active : Boolean
+    + created_at : DateTime
+    + updated_at : DateTime
+    --
+    + get_flag() : String
+    + get_greeting() : String
+    + get_code() : String
+}
+
+class Lesson {
+    - id : Integer
+    + title : String
+    + description : Text
+    + order : Integer
+    + content : Text
+    + is_active : Boolean
+    + created_at : DateTime
+    --
+    + __str__() : String
+}
+
+class Exercise {
+    - id : Integer
+    + exercise_type : String
+    + question : Text
+    + correct_answer : Text
+    + options : JSON
+    + points : Integer
+    + order : Integer
+    + is_ai_generated : Boolean
+    + created_at : DateTime
+    --
+    + __str__() : String
+}
+
+class UserLessonProgress {
+    - id : Integer
+    + is_completed : Boolean
+    + score : Integer
+    + started_at : DateTime
+    + completed_at : DateTime
+    --
+    + __str__() : String
+}
+
+class UserExerciseAttempt {
+    - id : Integer
+    + user_answer : Text
+    + is_correct : Boolean
+    + ai_feedback : Text
+    + points_earned : Integer
+    + attempted_at : DateTime
+    --
+    + __str__() : String
+}
+
+class Test {
+    - id : Integer
+    + language : String
+    + level : String
+    + title : String
+    + description : Text
+    + image : ImageField
+    + is_active : Boolean
+    + created_at : DateTime
+    --
+    + get_flag() : String
+    + get_code() : String
+    + __str__() : String
+}
+
+class TestSection {
+    - id : Integer
+    + section_type : String
+    + title : String
+    + description : Text
+    + duration_minutes : Integer
+    + max_score : Integer
+    + order : Integer
+    --
+    + __str__() : String
+}
+
+class TestQuestion {
+    - id : Integer
+    + question_type : String
+    + question_text : Text
+    + correct_answer : Text
+    + options : JSON
+    + points : Integer
+    + order : Integer
+    + is_ai_generated : Boolean
+    + ai_prompt : Text
+    --
+    + __str__() : String
+}
+
+class TestAttempt {
+    - id : Integer
+    + status : String
+    + started_at : DateTime
+    + completed_at : DateTime
+    + total_score : Integer
+    + max_score : Integer
+    + reading_score : Integer
+    + writing_score : Integer
+    --
+    + __str__() : String
+}
+
+class TestAnswer {
+    - id : Integer
+    + user_answer : Text
+    + is_correct : Boolean
+    + points_earned : Integer
+    + ai_feedback : Text
+    + answered_at : DateTime
+    --
+    + __str__() : String
+}
+
+' ─────────────────────────────────────
+' ЗВ'ЯЗКИ — users
+' ─────────────────────────────────────
+CustomUser "1" *-- "0..1" UserProgress      : has >
+CustomUser "1" o-- "0..*" Badge             : earns >
+
+' ─────────────────────────────────────
+' ЗВ'ЯЗКИ — courses
+' ─────────────────────────────────────
+Course  "1" *-- "1..*" Lesson               : contains >
+Lesson  "1" *-- "0..*" Exercise             : contains >
+
+CustomUser "1" o-- "0..*" UserLessonProgress   : tracks >
+Lesson     "1" o-- "0..*" UserLessonProgress   : tracked by >
+
+CustomUser "1" o-- "0..*" UserExerciseAttempt  : attempts >
+Exercise   "1" o-- "0..*" UserExerciseAttempt  : attempted in >
+
+' ─────────────────────────────────────
+' ЗВ'ЯЗКИ — tests
+' ─────────────────────────────────────
+Test        "1" *-- "1..*" TestSection      : contains >
+TestSection "1" *-- "1..*" TestQuestion     : has >
+
+CustomUser  "1" o-- "0..*" TestAttempt      : makes >
+Test        "1" o-- "0..*" TestAttempt      : taken via >
+
+TestAttempt  "1" *-- "1..*" TestAnswer      : records >
+TestQuestion "1" o-- "0..*" TestAnswer      : answered by >
+
+@enduml

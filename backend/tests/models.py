@@ -6,7 +6,6 @@ User = get_user_model()
 
 
 class TestType(models.Model):
-    """Тип тесту (IELTS, TOEFL, тощо)"""
     name = models.CharField(max_length=100, verbose_name='Назва')
     code = models.CharField(max_length=20, unique=True, verbose_name='Код')
     description = models.TextField(verbose_name='Опис')
@@ -23,7 +22,6 @@ class TestType(models.Model):
 
 
 class Test(models.Model):
-    """Тест типу IELTS"""
     test_type = models.ForeignKey(
         TestType,
         on_delete=models.CASCADE,
@@ -55,6 +53,7 @@ class Test(models.Model):
     )
     title = models.CharField(max_length=200, verbose_name='Назва')
     description = models.TextField(verbose_name='Опис')
+    image = models.ImageField(upload_to='tests/', null=True, blank=True, verbose_name='Зображення')
     is_active = models.BooleanField(default=True, verbose_name='Активний')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -64,17 +63,27 @@ class Test(models.Model):
         db_table = 'tests'
         ordering = ['-created_at']
 
+    def get_flag(self):
+        flags = {
+            'en': '🇬🇧',
+            'de': '🇩🇪',
+            'fr': '🇫🇷',
+            'es': '🇪🇸',
+            'it': '🇮🇹',
+        }
+        return flags.get(self.language, '🌐')
+
+    def get_code(self):
+        return self.language.upper()
+
     def __str__(self):
         return f'{self.test_type.name} - {self.title}'
 
 
 class TestSection(models.Model):
-    """Секція тесту (Listening, Reading, Writing, Speaking)"""
     SECTION_TYPES = [
-        ('listening', 'Аудіювання'),
         ('reading', 'Читання'),
         ('writing', 'Письмо'),
-        ('speaking', 'Говоріння'),
     ]
 
     test = models.ForeignKey(
@@ -105,7 +114,6 @@ class TestSection(models.Model):
 
 
 class TestQuestion(models.Model):
-    """Питання в тесті"""
     QUESTION_TYPES = [
         ('multiple_choice', 'Вибір відповіді'),
         ('fill_blank', 'Заповнити пропуск'),
@@ -113,8 +121,6 @@ class TestQuestion(models.Model):
         ('matching', 'Зіставлення'),
         ('short_answer', 'Коротка відповідь'),
         ('essay', 'Есе'),
-        ('listening_audio', 'Аудіювання з аудіо'),
-        ('speaking_record', 'Говоріння з записом'),
     ]
 
     section = models.ForeignKey(
@@ -129,14 +135,12 @@ class TestQuestion(models.Model):
         verbose_name='Тип питання'
     )
     question_text = models.TextField(verbose_name='Текст питання')
-    audio_url = models.URLField(null=True, blank=True, verbose_name='URL аудіо')
-    audio_text = models.TextField(null=True, blank=True, verbose_name='Текст для аудіо (генерація через AI)')
     correct_answer = models.TextField(verbose_name='Правильна відповідь')
     options = models.JSONField(null=True, blank=True, verbose_name='Варіанти відповідей')
     points = models.IntegerField(default=1, validators=[MinValueValidator(1)], verbose_name='Бали')
     order = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Порядок')
-    is_ai_generated = models.BooleanField(default=False, verbose_name='Згенеровано AI')
-    ai_prompt = models.TextField(null=True, blank=True, verbose_name='Промпт для AI')
+    is_ai_generated = models.BooleanField(default=False, verbose_name='Згенеровано')
+    ai_prompt = models.TextField(null=True, blank=True, verbose_name='Промпт')
 
     class Meta:
         verbose_name = 'Питання тесту'
@@ -149,7 +153,6 @@ class TestQuestion(models.Model):
 
 
 class TestAttempt(models.Model):
-    """Спроба проходження тесту користувачем"""
     STATUS_CHOICES = [
         ('in_progress', 'В процесі'),
         ('completed', 'Завершено'),
@@ -178,10 +181,8 @@ class TestAttempt(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True, verbose_name='Завершено о')
     total_score = models.IntegerField(default=0, verbose_name='Загальний бал')
     max_score = models.IntegerField(default=100, verbose_name='Максимальний бал')
-    listening_score = models.IntegerField(default=0, verbose_name='Бал за аудіювання')
     reading_score = models.IntegerField(default=0, verbose_name='Бал за читання')
     writing_score = models.IntegerField(default=0, verbose_name='Бал за письмо')
-    speaking_score = models.IntegerField(default=0, verbose_name='Бал за говоріння')
 
     class Meta:
         verbose_name = 'Спроба тесту'
@@ -194,7 +195,6 @@ class TestAttempt(models.Model):
 
 
 class TestAnswer(models.Model):
-    """Відповідь користувача на питання тесту"""
     attempt = models.ForeignKey(
         TestAttempt,
         on_delete=models.CASCADE,
@@ -208,10 +208,9 @@ class TestAnswer(models.Model):
         verbose_name='Питання'
     )
     user_answer = models.TextField(verbose_name='Відповідь користувача')
-    audio_answer_url = models.URLField(null=True, blank=True, verbose_name='URL аудіо відповіді')
     is_correct = models.BooleanField(null=True, blank=True, verbose_name='Правильно')
     points_earned = models.IntegerField(default=0, verbose_name='Отримано балів')
-    ai_feedback = models.TextField(null=True, blank=True, verbose_name='Відгук AI')
+    ai_feedback = models.TextField(null=True, blank=True, verbose_name='Відгук')
     answered_at = models.DateTimeField(auto_now_add=True, verbose_name='Відповідано о')
 
     class Meta:

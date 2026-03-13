@@ -3,7 +3,7 @@ from .models import Test
 
 
 class TestFilterForm(forms.Form):
-    """Форма фільтрації тестів"""
+
     language = forms.ChoiceField(
         choices=[
             ('', 'Всі мови'),
@@ -34,7 +34,7 @@ class TestFilterForm(forms.Form):
 
 
 class TestAnswerForm(forms.Form):
-    """Форма для відповіді на питання тесту"""
+
     answer = forms.CharField(
         label='Ваша відповідь',
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
@@ -43,7 +43,6 @@ class TestAnswerForm(forms.Form):
 
 
 class MultipleChoiceTestForm(forms.Form):
-    """Форма для вибору відповіді в тесті"""
     answer = forms.ChoiceField(
         label='Виберіть відповідь',
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),

@@ -10,25 +10,10 @@ class CustomUserCreationForm(UserCreationForm):
         label='Email',
         widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
-    native_language = forms.ChoiceField(
-        choices=CustomUser._meta.get_field('native_language').choices,
-        label='Рідна мова',
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-    learning_language = forms.ChoiceField(
-        choices=CustomUser._meta.get_field('learning_language').choices,
-        label='Мова вивчення',
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-    level = forms.ChoiceField(
-        choices=CustomUser._meta.get_field('level').choices,
-        label='Рівень',
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'password1', 'password2', 'native_language', 'learning_language', 'level')
+        fields = ('username', 'email', 'password1', 'password2')
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
         }

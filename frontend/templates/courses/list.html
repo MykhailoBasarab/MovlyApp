@@ -1,136 +1,31 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Виберіть мову — MOVLY{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=6.0">
+<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=14.0">
 <style>
-    .selection-hub {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-        margin: 3rem 0;
-    }
-
-    .lang-tile {
-        background: white;
-        border-radius: 32px;
-        padding: 2.5rem 1.5rem;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .lang-tile::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        z-index: 0;
-    }
-
-    .lang-tile:hover {
-        transform: translateY(-12px) scale(1.05);
-        box-shadow: 0 30px 60px rgba(99, 102, 241, 0.15);
-        border-color: var(--accent);
-    }
-
-    .lang-tile.active {
-        background: var(--accent);
-        border-color: var(--accent);
-        color: white;
-    }
-
-    .lang-tile.active .lang-name,
-    .lang-tile.active .lang-count {
-        color: white;
-    }
-
-    .lang-tile>* {
-        position: relative;
-        z-index: 1;
-    }
-
-    .lang-flag {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        display: block;
-        filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
-    }
-
-    .lang-name {
-        font-weight: 900;
-        font-size: 1.4rem;
-        color: #1e293b;
-        font-family: 'Space Grotesk', sans-serif;
-    }
-
-    .lang-count {
-        font-size: 0.9rem;
-        color: #64748b;
-        font-weight: 700;
-        margin-top: 0.5rem;
-        display: block;
-    }
-
-    .courses-header-section {
-        text-align: center;
-        padding: 4rem 0 2rem;
-    }
-
-    .courses-header-section h1 {
-        font-size: clamp(2.5rem, 5vw, 4.5rem);
-        margin-bottom: 1rem;
-    }
-
-    .courses-header-section p {
-        font-size: 1.25rem;
-        color: #64748b;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
     #courses-container {
         transition: opacity 0.4s ease;
     }
 
-    .section-divider {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
-        margin: 4rem 0;
-    }
-
-    #reset-filter {
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-
-    #reset-filter.show {
-        opacity: 1;
-        visibility: visible;
+    .course-card {
+        display: flex;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="courses-header-section" data-aos="fade-down">
-    <div class="badge-pill"
-        style="background: rgba(99, 102, 241, 0.1); color: var(--accent); padding: 8px 20px; border-radius: 100px; font-weight: 800; display: inline-block; margin-bottom: 1.5rem; font-size: 0.9rem; letter-spacing: 0.05em; text-transform: uppercase;">
-        Ваша подорож починається тут
+
+<div class="courses-header-wrapper" data-aos="fade-down"
+    style="border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 3rem;">
+    <div class="courses-header-section">
+        <h1 style="font-size: 3rem; font-weight: 900; color: #1e293b; letter-spacing: -0.04em;">Оберіть курс</h1>
+        <p class="lead-text" style="color: var(--text-muted); font-size: 1.15rem; max-width: 700px;">Відкрийте для себе
+            світ нових можливостей. Сплануйте свій шлях від новачка до експерта з нашими інтерактивними курсами.</p>
     </div>
-    <h1>Чого бажаєте навчитися?</h1>
-    <p>Виберіть мову, яку хочете опанувати, та знайдіть ідеальний курс для свого рівня.</p>
 </div>
 
 <div class="selection-hub" data-aos="fade-up" data-aos-delay="200">
@@ -138,12 +33,8 @@
     {% for lang in language_list %}
     {% if lang.grouper != 'pl' %}
     <div class="lang-tile" data-lang="{{ lang.grouper }}" onclick="filterCourses('{{ lang.grouper }}', this)">
-        <span class="lang-flag">
-            {{ lang.list.0.get_flag }}
-        </span>
-        <span class="lang-name">
-            {{ lang.list.0.get_language_display }}
-        </span>
+        <span class="lang-flag">{{ lang.list.0.get_flag }}</span>
+        <span class="lang-name">{{ lang.list.0.get_language_display }}</span>
         <span class="lang-count">{{ lang.list|length }} курси</span>
     </div>
     {% endif %}
@@ -152,57 +43,125 @@
 
 <div class="text-center" style="margin-top: -1rem; margin-bottom: 3rem;">
     <button id="reset-filter" onclick="resetFilter()" class="btn btn-secondary"
-        style="border-radius: 100px; padding: 12px 30px;">
-        <i class="fas fa-th-large" style="margin-right: 8px;"></i> Показати всі мови
+        style="border-radius: 100px; padding: 12px 30px; display: none;">
+        Показати всі мови
     </button>
 </div>
 
 <div class="section-divider"></div>
 
-<div id="courses-container" style="display: none;">
-    <div id="language-title-group" style="margin-bottom: 3rem; text-align: left;" data-aos="fade-right">
-        <h2 id="selected-lang-name"
-            style="font-size: 2.5rem; font-weight: 900; font-family: 'Space Grotesk', sans-serif;">Курси</h2>
+<div id="courses-container">
+    <div class="filter-dashboard" data-aos="fade-up"
+        style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
+            <div style="flex: 1; min-width: 300px;">
+                <h2 id="selected-lang-name"
+                    style="font-size: 1.8rem; font-weight: 900; margin-bottom: 1.5rem; color: #1e293b;">Усі доступні
+                    курси</h2>
+                <div class="search-box-premium" style="position: relative; max-width: 500px;">
+                    <i class="fas fa-search"
+                        style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--accent); opacity: 0.6;"></i>
+                    <input type="text" id="course-search" placeholder="Що саме ви хочете вивчити?"
+                        style="width: 100%; padding: 12px 16px 12px 48px; border-radius: 8px; border: 1px solid var(--border); background: #f8fafc; font-weight: 600; transition: border-color 0.2s ease;">
+                </div>
+            </div>
+
+            <div class="filter-controls" style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="filter-row" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <span class="filter-label"
+                        style="font-weight: 800; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 80px;">Статус:</span>
+                    <div class="btn-group-premium" id="status-filters">
+                        <button onclick="filterStatus('all', this)" class="btn-filter active">Всі</button>
+                        <button onclick="filterStatus('active', this)" class="btn-filter">В процесі</button>
+                        <button onclick="filterStatus('completed', this)" class="btn-filter">Пройдені</button>
+                        <button onclick="filterStatus('new', this)" class="btn-filter">Нові</button>
+                    </div>
+                </div>
+
+                <div class="filter-row" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <span class="filter-label"
+                        style="font-weight: 800; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 80px;">Рівень:</span>
+                    <div class="btn-group-premium" id="level-filters">
+                        <button onclick="filterLevel('all', this)" class="btn-filter active">Всі</button>
+                        <button onclick="filterLevel('beginner', this)" class="btn-filter">Початковий</button>
+                        <button onclick="filterLevel('elementary', this)" class="btn-filter">Елементарний</button>
+                        <button onclick="filterLevel('intermediate', this)" class="btn-filter">Середній</button>
+                        <button onclick="filterLevel('upper_intermediate', this)" class="btn-filter">Вище
+                            середнього</button>
+                        <button onclick="filterLevel('advanced', this)" class="btn-filter">Просунутий</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     {% if courses %}
-    <div class="courses-grid" id="courses-grid">
-        {% for course in courses %}
-        {% if course.language != 'pl' %}
-        <a href="{% url 'courses:course-detail' course.id %}" class="course-card" data-lang="{{ course.language }}"
-            data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
-            <div class="course-badge-flag">
-                <div class="course-flag-wrapper">{{ course.get_flag }}</div>
-                <div class="course-greeting-pill">{{ course.get_greeting }}!</div>
-                <div class="course-flag-shimmer"></div>
-            </div>
-            <div class="course-card-content">
-                <div class="course-card-decal">{{ course.get_code }}</div>
-                <div class="course-header">
-                    <div>
-                        <span class="course-language-tag">{{ course.get_language_display }}</span>
-                        <h3>{{ course.title }}</h3>
-                    </div>
-                </div>
-                <p class="course-description">{{ course.description|truncatewords:15 }}</p>
-                <div class="course-footer">
-                    <div class="course-meta-item">
-                        <i class="fas fa-layer-group"></i>
-                        <span>{{ course.get_level_display }}</span>
-                    </div>
-                    <div class="course-meta-item">
-                        <i class="fas fa-book-open"></i>
-                        <span>{{ course.lessons.count }} уроків</span>
-                    </div>
+    {% regroup courses by get_language_display as language_groups %}
+
+    <div id="courses-wrapper">
+        {% for group in language_groups %}
+        <div class="language-group-section" data-lang-code="{{ group.list.0.language }}" style="margin-bottom: 4rem;">
+            <div class="section-header" style="display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;">
+                <span style="font-size: 2.5rem;">{{ group.list.0.get_flag }}</span>
+                <h2 style="font-size: 1.8rem; font-weight: 800; margin: 0; color: var(--text-dark);">{{ group.grouper }}
+                </h2>
+                <div
+                    style="flex: 1; height: 2px; background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent); margin-left: 10px;">
                 </div>
             </div>
-        </a>
-        {% endif %}
+
+            <div class="courses-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
+                {% for course in group.list %}
+                <a href="{% url 'courses:course-detail' course.id %}" class="course-card"
+                    data-lang="{{ course.language }}"
+                    data-status="{% if course.id in completed_courses_ids %}completed{% elif course.id in started_courses_ids %}active{% else %}new{% endif %}"
+                    data-level="{{ course.level }}" data-aos="fade-up">
+
+                    {% if course.image %}
+                    <div class="course-badge-flag has-image" style="background-image: url('{{ course.image.url }}');">
+                        <div class="course-image-overlay"></div>
+                        {% else %}
+                        <div class="course-badge-flag">
+                            {% endif %}
+
+                            {% if course.id in completed_courses_ids %}
+                            <div class="course-completed-badge">
+                                <i class="fas fa-check-circle"></i> Пройдено
+                            </div>
+                            {% endif %}
+
+                            <div class="course-flag-wrapper">{{ course.get_flag }}</div>
+                        </div>
+
+                        <div class="course-card-content">
+                            <div class="course-card-decal">{{ course.get_code }}</div>
+                            <div class="course-header">
+                                <div>
+                                    <span class="course-language-tag">{{ course.get_language_display }}</span>
+                                    <h3>{{ course.title }}</h3>
+                                </div>
+                            </div>
+                            <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                            <div class="course-footer">
+                                <div class="course-meta-item">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span>{{ course.get_level_display }}</span>
+                                </div>
+                                <div class="course-meta-item">
+                                    <i class="fas fa-book-open"></i>
+                                    <span>{{ course.lessons.count }} уроків</span>
+                                </div>
+                            </div>
+                        </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
         {% endfor %}
     </div>
     {% else %}
     <div class="no-courses">
-        <div style="font-size: 5rem; margin-bottom: 1.5rem; opacity: 0.3;">📚</div>
         <h3>Поки що курсів немає</h3>
         <p>Завітайте пізніше або виберіть іншу мову.</p>
     </div>
@@ -210,68 +169,108 @@
 </div>
 
 <script>
-    function filterCourses(lang, element) {
-        const cards = document.querySelectorAll('.course-card');
-        const tiles = document.querySelectorAll('.lang-tile');
-        const titleGroup = document.getElementById('language-title-group');
-        const langNameDisplay = document.getElementById('selected-lang-name');
-        const resetButton = document.getElementById('reset-filter');
-        const container = document.getElementById('courses-container');
+    let currentLang = 'all';
+    let currentStatus = 'all';
+    let currentLevel = 'all';
+    let searchQuery = '';
 
-        tiles.forEach(t => t.classList.remove('active'));
-        element.classList.add('active');
+    const searchInput = document.getElementById('course-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase();
+            applyFilters();
+        });
+    }
 
-        const langName = element.querySelector('.lang-name').textContent;
-        langNameDisplay.textContent = 'Курси: ' + langName;
+    function applyFilters() {
+        const sections = document.querySelectorAll('.language-group-section');
+        let totalVisible = 0;
 
-        container.style.opacity = '0';
-        container.style.display = 'block';
-        resetButton.classList.add('show');
+        sections.forEach(section => {
+            const cards = section.querySelectorAll('.course-card');
+            let visibleInLocalSection = 0;
 
-        setTimeout(() => {
             cards.forEach(card => {
-                if (card.getAttribute('data-lang') === lang) {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const desc = card.querySelector('.course-description').textContent.toLowerCase();
+
+                const langMatch = currentLang === 'all' || card.getAttribute('data-lang') === currentLang;
+                const statusMatch = currentStatus === 'all' || card.getAttribute('data-status') === currentStatus;
+                const levelMatch = currentLevel === 'all' || card.getAttribute('data-level') === currentLevel;
+                const searchMatch = searchQuery === '' || title.includes(searchQuery) || desc.includes(searchQuery);
+
+                if (langMatch && statusMatch && levelMatch && searchMatch) {
                     card.style.display = 'flex';
+                    visibleInLocalSection++;
+                    totalVisible++;
                 } else {
                     card.style.display = 'none';
                 }
             });
-            container.style.opacity = '1';
 
-            window.scrollTo({
-                top: container.offsetTop - 100,
-                behavior: 'smooth'
-            });
-        }, 400);
+
+            section.style.display = visibleInLocalSection > 0 ? 'block' : 'none';
+        });
+
+
+        const emptyState = document.querySelector('.no-courses');
+        if (totalVisible === 0) {
+            if (!emptyState) {
+                const container = document.getElementById('courses-wrapper');
+                const div = document.createElement('div');
+                div.className = 'no-courses';
+                div.innerHTML = '<h3>Нічого не знайдено</h3><p>Спробуйте змінити фільтри</p>';
+                container.appendChild(div);
+            }
+        } else if (emptyState) {
+            emptyState.remove();
+        }
+    }
+
+    function filterCourses(lang, element) {
+        document.querySelectorAll('.lang-tile').forEach(t => t.classList.remove('active'));
+        if (element) element.classList.add('active');
+        currentLang = lang;
+
+        const langNameDisplay = document.getElementById('selected-lang-name');
+        const resetButton = document.getElementById('reset-filter');
+
+        if (lang === 'all') {
+            langNameDisplay.textContent = 'Усі доступні курси';
+            resetButton.style.display = 'none';
+        } else {
+            const langName = element.querySelector('.lang-name').textContent;
+            langNameDisplay.textContent = 'Курси: ' + langName;
+            resetButton.style.display = 'inline-block';
+        }
+
+        applyFilters();
+    }
+
+    function filterStatus(status, element) {
+        document.querySelectorAll('#status-filters .btn-filter').forEach(b => b.classList.remove('active'));
+        element.classList.add('active');
+        currentStatus = status;
+        applyFilters();
+    }
+
+    function filterLevel(level, element) {
+        document.querySelectorAll('#level-filters .btn-filter').forEach(b => b.classList.remove('active'));
+        element.classList.add('active');
+        currentLevel = level;
+        applyFilters();
     }
 
     function resetFilter() {
-        const cards = document.querySelectorAll('.course-card');
-        const tiles = document.querySelectorAll('.lang-tile');
-        const resetButton = document.getElementById('reset-filter');
-        const container = document.getElementById('courses-container');
-
-        tiles.forEach(t => t.classList.remove('active'));
-        resetButton.classList.remove('show');
-
-        container.style.opacity = '0';
-
-        setTimeout(() => {
-            cards.forEach(card => card.style.display = 'flex');
-            container.style.display = 'none';
-            container.style.opacity = '1';
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }, 400);
+        currentLang = 'all';
+        currentStatus = 'all';
+        currentLevel = 'all';
+        document.querySelectorAll('.lang-tile').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.btn-filter[onclick*="all"]').forEach(b => b.classList.add('active'));
+        document.getElementById('selected-lang-name').textContent = 'Усі доступні курси';
+        document.getElementById('reset-filter').style.display = 'none';
+        applyFilters();
     }
-
-    document.querySelectorAll('.lang-tile').forEach(tile => {
-        tile.addEventListener('click', function () {
-            filterCourses(this.dataset.lang, this);
-        });
-    });
 </script>
 {% endblock %}

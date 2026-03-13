@@ -6,7 +6,6 @@ User = get_user_model()
 
 
 class Course(models.Model):
-    """Курс вивчення мови"""
     title = models.CharField(max_length=200, verbose_name='Назва')
     description = models.TextField(verbose_name='Опис')
     language = models.CharField(
@@ -126,14 +125,13 @@ class CourseTest(models.Model):
 
 
 class Exercise(models.Model):
-    """Вправа в урокі"""
     EXERCISE_TYPES = [
         ('multiple_choice', 'Вибір відповіді'),
         ('fill_blank', 'Заповнити пропуск'),
         ('translation', 'Переклад'),
         ('listening', 'Аудіювання'),
         ('speaking', 'Говоріння'),
-        ('ai_generated', 'AI Генерована'),
+        ('ai_generated', 'Згенерована'),
     ]
 
     lesson = models.ForeignKey(
@@ -162,7 +160,7 @@ class Exercise(models.Model):
     options = models.JSONField(null=True, blank=True, verbose_name='Варіанти відповідей')
     points = models.IntegerField(default=10, validators=[MinValueValidator(1)], verbose_name='Бали')
     order = models.IntegerField(validators=[MinValueValidator(1)], verbose_name='Порядок')
-    is_ai_generated = models.BooleanField(default=False, verbose_name='Згенеровано AI')
+    is_ai_generated = models.BooleanField(default=False, verbose_name='Згенеровано')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -226,7 +224,7 @@ class UserExerciseAttempt(models.Model):
     )
     user_answer = models.TextField(verbose_name='Відповідь користувача')
     is_correct = models.BooleanField(verbose_name='Правильно')
-    ai_feedback = models.TextField(null=True, blank=True, verbose_name='Відгук AI')
+    ai_feedback = models.TextField(null=True, blank=True, verbose_name='Відгук')
     points_earned = models.IntegerField(default=0, verbose_name='Отримано балів')
     attempted_at = models.DateTimeField(auto_now_add=True, verbose_name='Спробовано о')
 

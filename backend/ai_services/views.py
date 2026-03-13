@@ -3,10 +3,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .services import AIExerciseService
+from django.http import HttpResponse
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+import os
+from django.conf import settings
 
 
 class GenerateExerciseView(APIView):
-    """Генерація вправи через AI"""
+    """Генерація вправи"""
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
@@ -34,7 +39,7 @@ class GenerateExerciseView(APIView):
 
 
 class GetFeedbackView(APIView):
-    """Отримання відгуку AI"""
+    """Отримання відгуку"""
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
@@ -59,4 +64,5 @@ class GetFeedbackView(APIView):
             )
         
         return Response({'feedback': feedback})
+
 

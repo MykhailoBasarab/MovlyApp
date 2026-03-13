@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <style>
     .hero {
-        padding: 60px 0 80px;
+        padding: 40px 0 60px;
         position: relative;
         overflow: visible;
 
@@ -30,57 +31,30 @@
     }
 
     .hero-text h1 {
-        font-family: var(--font-serif);
-        font-size: clamp(4.5rem, 10vw, 7.5rem);
-
-        line-height: 0.85;
+        font-family: var(--font-accent);
+        font-size: clamp(3.5rem, 8vw, 6rem);
+        line-height: 1;
         font-weight: 900;
-        letter-spacing: -0.06em;
-        margin-bottom: 15px;
+        letter-spacing: -0.04em;
+        margin-bottom: 20px;
         color: #1e293b;
-        transform: translateX(-5px);
-
     }
 
-    .text-gradient-alt {
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+    .text-gradient {
+        background: linear-gradient(135deg, var(--accent) 0%, #3b82f6 100%);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
+        -webkit-text-fill-color: transparent;
         display: inline-block;
     }
 
-    .hero-label {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        background: rgba(99, 102, 241, 0.06);
-        color: #4f46e5;
-        padding: 8px 18px;
-        border-radius: 100px;
-        font-weight: 800;
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        margin-bottom: 20px;
-        border: 1px solid rgba(99, 102, 241, 0.12);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 2px 10px rgba(99, 102, 241, 0.05);
-    }
-
-    .hero-label i {
-        font-size: 0.8rem;
-        opacity: 0.8;
-    }
-
     .subtitle {
-        font-size: 1.4rem;
-        color: #475569;
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        max-width: 45ch;
         line-height: 1.5;
-        max-width: 42ch;
-        margin-bottom: 25px;
-        opacity: 0.9;
+        font-weight: 400;
     }
 
     .hero-actions {
@@ -88,171 +62,143 @@
         gap: 20px;
     }
 
-    .btn-hero-primary {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        color: white;
-        padding: 20px 48px;
-        border-radius: 24px;
-        font-weight: 700;
-        font-size: 1.15rem;
-        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
-        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .btn-hero-primary::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: 0.8s;
-    }
-
-    .btn-hero-primary:hover::before {
-        left: 100%;
-    }
-
-    .btn-hero-primary:hover {
-        transform: translateY(-8px) scale(1.05);
-        box-shadow: 0 30px 60px rgba(79, 70, 229, 0.45);
-        background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
-    }
-
-    .btn-hero-secondary {
-        background: white;
-        color: #1e293b;
-        padding: 20px 44px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 1.1rem;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        border: 1px solid #e2e8f0;
-    }
-
-    .btn-hero-secondary:hover {
-        transform: translateY(-5px);
-        background: #f8fafc;
-        border-color: #cbd5e1;
-    }
-
 
     .hero-visual {
-        flex: 0.9;
+        flex: 1;
         position: relative;
         height: 600px;
-        margin-left: -100px;
-
-    }
-
-    .visual-stack {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        transform: translateY(-50%);
-        width: 100%;
-        height: 100%;
-    }
-
-    .floating-card {
-        position: absolute;
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(30px) saturate(180%);
-        -webkit-backdrop-filter: blur(30px) saturate(180%);
-        border-radius: 36px;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow:
-            0 30px 60px -12px rgba(0, 0, 0, 0.08),
-            0 18px 36px -18px rgba(0, 0, 0, 0.03);
-        padding: 24px;
-        z-index: 2;
-        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .card-preview {
-        top: 15%;
-        left: 10%;
-        width: 100%;
-        height: 380px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(241, 245, 249, 0.5));
-        z-index: 1;
-        transform: perspective(1000px) rotateY(-18deg) rotateX(12deg) skewX(-2deg);
         display: flex;
         align-items: center;
         justify-content: center;
-        overflow: hidden;
     }
 
-    .card-preview::after {
-        content: '';
+    .bg-dots {
         position: absolute;
-        width: 150%;
-        height: 150%;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
-        pointer-events: none;
+        inset: 0;
+        background-image: radial-gradient(var(--border) 1px, transparent 1px);
+        background-size: 30px 30px;
+        opacity: 0.3;
+        z-index: 0;
     }
 
-    .card-stats {
-        bottom: 5%;
-        right: -20px;
-        width: 320px;
+    .hero-dashboard-card {
+        background: white;
+        padding: 16px 20px;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border);
+        position: absolute;
+        animation: floatHand 5s ease-in-out infinite;
         z-index: 10;
-        animation: floatOrbital 8s ease-in-out infinite reverse;
+        width: fit-content;
     }
 
-    .card-user {
-        top: 0;
-        left: -80px;
-
-        width: 260px;
-        z-index: 10;
-
-        animation: floatOrbital 10s ease-in-out infinite;
-    }
-
-    @keyframes floatOrbital {
+    @keyframes floatHand {
 
         0%,
         100% {
-            transform: translate(0, 0) rotate(0deg);
+            transform: translateY(0);
         }
 
-        33% {
-            transform: translate(15px, -20px) rotate(1deg);
-        }
-
-        66% {
-            transform: translate(-10px, 15px) rotate(-1deg);
+        50% {
+            transform: translateY(-12px);
         }
     }
 
+    .icon-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
 
-    .blob {
-        position: absolute;
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+    .hero-app-window {
+        width: 360px;
+        height: 440px;
+        background: white;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        position: relative;
+        z-index: 5;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .window-header {
+        height: 54px;
+        background: #f8fafc;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        gap: 20px;
+    }
+
+    .window-dots {
+        display: flex;
+        gap: 6px;
+    }
+
+    .window-dots span {
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        z-index: 0;
-        filter: blur(80px);
-        pointer-events: none;
+        background: #e2e8f0;
     }
 
-    .blob-1 {
-        top: -10%;
-        right: 10%;
-        background: rgba(99, 102, 241, 0.1);
+    .window-search {
+        flex: 1;
+        height: 30px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        color: #94a3b8;
+        font-weight: 500;
     }
 
-    .blob-2 {
-        bottom: -10%;
-        left: 30%;
-        background: rgba(236, 72, 153, 0.05);
+    .window-content {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .content-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px;
+        border-radius: 12px;
+        background: white;
+        border: 1px solid var(--border);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #475569;
+        transition: all 0.3s ease;
+    }
+
+    .content-item i {
+        font-size: 1.1rem;
+        color: #94a3b8;
+    }
+
+    .content-item.active {
+        background: var(--accent-soft);
+        color: var(--accent);
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .content-item.active i {
+        color: var(--accent);
     }
 
     @media (max-width: 1200px) {
@@ -263,44 +209,33 @@
 
         .hero-text {
             padding-right: 0;
-            margin-bottom: 40px;
+            margin-bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .hero-visual {
-            margin-left: 0;
             width: 100%;
             height: 500px;
-            max-width: 600px;
+            margin-top: 20px;
         }
 
-        .card-user {
-            left: 0;
-            top: -40px;
-        }
-
-        .card-preview {
-            left: 0;
-            width: 100%;
-        }
-
-        .subtitle {
-            margin-left: auto;
-            margin-right: auto;
+        .hero-app-window {
+            width: 320px;
+            height: 380px;
         }
     }
 </style>
 
-<div class="bg-dots"></div>
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
+
 
 <section class="hero">
     <div class="hero-content">
         <div class="hero-text" data-aos="fade-right" data-aos-delay="100">
-
-            <h1>Вивчай мови <br><span class="text-gradient-alt">без обмежень</span></h1>
+            <h1>Вивчай мови <br><span class="text-gradient">без обмежень</span></h1>
             <p class="subtitle" data-aos="fade-up" data-aos-delay="300">
-                Найкращий простір для тих, хто прагне більшого. Створюй своє майбутнє з нашою мовною системою.
+                Ми створили простір, де кожне слово має значення. Відкрий новий рівень розуміння з нашою системою.
             </p>
             {% if not user.is_authenticated %}
             <div class="hero-actions" data-aos="fade-up" data-aos-delay="500">
@@ -310,55 +245,229 @@
             {% endif %}
         </div>
 
-        <div class="hero-visual" data-aos="zoom-in" data-aos-delay="400" data-aos-duration="1200">
-            <div class="visual-stack">
+        <div class="hero-visual" data-aos="fade-left" data-aos-delay="400">
+            <div class="bg-dots"></div>
 
-                <div class="floating-card card-preview">
-                    <i class="fas fa-shapes" style="font-size: 6rem; color: rgba(148, 163, 184, 0.2);"></i>
-                </div>
-
-
-                <div class="floating-card card-user">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <div
-                            style="width: 54px; height: 54px; border-radius: 18px; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); display: flex; align-items: center; justify-content: center; color: white;">
-                            <i class="fas fa-fire-flame-curved" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 800; color: #1e293b; font-size: 1.2rem;">Стрік: 12 днів</div>
-                            <div style="font-size: 0.85rem; color: #64748b;">Ти на правильному шляху!</div>
-                        </div>
+            <div class="hero-dashboard-card mission-card" style="top: 15%; left: 0%; transform: rotate(-2deg);">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div class="icon-circle" style="background: #fffbeb; color: #f59e0b;">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 850; font-size: 0.95rem; color: #1e293b;">14 Днів підряд</div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Ти в топі! 🔥</div>
                     </div>
                 </div>
+            </div>
 
-
-                <div class="floating-card card-stats">
+            <div class="hero-app-window">
+                <div class="window-header">
+                    <div class="window-dots"><span></span><span></span><span></span></div>
+                    <div class="window-search">Англійська для бізнесу</div>
+                </div>
+                <div class="window-content">
+                    <div class="content-item active">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Урок 1: Вступ</span>
+                    </div>
+                    <div class="content-item">
+                        <i class="fas fa-lock"></i>
+                        <span>Урок 2: Ринкова стратегія</span>
+                    </div>
+                    <div class="content-item">
+                        <i class="fas fa-lock"></i>
+                        <span>Урок 3: Фінансові терміни</span>
+                    </div>
                     <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <div style="font-weight: 800; color: #1e293b; font-size: 1.1rem;">Тижнева активність</div>
-                        <div
-                            style="background: #ecfdf5; color: #10b981; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 900;">
-                            +24%</div>
+                        style="margin-top: 20px; height: 1px; background: var(--border); width: 100%; position: relative;">
                     </div>
-                    <div style="display: flex; align-items: flex-end; gap: 8px; height: 60px; margin-bottom: 12px;">
-                        <div style="flex: 1; height: 40%; background: #e2e8f0; border-radius: 4px;"></div>
-                        <div style="flex: 1; height: 75%; background: #e2e8f0; border-radius: 4px;"></div>
-                        <div style="flex: 1; height: 55%; background: #e2e8f0; border-radius: 4px;"></div>
-                        <div style="flex: 1; height: 90%; background: #6366f1; border-radius: 4px;"></div>
-                        <div style="flex: 1; height: 65%; background: #e2e8f0; border-radius: 4px;"></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <div style="font-size: 0.75rem; font-weight: 800; color: #64748b;">ПРОГРЕС КУРСУ</div>
+                        <div style="font-size: 0.75rem; font-weight: 800; color: var(--accent);">35%</div>
                     </div>
-                    <div style="font-size: 0.85rem; color: #64748b;">Найкращий день: <strong>Четвер</strong></div>
+                    <div
+                        style="height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: 5px;">
+                        <div style="width: 35%; height: 100%; background: var(--accent); border-radius: 3px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-dashboard-card level-card"
+                style="bottom: 15%; right: 0%; transform: rotate(2deg); animation-delay: -2.5s;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div class="icon-circle" style="background: #f5f3ff; color: #6366f1;">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 850; font-size: 0.95rem; color: #1e293b;">Рівень B2</div>
+                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Вище середнього</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
+
+
+
+
+{% if user.is_authenticated and recommended_courses or recommended_tests %}
+<section class="recommendations" style="padding: 40px 0 60px; position: relative; z-index: 10;">
+    <div class="container">
+        <div class="section-header-alt mb-5" data-aos="fade-right">
+            <h2 style="font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; color: #1e293b; letter-spacing: -0.03em;">
+                Рекомендовано <span class="text-gradient-alt">саме для тебе</span></h2>
+            <p style="font-size: 1.15rem; color: #64748b; max-width: 600px; margin-top: 15px;">Продовжуй розвиток з
+                курсами та тестами, підібраними під твою мову та рівень.</p>
+        </div>
+
+        <style>
+            .recommendation-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 1.5rem;
+            }
+
+            @media (min-width: 1200px) {
+                .recommendation-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+            }
+
+            .course-card {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .course-card-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .course-description {
+                flex: 1;
+            }
+
+            .btn-rec {
+                padding: 10px 24px;
+                border-radius: 12px;
+                font-weight: 800;
+                font-size: 0.95rem;
+                transition: all 0.2s ease;
+                border: none;
+                cursor: pointer;
+                text-align: center;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .btn-rec-course {
+                background: var(--accent);
+                color: white !important;
+            }
+
+            .btn-rec-course:hover {
+                background: var(--accent-hover);
+            }
+
+            .btn-rec-test {
+                background: #f59e0b;
+                color: white !important;
+            }
+
+            .btn-rec-test:hover {
+                background: #d97706;
+            }
+        </style>
+
+        {% if recommended_courses %}
+        <div class="mb-5">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 12px; margin: 0;">
+                    <i class="fas fa-graduation-cap" style="color: var(--accent);"></i> Курси для тебе
+                </h3>
+                <a href="{% url 'courses:courses-list' %}" class="back-link" style="padding: 5px 0;">Всі курси <i
+                        class="fas fa-chevron-right" style="font-size: 0.8rem;"></i></a>
+            </div>
+            <div class="recommendation-grid">
+                {% for course in recommended_courses %}
+                <a href="{% url 'courses:course-detail' course.id %}" class="course-card">
+                    <div class="course-badge-flag">
+                        <div class="course-flag-wrapper">{{ course.get_flag }}</div>
+                        <div class="language-code-bg"
+                            style="position: absolute; font-size: 6rem; font-weight: 900; opacity: 0.05; color: var(--text-main); top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                            {{ course.get_code }}</div>
+                    </div>
+                    <div class="course-card-content">
+                        <span class="course-language-tag">
+                            {{ course.get_language_display }} • {{ course.get_level_display }}</span>
+                        <h3>{{ course.title }}</h3>
+                        <p class="course-description">{{ course.description|truncatewords:15 }}</p>
+                        <div class="course-footer">
+                            <div class="course-meta-item">
+                                <i class="fas fa-book-open"></i> {{ course.lessons.all|length }} уроків
+                            </div>
+                            <div class="btn-rec btn-rec-course">Вивчати <i class="fas fa-arrow-right"
+                                    style="font-size: 0.8rem;"></i></div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if recommended_tests %}
+        <div style="margin-top: 5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 12px; margin: 0;">
+                    <i class="fas fa-file-alt" style="color: #f59e0b;"></i> Тести для практики
+                </h3>
+                <a href="{% url 'tests:tests-list' %}" class="back-link" style="padding: 5px 0;">Всі тести <i
+                        class="fas fa-chevron-right" style="font-size: 0.8rem;"></i></a>
+            </div>
+            <div class="recommendation-grid">
+                {% for test in recommended_tests %}
+                <a href="{% url 'tests:test-detail' test.id %}" class="course-card">
+                    <div class="course-badge-flag"
+                        style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
+                        <div class="course-flag-wrapper">{{ test.get_flag }}</div>
+                        <div class="language-code-bg"
+                            style="position: absolute; font-size: 6rem; font-weight: 900; opacity: 0.05; color: #f59e0b; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                            {{ test.get_code }}</div>
+                    </div>
+                    <div class="course-card-content">
+                        <span class="course-language-tag" style="color: #f59e0b;">
+                            {{ test.test_type.name }} • {{ test.get_level_display }}</span>
+                        <h3>{{ test.title }}</h3>
+                        <p class="course-description">{{ test.description|truncatewords:15 }}</p>
+                        <div class="course-footer">
+                            <div class="course-meta-item">
+                                <i class="fas fa-clock"></i> {{ test.test_type.duration_minutes }} хв
+                            </div>
+                            <div class="btn-rec btn-rec-test">Скласти тест <i class="fas fa-pencil-alt"
+                                    style="font-size: 0.8rem;"></i></div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=14.0">
+
 <section class="features" id="features">
     <div class="features-intro" data-aos="fade-right" data-aos-offset="200">
         <div class="section-header-alt">
-            <span class="section-number-large"
-                style="font-size: 6rem; opacity: 0.05; position: absolute; left: 0; top: -40px;">01</span>
+
             <div class="section-header-content">
                 <h2 style="font-size: 3rem; font-weight: 900;">Можливості платформи</h2>
                 <p class="section-subtitle" style="font-size: 1.2rem; color: #64748b;">Твій успіх — це сукупність наших
@@ -367,214 +476,188 @@
         </div>
     </div>
     <style>
-        .features-section {
-            padding: 40px 0;
-            position: relative;
+        .features {
+            padding: 120px 0;
+            background: #fcfdfe;
+        }
+
+        .features-intro {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 80px;
+        }
+
+        .features-intro h2 {
+            font-size: clamp(2.5rem, 5vw, 3.8rem);
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 20px;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
         }
 
         .bento-grid {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
-            grid-auto-rows: 180px;
-
-            gap: 24px;
-            margin-top: 30px;
+            grid-auto-rows: 240px;
+            gap: 32px;
+            max-width: 1300px;
+            margin: 0 auto;
         }
 
         .bento-card {
             position: relative;
             border-radius: 32px;
-            padding: 40px;
+            padding: 48px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            box-shadow:
-                0 10px 30px -10px rgba(0, 0, 0, 0.05),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.4);
-            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: white;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             display: flex;
             flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
         .bento-card:hover {
-            transform: translateY(-10px) scale(1.01);
-            box-shadow:
-                0 30px 60px -15px rgba(99, 102, 241, 0.15),
-                0 0 0 1px rgba(99, 102, 241, 0.2);
-            background: rgba(255, 255, 255, 0.95);
-            border-color: rgba(99, 102, 241, 0.3);
+            border-color: var(--accent);
+            box-shadow: 0 30px 60px rgba(99, 102, 241, 0.1);
+            transform: translateY(-10px);
         }
-
 
         .card-main {
-            grid-column: span 7;
-            grid-row: span 3;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            grid-column: span 8;
+            grid-row: span 2;
+            background: #0f172a;
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .card-main:hover {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            box-shadow: 0 40px 100px rgba(15, 23, 42, 0.3);
-        }
-
-        .card-step {
-            grid-column: span 5;
-            grid-row: span 2;
-        }
-
-        .card-mini {
-            grid-column: span 5;
-            grid-row: span 1;
-            padding: 30px;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            gap: 12px;
-        }
-
-        .card-highlight {
-            grid-column: span 12;
-            grid-row: span 2;
-            background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+            border: none;
+            display: flex;
             flex-direction: row;
             align-items: center;
-            padding: 0;
         }
 
-
-        .card-icon-wrapper {
-            width: 54px;
-            height: 54px;
-            border-radius: 16px;
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--accent);
-            box-shadow:
-                0 8px 16px rgba(99, 102, 241, 0.1),
-                inset 0 0 0 1px rgba(99, 102, 241, 0.05);
-            margin-bottom: 24px;
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            flex-shrink: 0;
-        }
-
-        .card-mini .card-icon-wrapper {
-            margin-bottom: 0;
-        }
-
-        .card-main .card-icon-wrapper {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .bento-card:hover .card-icon-wrapper {
-            transform: scale(1.1) rotate(5deg);
-        }
-
-        .bento-card h3 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
-            color: #1e293b;
+        .card-main .card-content {
+            flex: 1.1;
+            z-index: 2;
         }
 
         .card-main h3 {
-            color: white;
-            font-size: 2.2rem;
-        }
-
-        .bento-card p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #64748b;
-            margin: 0;
+            color: white !important;
+            font-size: 2.8rem !important;
+            margin-bottom: 20px !important;
         }
 
         .card-main p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.2rem;
-            max-width: 40ch;
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-size: 1.25rem !important;
+            line-height: 1.6;
         }
 
-
-        .card-number-bg {
-            position: absolute;
-            top: -20px;
-            right: -10px;
-            font-size: 10rem;
-            font-weight: 900;
-            opacity: 0.03;
-            color: var(--accent);
-            pointer-events: none;
-            user-select: none;
-            font-family: var(--font-serif);
-        }
-
-        .card-main .card-number-bg {
-            opacity: 0.1;
-            color: white;
-        }
-
-        .highlight-content {
-            padding: 60px;
-            flex: 1;
-        }
-
-        .highlight-visual {
-            flex: 1;
+        .card-main .card-visual {
+            flex: 0.9;
             height: 100%;
-            background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(255, 255, 255, 0) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
         }
 
-        .stats-mockup {
-            width: 70%;
-            height: 60%;
+        .card-step {
+            grid-column: span 4;
+            grid-row: span 2;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            padding: 20px;
+            justify-content: center;
+        }
+
+        .card-mini {
+            grid-column: span 5;
+            grid-row: span 1;
+            padding: 32px 40px;
+            flex-direction: row;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .card-highlight {
+            grid-column: span 7;
+            grid-row: span 1;
+            background: white;
+            flex-direction: row;
+            align-items: center;
+            padding: 32px 48px;
+        }
+
+        .card-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            background: #f8fafc;
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--accent);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
-        .mock-line {
-            height: 10px;
-            border-radius: 5px;
+        .card-mini .card-icon-wrapper,
+        .card-highlight .card-icon-wrapper {
+            margin-bottom: 0;
+            background: var(--accent-soft);
+        }
+
+        .bento-card h3 {
+            font-size: 1.6rem;
+            font-weight: 850;
+            margin-bottom: 12px;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+        }
+
+        .bento-card p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #475569;
+            margin: 0;
+        }
+
+        .avatar-group {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+
+        .avatar-group span {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: 2px solid white;
             background: #f1f5f9;
+            margin-left: -14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #64748b;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .mock-progress {
-            height: 20px;
-            background: var(--accent);
-            border-radius: 10px;
-            width: 0%;
-            transition: width 2s ease-out;
+        .card-main .glass-circle {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 1;
         }
 
-        .bento-card:hover .mock-progress {
-            width: 85%;
-        }
-
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
             .bento-grid {
                 grid-template-columns: repeat(2, 1fr);
                 grid-auto-rows: auto;
-                gap: 20px;
+                gap: 24px;
             }
 
             .card-main,
@@ -582,11 +665,12 @@
             .card-mini,
             .card-highlight {
                 grid-column: span 2;
-                min-height: 300px;
+                min-height: auto;
+                padding: 40px;
             }
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             .bento-grid {
                 grid-template-columns: 1fr;
             }
@@ -596,80 +680,85 @@
             .card-mini,
             .card-highlight {
                 grid-column: span 1;
-            }
-
-            .card-highlight {
+                text-align: left;
+                align-items: flex-start;
                 flex-direction: column;
             }
 
-            .highlight-visual {
-                height: 200px;
-                width: 100%;
+            .card-main h3 {
+                font-size: 2.2rem !important;
             }
         }
     </style>
 
     <div class="bento-grid">
-
-        <div class="bento-card card-main" data-aos="fade-up" data-aos-duration="1000"
-            data-aos-anchor-placement="top-bottom">
-            <div class="card-number-bg">01</div>
-            <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
-                <div>
-                    <div class="card-icon-wrapper">
-                        <i class="fas fa-crown"></i>
+        <div class="bento-card card-main">
+            <div class="card-content">
+                <div class="card-icon-wrapper"
+                    style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: white; margin-bottom: 40px;">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>Логіка навчання</h3>
+                <p>Ми не просто вчимо слова — ми будуємо нейронні зв'язки через контекст і живу практику, що гарантує
+                    результат.</p>
+                <div style="margin-top: 40px;">
+                    <a href="{% url 'users:register' %}" class="btn-hero-primary"
+                        style="padding: 16px 36px; font-size: 1rem; background: white; color: #0f172a !important;">Спробувати
+                        безкоштовно</a>
+                </div>
+            </div>
+            <div class="card-visual">
+                <div class="glass-circle"></div>
+                <div
+                    style="width: 70%; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 2;">
+                    <div style="height: 10px; width: 100%; background: rgba(255,255,255,0.08); border-radius: 5px;">
+                        <div
+                            style="height: 100%; width: 75%; background: var(--accent); border-radius: 5px; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);">
+                        </div>
                     </div>
-                    <h3>Структуровані курси</h3>
-                    <p>Наша унікальна методика дозволяє освоїти мову втричі швидше завдяки правильній побудові програми.
-                    </p>
-                </div>
-                <div style="margin-top: 30px;">
-                    <a href="{% url 'courses:courses-list' %}" class="btn btn-primary"
-                        style="background: white; color: #0f172a; border: none;">Почати безкоштовно</a>
+                    <div style="height: 10px; width: 85%; background: rgba(255,255,255,0.04); border-radius: 5px;">
+                    </div>
+                    <div style="height: 10px; width: 95%; background: rgba(255,255,255,0.04); border-radius: 5px;">
+                    </div>
                 </div>
             </div>
         </div>
 
-
-        <div class="bento-card card-step" data-aos="fade-up" data-aos-delay="200"
-            data-aos-anchor-placement="top-bottom">
-            <div class="card-number-bg">02</div>
-            <div>
-                <div class="card-icon-wrapper">
-                    <i class="fas fa-certificate"></i>
-                </div>
-                <h3>IELTS Підготовка</h3>
-                <p>Спеціалізовані тренажери, які повністю імітують умови реального міжнародного іспиту.</p>
+        <div class="bento-card card-step">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-magic"></i>
             </div>
-        </div>
-
-
-        <div class="bento-card card-mini" data-aos="fade-up" data-aos-delay="400"
-            data-aos-anchor-placement="top-bottom">
-            <div class="card-number-bg">03</div>
-            <div class="card-icon-wrapper" style="margin: 0;">
-                <i class="fas fa-users"></i>
-            </div>
-            <div>
-                <h3 style="font-size: 1.2rem; margin-bottom: 4px;">Спільнота</h3>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <span
-                        style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
-                    <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">1,240 онлайн</span>
+            <h3>AI-Корекція</h3>
+            <p>Система помічає, де ви помиляєтесь найчастіше, і автоматично підлаштовує програму, щоб заповнити
+                прогалини.</p>
+            <div style="margin-top: 30px;">
+                <div
+                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(99, 102, 241, 0.05); border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.1);">
+                    <i class="fas fa-check-circle" style="color: var(--accent);"></i>
+                    <span style="font-size: 0.85rem; font-weight: 700; color: #475569;">Персоналізація 100%</span>
                 </div>
             </div>
         </div>
 
-        <div class="bento-card card-highlight" data-aos="fade-up" data-aos-delay="100"
-            data-aos-anchor-placement="top-bottom">
-            <div class="highlight-content">
-                <span class="card-badge"
-                    style="background: var(--accent-soft); color: var(--accent); margin-bottom: 20px;">Аналітика</span>
-                <h3>Професійний моніторинг прогресу</h3>
-                <p>Ваші показники успішності оновлюються в реальному часі. Ви точно знаєте, на чому варто зосередитись
-                    сьогодні.</p>
+        <div class="bento-card card-mini">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-bolt"></i>
             </div>
-            <div class="card-number-bg" style="opacity: 0.05;">04</div>
+            <div style="flex: 1;">
+                <h3>Ваш ритм</h3>
+                <p style="font-size: 0.95rem; line-height: 1.4; margin-top: 4px;">Займайтесь від 5 хвилин на день —
+                    система адаптує обсяг матеріалу під ваш вільний час.</p>
+            </div>
+        </div>
+
+        <div class="bento-card card-highlight">
+            <div class="card-icon-wrapper">
+                <i class="fas fa-microchip"></i>
+            </div>
+            <div style="flex: 1;">
+                <h3>Глибока аналітика</h3>
+                <p>База даних ваших знань, яка наочно покаже результат кожного вивченого правила та слова.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -699,20 +788,12 @@
     }
 
     .lang-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 32px;
+        background: white;
+        border-radius: 12px;
         padding: 40px 24px;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        box-shadow:
-            0 10px 30px -10px rgba(0, 0, 0, 0.04),
-            0 20px 40px -20px rgba(0, 0, 0, 0.02);
-
-        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-            box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-            background 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-            border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        transition: all 0.3s ease;
         cursor: pointer;
         position: relative;
         display: flex;
@@ -732,12 +813,9 @@
     }
 
     .lang-card:hover {
-        transform: translateY(-15px) scale(1.03) rotateX(10deg);
-        box-shadow:
-            0 45px 90px -20px rgba(99, 102, 241, 0.2),
-            0 25px 45px -10px rgba(0, 0, 0, 0.08);
-        border-color: rgba(99, 102, 241, 0.4);
-        background: rgba(255, 255, 255, 0.95);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+        border-color: var(--accent);
     }
 
     .lang-card:hover::before {
@@ -773,7 +851,7 @@
     }
 
     .lang-card:hover .lang-flag-wrapper {
-        transform: scale(1.25) translateY(-5px) rotate(8deg);
+        transform: scale(1.1);
     }
 
     .lang-name {
@@ -791,8 +869,8 @@
     }
 
     .lang-card.featured {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(224, 231, 255, 0.4));
-        border-color: rgba(99, 102, 241, 0.2);
+        background: var(--bg-subtle);
+        border-color: var(--accent);
     }
 
     .lang-badge {
@@ -811,15 +889,7 @@
         box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
     }
 
-    .bg-circle {
-        position: absolute;
-        width: 600px;
-        height: 600px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
-        pointer-events: none;
-        z-index: 1;
-    }
+
 
     @media (max-width: 1100px) {
         .lang-card-grid {
@@ -894,25 +964,22 @@
         display: inline-flex;
         align-items: center;
         gap: 1.25rem;
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 24px;
+        background: white;
+        border-radius: 12px;
         padding: 1rem 2.5rem;
         text-decoration: none !important;
-        color: #1e293b !important;
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        color: var(--text-main) !important;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        transition: all 0.3s ease;
         min-width: 220px;
         height: 80px;
     }
 
     .store-btn:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 30px 60px -15px rgba(99, 102, 241, 0.2);
-        background: rgba(255, 255, 255, 0.9);
-        border-color: #a5b4fc;
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        border-color: var(--accent);
     }
 
     .store-buttons {
@@ -986,80 +1053,9 @@
         z-index: 1;
         pointer-events: none;
     }
-
-    .glass-chip {
-        position: absolute;
-        background: rgba(255, 255, 255, 0.4);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        border-radius: 14px;
-        padding: 8px 16px;
-        font-family: var(--font-serif);
-        font-weight: 700;
-        font-size: 0.8rem;
-        color: var(--accent);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
-        z-index: 5;
-        pointer-events: none;
-        animation: floatOrbital 12s ease-in-out infinite;
-        opacity: 0.35;
-        white-space: nowrap;
-    }
-
-    .chip-1 {
-        top: 15%;
-        left: calc(50% - 700px);
-        transform: rotate(-10deg);
-        color: #6366f1;
-        --rot: -10deg;
-    }
-
-    .chip-2 {
-        top: 20%;
-        left: calc(50% + 500px);
-        transform: rotate(8deg);
-        color: #ec4899;
-        --rot: 8deg;
-    }
-
-    .chip-3 {
-        bottom: 15%;
-        left: calc(50% - 600px);
-        transform: rotate(5deg);
-        color: #10b981;
-        --rot: 5deg;
-    }
-
-    .chip-4 {
-        bottom: 10%;
-        left: calc(50% + 550px);
-        transform: rotate(-8deg);
-        color: #f59e0b;
-        --rot: -8deg;
-    }
-
-    @media (max-width: 1400px) {
-        .glass-chip {
-            display: none;
-        }
-    }
-
-    @keyframes floatOrbital {
-
-        0%,
-        100% {
-            transform: translate(0, 0) rotate(var(--rot, -5deg));
-        }
-
-        50% {
-            transform: translate(10px, -15px) rotate(calc(var(--rot, -5deg) + 3deg));
-        }
-    }
 </style>
 
-<div class="bg-circle" style="top: -100px; left: -100px; opacity: 0.4;"></div>
-<div class="bg-circle" style="bottom: -100px; right: -100px; opacity: 0.4;"></div>
+
 
 
 
@@ -1076,24 +1072,24 @@
     </div>
 
     <div class="lang-card-grid">
-        <div class="lang-card featured" data-aos="flip-left" data-aos-delay="100" data-aos-duration="1200">
+        <div class="lang-card featured" data-aos="fade-up" data-aos-delay="100">
             <span class="lang-badge">Популярно</span>
             <div class="lang-flag-wrapper">🇬🇧</div>
             <div class="lang-name">English</div>
         </div>
-        <div class="lang-card" data-aos="flip-left" data-aos-delay="200" data-aos-duration="1200">
+        <div class="lang-card" data-aos="fade-up" data-aos-delay="200">
             <div class="lang-flag-wrapper">🇩🇪</div>
             <div class="lang-name">Deutsch</div>
         </div>
-        <div class="lang-card" data-aos="flip-left" data-aos-delay="300" data-aos-duration="1200">
+        <div class="lang-card" data-aos="fade-up" data-aos-delay="300">
             <div class="lang-flag-wrapper">🇫🇷</div>
             <div class="lang-name">Français</div>
         </div>
-        <div class="lang-card" data-aos="flip-left" data-aos-delay="400" data-aos-duration="1200">
+        <div class="lang-card" data-aos="fade-up" data-aos-delay="400">
             <div class="lang-flag-wrapper">🇪🇸</div>
             <div class="lang-name">Español</div>
         </div>
-        <div class="lang-card" data-aos="flip-left" data-aos-delay="500" data-aos-duration="1200">
+        <div class="lang-card" data-aos="fade-up" data-aos-delay="500">
             <div class="lang-flag-wrapper">🇮🇹</div>
             <div class="lang-name">Italiano</div>
         </div>
@@ -1136,15 +1132,7 @@
         <div class="promo-trust">
             <p class="trust-text">Приєднуйся до 50,000+ студентів по всьому світу</p>
         </div>
-
-        <div class="glass-chip chip-1" style="--rot: -10deg;">A1 — Beginner</div>
-        <div class="glass-chip chip-2" style="--rot: 8deg;">C2 — Mastery</div>
-        <div class="glass-chip chip-3" style="--rot: 5deg;">Fluent Speaker</div>
-        <div class="glass-chip chip-4" style="--rot: -8deg;">Language AI</div>
-
-        <div class="floating-blob" style="top: -300px; left: -300px;"></div>
-        <div class="floating-blob"
-            style="bottom: -300px; right: -300px; background: radial-gradient(circle, rgba(236, 72, 153, 0.03) 0%, transparent 70%);">
-        </div>
 </section>
+
+</script>
 {% endblock %}

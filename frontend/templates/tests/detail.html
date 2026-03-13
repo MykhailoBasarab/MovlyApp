@@ -8,55 +8,106 @@
 {% endblock %}
 
 {% block content %}
-<div class="course-info">
-    <h1>{{ test.title }}</h1>
-    <p class="course-meta">
-        <span>{{ test.get_language_display }}</span>
-        <span>{{ test.get_level_display }}</span>
-        <span>{{ test.test_type.name }}</span>
-    </p>
-    <p class="course-description">{{ test.description }}</p>
+<div class="bg-decor-1"></div>
+<div class="bg-decor-2"></div>
+
+<div class="course-hero-glass" style="margin-bottom: 4rem;" data-aos="fade-up">
+    <div class="hero-grid">
+        <div class="hero-left">
+            <div>
+                <div class="hero-badge">
+                    <span class="level-indicator"></span>
+                    {{ test.get_level_display }}
+                </div>
+                <h1 class="hero-title">{{ test.title }}</h1>
+            </div>
+
+            <div class="hero-meta-bottom">
+                <div class="hero-meta-pill">
+                    <i class="fas fa-globe"></i>
+                    <span>{{ test.get_language_display }}</span>
+                </div>
+                <div class="hero-meta-pill">
+                    <i class="fas fa-certificate"></i>
+                    <span>{{ test.test_type.name }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <p class="hero-desc">{{ test.description }}</p>
+
+            {% if user.is_authenticated %}
+            {% if active_attempt %}
+            <a href="{% url 'tests:test-attempt' active_attempt.id %}" class="btn-premium">
+                <i class="fas fa-play"></i> Продовжити тест
+            </a>
+            {% elif completed_attempt %}
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 320px;">
+                <a href="{% url 'tests:test-attempt' completed_attempt.id %}" class="btn-premium"
+                    style="background: #10b981; color: white !important; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); border: none; width: 100%; justify-content: center; padding: 16px;">
+                    <i class="fas fa-poll-h" style="margin-right: 10px; color: white !important;"></i>
+                    Переглянути результат
+                </a>
+                <a href="{% url 'tests:start-test' test.id %}" class="btn-premium-outline"
+                    style="background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); color: white !important; width: 100%; justify-content: center; padding: 14px; text-decoration: none; border-radius: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; backdrop-filter: blur(5px);">
+                    <i class="fas fa-redo" style="color: white !important;"></i>
+                    Пройти ще раз
+                </a>
+                <p
+                    style="color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 600; text-align: center; margin-top: 5px;">
+                    Ваш останній бал: {{ completed_attempt.total_score }} / {{ completed_attempt.max_score }}
+                </p>
+            </div>
+            {% else %}
+            <a href="{% url 'tests:start-test' test.id %}" class="btn-premium">
+                <i class="fas fa-rocket"></i> Почати тест
+            </a>
+            {% endif %}
+            {% else %}
+            <div class="auth-required-pill"
+                style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 20px; backdrop-filter: blur(10px);">
+                <p style="margin: 0; font-weight: 700;">Увійдіть, щоб почати тест</p>
+                <a href="{% url 'account_login' %}" class="btn-premium"
+                    style="margin-top: 10px; padding: 8px 20px; font-size: 0.9rem;">Увійти</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero-bg-accent">
+        {{ test.get_code }}
+    </div>
 </div>
 
 <div class="lessons-section">
-    <h2>Секції тесту</h2>
+    <div class="section-header" data-aos="fade-right">
+        <h2 class="section-title">Секції тесту</h2>
+        <span class="stat-pill">{{ sections.count }} етапи</span>
+    </div>
+
     <div class="lessons-list">
         {% for section in sections %}
-            <div class="lesson-item">
-                <div class="lesson-number">{{ forloop.counter }}</div>
-                <div class="lesson-content">
-                    <h3>{{ section.title }}</h3>
-                    <p>{{ section.description|truncatewords:15 }}</p>
-                    <div class="lesson-meta">
-                        <span>{{ section.questions.count }} питань</span>
-                        <span>{{ section.duration_minutes }} хвилин</span>
-                        <span>Макс. бал: {{ section.max_score }}</span>
-                    </div>
+        <div class="premium-lesson-item" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00"
+            style="cursor: default;">
+            <div class="lesson-num-box">{{ forloop.counter }}</div>
+            <div class="lesson-info">
+                <h3 class="lesson-title">{{ section.title }}</h3>
+                <div class="lesson-meta">
+                    <span class="exercise-count"><i class="fas fa-question-circle"></i> {{ section.questions.count }}
+                        питань</span>
+                    <span class="exercise-count"><i class="fas fa-clock"></i> {{ section.duration_minutes }} хв</span>
+                    <span class="exercise-count"><i class="fas fa-star"></i> {{ section.max_score }} балів</span>
                 </div>
             </div>
+            <div class="section-icon" style="color: var(--accent); font-size: 1.5rem; opacity: 0.5;">
+                {% if section.section_type == 'listening' %}<i class="fas fa-headphones"></i>
+                {% elif section.section_type == 'reading' %}<i class="fas fa-book-reader"></i>
+                {% elif section.section_type == 'writing' %}<i class="fas fa-pen-nib"></i>
+                {% elif section.section_type == 'speaking' %}<i class="fas fa-microphone"></i>
+                {% else %}<i class="fas fa-tasks"></i>{% endif %}
+            </div>
+        </div>
         {% endfor %}
     </div>
 </div>
-
-{% if user.is_authenticated %}
-    {% if active_attempt %}
-        <div class="test-action">
-            <a href="{% url 'tests:test-attempt' active_attempt.id %}" class="btn btn-primary btn-lg">
-                Продовжити тест
-            </a>
-        </div>
-    {% else %}
-        <div class="test-action">
-            <a href="{% url 'tests:start-test' test.id %}" class="btn btn-primary btn-lg">
-                Почати тест
-            </a>
-        </div>
-    {% endif %}
-{% else %}
-    <div class="test-action">
-        <p>Для проходження тесту необхідно <a href="{% url 'users:login' %}">увійти</a> або 
-        <a href="{% url 'users:register' %}">зареєструватися</a></p>
-    </div>
-{% endif %}
 {% endblock %}
-

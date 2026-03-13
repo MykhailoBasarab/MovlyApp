@@ -4,176 +4,65 @@
 {% block title %}Тест: {{ course.title }} — MOVLY{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/courses.css' %}">
+<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=14.0">
 {% endblock %}
 
 {% block content %}
-<div class="test-container">
-    <div class="test-wrapper">
-        <header class="test-header">
-            <h2>Фінальний тест: {{ course.title }}</h2>
-            <div class="progress-info">Всього питань: {{ questions.count }}</div>
-        </header>
-
-        <form method="post" class="test-form">
-            {% csrf_token %}
-
-            {% for question in questions %}
-            <div class="question-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
-                <div class="question-header">
-                    <span class="question-number">Питання {{ forloop.counter }}</span>
-                    <span class="question-points">{{ question.points }} балів</span>
-                </div>
-
-                <div class="question-content">
-                    <p>{{ question.question }}</p>
-
-                    {% if question.exercise_type == 'multiple_choice' %}
-                    <div class="options-grid">
-                        {% for option in question.options %}
-                        <label class="option-card">
-                            <input type="radio" name="question_{{ question.id }}" value="{{ option }}" required>
-                            <span class="option-text">{{ option }}</span>
-                            <span class="checkmark"></span>
-                        </label>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="input-wrapper">
-                        <input type="text" name="question_{{ question.id }}" class="form-control"
-                            placeholder="Ваша відповідь..." required>
-                    </div>
-                    {% endif %}
-                </div>
+<div class="test-container-centered">
+    <header class="lesson-page-header" data-aos="fade-down"
+        style="border-left: 4px solid var(--accent); padding-left: 1.5rem; margin-bottom: 3rem;">
+        <div class="lesson-nav" style="border: none; padding-bottom: 0;">
+            <h1 class="lesson-main-title"
+                style="font-family: var(--font-accent); font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.2rem; letter-spacing: -0.04em;">
+                Фінальний тест</h1>
+            <div class="lesson-badge" style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">
+                Курс: {{ course.title }}
             </div>
-            {% endfor %}
+        </div>
+        <p class="lesson-main-desc" style="font-size: 1.1rem; color: var(--text-muted); margin-top: 0.5rem;">Будь ласка,
+            дайте відповіді на всі запитання. Поспішати не обов'язково.</p>
+    </header>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-lg">Завершити тест</button>
+    <form method="post" class="exercises-container">
+        {% csrf_token %}
+
+        {% for question in questions %}
+        <div class="exercise-modern-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+            <div class="exercise-header">
+                <div class="exercise-type-tag">
+                    <span class="exercise-num">{{ forloop.counter }}</span>
+                    <h3 class="exercise-label">Питання {{ forloop.counter }}</h3>
+                </div>
+                <div class="exercise-count">{{ question.points }} XP</div>
             </div>
-        </form>
-    </div>
+
+            <div class="exercise-question-box">
+                <p class="exercise-question-text">{{ question.question|linebreaksbr }}</p>
+            </div>
+
+            <div class="test-answer-section">
+                {% if question.options %}
+                <div class="options-grid">
+                    {% for option in question.options %}
+                    <label class="option-item">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ option }}" required>
+                        <span class="option-label">{{ option }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <input type="text" name="question_{{ question.id }}" class="exercise-input"
+                    placeholder="Ваша відповідь тут..." required>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="text-center" style="margin-top: 4rem; margin-bottom: 4rem; display: flex; justify-content: center;">
+            <button type="submit" class="btn-hero-primary" style="padding: 20px 60px; font-size: 1.1rem; border: none;">
+                <i class="fas fa-paper-plane" style="margin-right: 15px;"></i> Завершити тест та отримати результат
+            </button>
+        </div>
+    </form>
 </div>
-
-<style>
-    .test-container {
-        max-width: 800px;
-        margin: 40px auto;
-        padding: 0 20px;
-    }
-
-    .test-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 30px;
-    }
-
-    .question-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
-    }
-
-    .question-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .question-number {
-        font-weight: 600;
-        color: var(--accent-color);
-    }
-
-    .question-points {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-    }
-
-    .question-content p {
-        font-size: 1.2rem;
-        margin-bottom: 24px;
-        color: var(--text-primary);
-    }
-
-
-    .options-grid {
-        display: grid;
-        gap: 12px;
-    }
-
-    .option-card {
-        position: relative;
-        display: flex;
-        align-items: center;
-        padding: 16px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .option-card:hover {
-        background: rgba(255, 255, 255, 0.08);
-        transform: translateX(5px);
-    }
-
-    .option-card input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-    }
-
-    .checkmark {
-        position: absolute;
-        top: 50%;
-        right: 16px;
-        transform: translateY(-50%);
-        height: 20px;
-        width: 20px;
-        border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        transition: all 0.2s ease;
-    }
-
-    .option-card input:checked~.checkmark {
-        background-color: var(--accent-color);
-        border-color: var(--accent-color);
-        box-shadow: 0 0 10px var(--accent-color-alpha);
-    }
-
-    .option-card input:checked~.option-text {
-        font-weight: 600;
-        color: var(--accent-color);
-    }
-
-
-    .input-wrapper input {
-        width: 100%;
-        padding: 16px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        color: #fff;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-    }
-
-    .input-wrapper input:focus {
-        outline: none;
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 2px var(--accent-color-alpha);
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        padding-top: 20px;
-    }
-</style>
 {% endblock %}

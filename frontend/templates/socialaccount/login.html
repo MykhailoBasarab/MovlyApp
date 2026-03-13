@@ -6,12 +6,6 @@
 
 {% block content %}
 <div class="auth-page">
-    <div class="decorative-float float-1">Aa</div>
-    <div class="decorative-float float-2">文</div>
-    <div class="decorative-float float-3">Ω</div>
-    <div class="decorative-float float-4"></div>
-    <div class="decorative-float float-5"></div>
-
     <div class="form-container">
         {% if process == "connect" %}
         <h2>Приєднати {{ provider.name }}</h2>
@@ -27,7 +21,7 @@
 
         <form method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
+            <button type="submit" class="btn-hero-primary" style="width: 100%; margin-top: 1.5rem; border: none;">
                 Продовжити
             </button>
         </form>

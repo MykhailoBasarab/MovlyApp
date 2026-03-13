@@ -2,119 +2,342 @@
 {% load static %}
 {% load custom_filters %}
 
-{% block title %}Проходження тесту — {{ test.title }} — MOVLY{% endblock %}
+{% block title %}Проходження тесту — {{test.title}} — MOVLY{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/courses.css' %}">
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .btn-premium.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .option-label-premium:hover {
+        background: white;
+        border-color: var(--accent-soft);
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .option-label-premium:has(input:checked) {
+        border-color: var(--accent);
+        background: white;
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.12);
+    }
+
+    .essay-textarea-premium {
+        width: 100%;
+        padding: 1.5rem;
+        border-radius: 20px;
+        border: 2px solid #e2e8f0;
+        background: #f8fafc;
+        font-family: inherit;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--text-main);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        resize: vertical;
+        min-height: 200px;
+        box-sizing: border-box;
+    }
+
+    .essay-textarea-premium:focus {
+        border-color: var(--accent);
+        background: white;
+        outline: none;
+        box-shadow: 0 0 0 5px var(--accent-light), 0 10px 25px rgba(99, 102, 241, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .exercise-input {
+        width: 100%;
+        padding: 1.25rem 1.5rem;
+        border-radius: 18px;
+        border: 2px solid #e2e8f0;
+        background: #f8fafc;
+        font-family: inherit;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-main);
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .exercise-input:focus {
+        border-color: var(--accent);
+        background: white;
+        outline: none;
+        box-shadow: 0 0 0 5px var(--accent-light);
+        transform: translateY(-1px);
+    }
+
+    .btn-hero-primary-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
+        color: white !important;
+        padding: 18px 45px;
+        border-radius: 24px;
+        font-weight: 850;
+        text-decoration: none !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
+        border: none;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 1rem;
+        font-family: var(--font-accent);
+    }
+
+    .btn-hero-primary-modern:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.35);
+        color: white !important;
+    }
+
+    .btn-hero-primary-modern.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="test-attempt-header">
-    <h1>{{ test.title }}</h1>
-    <p>Спроба розпочата: {{ attempt.started_at|date:"d.m.Y H:i" }}</p>
-    <a href="{% url 'tests:test-detail' test.id %}" class="btn btn-secondary">
-        ← Повернутися до тесту
-    </a>
+<div class="test-attempt-header" data-aos="fade-down"
+    style="margin: 3rem 0; text-align: left; padding: 0 1.5rem; border-left: 4px solid var(--accent);">
+    <div class="stat-pill" style="margin-bottom: 0.5rem; display: inline-block;">ТЕСТ У ПРОЦЕСІ</div>
+    <h1 class="lesson-main-title" style="margin-bottom: 0.5rem;">{{test.title}}</h1>
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <span class="text-muted" style="font-size: 0.9rem; font-weight: 600;">
+            <i class="fas fa-clock"></i> {% if attempt.status == 'completed' %}Завершено{% else %}Розпочато{% endif %}:
+            {{attempt.started_at|date:"H:i"}}
+        </span>
+        <a href="{% url 'tests:test-detail' test.id %}" class="back-link" style="font-size: 0.9rem;">
+            <i class="fas fa-arrow-left"></i> Назад до опису
+        </a>
+    </div>
 </div>
 
-{% for section in sections %}
-    <div class="section-card">
-        <h2>{{ section.title }} ({{ section.get_section_type_display }})</h2>
-        <p>{{ section.description }}</p>
-        
-        {% for question in section.questions.all %}
-            <div class="exercise-card">
-                <div class="exercise-header">
-                    <h3>Питання {{ forloop.counter }}</h3>
-                    <span class="exercise-points">{{ question.points }} балів</span>
-                </div>
-                
-                <div class="exercise-question">
-                    <p><strong>{{ question.question_text }}</strong></p>
-                </div>
-                
-                {% if section.id in answers %}
-                    {% with section_answers=answers|get_item:section.id %}
-                        {% if question.id in section_answers %}
-                            {% with answer=section_answers|get_item:question.id %}
-                                <div class="exercise-result {% if answer.is_correct %}correct{% else %}incorrect{% endif %}">
-                                    <p><strong>Ваша відповідь:</strong> {{ answer.user_answer }}</p>
-                                    <p><strong>Результат:</strong> 
-                                        {% if answer.is_correct %}
-                                            <span class="correct-mark">✓ Правильно!</span>
-                                        {% else %}
-                                            <span class="incorrect-mark">✗ Неправильно</span>
-                                        {% endif %}
-                                    </p>
-                                    {% if answer.ai_feedback %}
-                                        <div class="ai-feedback">
-                                            <strong>Відгук:</strong> {{ answer.ai_feedback }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endwith %}
-                        {% else %}
-                            <form method="post" action="{% url 'tests:submit-test-answer' attempt.id question.id %}" class="exercise-form">
-                                {% csrf_token %}
-                                
-                                {% if question.question_type == 'multiple_choice' and question.options %}
-                                    <div class="form-group">
-                                        {% for option in question.options %}
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="answer" 
-                                                       id="option{{ question.id }}_{{ forloop.counter }}" value="{{ option }}" required>
-                                                <label class="form-check-label" for="option{{ question.id }}_{{ forloop.counter }}">
-                                                    {{ option }}
-                                                </label>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <div class="form-group">
-                                        <textarea name="answer" class="form-control" rows="4" 
-                                                  placeholder="Введіть відповідь" required></textarea>
-                                    </div>
-                                {% endif %}
-                                
-                                <button type="submit" class="btn btn-primary">Відправити відповідь</button>
-                            </form>
-                        {% endif %}
-                    {% endwith %}
+{% if attempt.status == 'completed' %}
+<div class="test-results-summary" data-aos="zoom-in"
+    style="max-width: 900px; margin: 0 auto 3rem; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border-radius: 24px; padding: 3rem; color: white; box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);">
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; align-items: center;">
+        <div style="text-align: center; border-right: 1px solid rgba(255,255,255,0.2);">
+            <div
+                style="font-size: 0.9rem; font-weight: 700; opacity: 0.8; text-transform: uppercase; margin-bottom: 0.5rem;">
+                Ваш результат</div>
+            <div style="font-size: 4rem; font-weight: 900; line-height: 1;">{{attempt.total_score}}</div>
+            <div style="font-size: 1.2rem; font-weight: 700; opacity: 0.9;">з {{attempt.max_score}} балів</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; opacity: 0.9;">Читання:</span>
+                <span
+                    style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 100px; font-weight: 800;">{{attempt.reading_score}}
+                    б.</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; opacity: 0.9;">Письмо:</span>
+                <span
+                    style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 100px; font-weight: 800;">{{attempt.writing_score}}
+                    б.</span>
+            </div>
+            <div
+                style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-award" style="font-size: 1.5rem; color: #fbbf24;"></i>
+                <span style="font-weight: 700;">XP: +{{attempt.total_score|multiply:0.5|add:50|floatformat:0}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="test-questions-wrapper" style="max-width: 900px; margin: 0 auto;">
+    {% for section in sections %}
+    <div class="section-divider-premium"
+        style="margin: 3rem 0 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"
+        data-aos="fade-right">
+        <h2 style="font-family: var(--font-accent); font-weight: 800; color: var(--text-main); font-size: 1.5rem;">
+            {{section.title}}</h2>
+        <p class="text-muted">{{section.description}}</p>
+    </div>
+    {% for question in section.questions_list %}
+    <div class="exercise-modern-card" data-aos="fade-up"
+        style="background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; border: 1px solid var(--border);">
+        <div class="exercise-header"
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <span class="lesson-badge">{{question.get_question_type_display|premium_label:test.language}}
+                №{{question.global_index}}</span>
+            <span class="stat-pill"><i class="fas fa-star" style="color: #f59e0b;"></i> {{question.points}} БАЛІВ</span>
+        </div>
+        <div class="exercise-question-box"
+            style="background: var(--bg-subtle); padding: 1.8rem; border-radius: 24px; margin-bottom: 2rem;">
+            <p
+                style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 0; line-height: 1.5;">
+                {{question.question_text}}</p>
+        </div>
+        {% with q_answer=answers|get_item:section.id|get_item:question.id %}
+        {% if q_answer %}
+        <div class="exercise-result-box {% if q_answer.is_correct %}correct{% else %}incorrect{% endif %}">
+            <p style="font-weight: 800; font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-main);">Ваша
+                відповідь: <span
+                    style="{% if not q_answer.is_correct and attempt.status == 'completed' %}text-decoration: line-through; opacity: 0.6;{% endif %}">{{q_answer.user_answer}}</span>
+            </p>
+            {% if not q_answer.is_correct and attempt.status == 'completed' %}
+            <p style="font-weight: 800; font-size: 1.1rem; margin-bottom: 1rem; color: var(--success);">Правильна
+                відповідь: <span>{{question.correct_answer}}</span></p>
+            {% endif %}
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                {% if q_answer.is_correct %}<span class="stat-pill"
+                    style="background: var(--success); color: white; border: none;">✓ ПРАВИЛЬНО</span>{% else %}<span
+                    class="stat-pill" style="background: var(--error); color: white; border: none;">✗
+                    НЕПРАВИЛЬНО</span>{% endif %}
+                <span style="font-weight: 700; color: var(--text-muted); font-size: 0.9rem;">+{{q_answer.points_earned}}
+                    балів</span>
+            </div>
+            {% if q_answer.ai_feedback %}
+            <div class="ai-feedback-premium"
+                style="background: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border); margin-top: 1.5rem;">
+                <p style="margin: 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;"><i
+                        class="fas fa-info-circle"
+                        style="color: var(--accent); margin-right: 8px;"></i>{{q_answer.ai_feedback}}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        {% if attempt.status == 'in_progress' %}
+        <form method="post" action="{% url 'tests:submit-test-answer' attempt.id question.id %}" class="exercise-form">
+            {% csrf_token %}
+            {% if question.question_type == 'multiple_choice' and question.options %}
+            <div class="options-grid"
+                style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 2rem;">
+                {% for option in question.options %}
+                <label class="option-label-premium"
+                    style="background: var(--bg-subtle); padding: 1.2rem; border-radius: 18px; border: 2px solid transparent; cursor: pointer; font-weight: 700; transition: all 0.3s ease; display: flex; align-items: center; gap: 15px;">
+                    <input type="radio" name="answer" value="{{option}}" required
+                        style="accent-color: var(--accent); width: 18px; height: 18px;">
+                    <span>{{option}}</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% elif question.question_type == 'essay' or question.question_type == 'short_answer' %}
+            <div class="form-group" style="margin-bottom: 2rem;">
+                {% if question.question_type == 'essay' %}
+                <textarea name="answer" class="essay-textarea-premium" rows="8"
+                    placeholder="Введіть вашу відповідь тут..." required></textarea>
                 {% else %}
-                    <form method="post" action="{% url 'tests:submit-test-answer' attempt.id question.id %}" class="exercise-form">
-                        {% csrf_token %}
-                        
-                        {% if question.question_type == 'multiple_choice' and question.options %}
-                            <div class="form-group">
-                                {% for option in question.options %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="answer" 
-                                               id="option{{ question.id }}_{{ forloop.counter }}" value="{{ option }}" required>
-                                        <label class="form-check-label" for="option{{ question.id }}_{{ forloop.counter }}">
-                                            {{ option }}
-                                        </label>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="form-group">
-                                <textarea name="answer" class="form-control" rows="4" 
-                                          placeholder="Введіть відповідь" required></textarea>
-                            </div>
-                        {% endif %}
-                        
-                        <button type="submit" class="btn btn-primary">Відправити відповідь</button>
-                    </form>
+                <textarea name="answer" class="essay-textarea-premium" rows="3"
+                    placeholder="Введіть вашу відповідь тут..." required></textarea>
                 {% endif %}
             </div>
-        {% endfor %}
+            {% else %}
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <input type="text" name="answer" class="exercise-input" placeholder="Введіть вашу відповідь тут..."
+                    required>
+            </div>
+            {% endif %}
+            <button type="submit" class="btn-premium"
+                style="width: 100%; justify-content: center; background: var(--accent); color: white; border: none; font-size: 1.1rem; padding: 18px;"><i
+                    class="fas fa-check"></i> Перевірити відповідь</button>
+        </form>
+        {% else %}
+        <div class="test-completed-info"
+            style="text-align: center; padding: 1rem; color: var(--text-muted); font-weight: 600;"><i
+                class="fas fa-lock"></i> Відповідь зафіксована</div>
+        {% endif %}
+        {% endif %}
+        {% endwith %}
     </div>
-{% endfor %}
-
-<div class="complete-test-section">
-    <form method="post" action="{% url 'tests:complete-test' attempt.id %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-success btn-lg">Завершити тест</button>
-    </form>
+    {% endfor %}
+    {% endfor %}
 </div>
+
+{% if attempt.status == 'in_progress' %}
+<div class="complete-test-wrapper" style="text-align: center; margin: 4rem 0 8rem;" data-aos="zoom-in">
+    <div style="background: white; padding: 3rem 2.5rem; border-radius: 32px; display: inline-block; border: 1px solid var(--border); max-width: 480px; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.03); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--accent);"></div>
+
+        <h3 style="font-family: var(--font-accent); font-weight: 900; margin-bottom: 0.8rem; font-size: 1.8rem; color: #1e293b; letter-spacing: -0.03em;">
+            Завершити тест?
+        </h3>
+        
+        <p style="color: #64748b; font-size: 1rem; line-height: 1.5; margin-bottom: 2.5rem; max-width: 380px; margin-left: auto; margin-right: auto; font-weight: 500;">
+            Впевнені, що готові отримати результат? Після цього ви не зможете змінити відповіді.
+        </p>
+        
+        <form method="post" action="{% url 'tests:complete-test' attempt.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-hero-primary-modern" style="width: 100%; justify-content: center; font-size: 0.95rem; padding: 18px;">
+                ОТРИМАТИ РЕЗУЛЬТАТ
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const forms = document.querySelectorAll('.exercise-form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnContent = submitBtn.innerHTML;
+                const formData = new FormData(this);
+                const url = this.action;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ПЕРЕВІРКА...';
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                    .then(response => { if (!response.ok) throw new Error('Network response was not ok'); return response.json(); })
+                    .then(data => {
+                        if (data.success) {
+                            const card = this.closest('.exercise-modern-card');
+                            if (card) { card.querySelectorAll('.exercise-result-box').forEach(el => el.remove()); }
+                            let resultHtml = `<div class="field-feedback ${data.is_correct ? 'field-success' : 'field-error'}" style="margin: 2rem 0; animation: lessonFadeIn 0.5s ease;"><div class="feedback-title">${data.is_correct ? '✓ ПРАВИЛЬНО' : '✗ НЕПРАВИЛЬНО'}</div><p class="feedback-text">Ваша відповідь: <strong>${data.user_answer}</strong></p><p style="font-weight: 700; color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">+${data.points_earned} БАЛІВ</p></div>`;
+                            if (data.ai_feedback) { resultHtml += `<div class="ai-feedback-box"><p><strong>Підказка AI:</strong> ${data.ai_feedback}</p></div>`; }
+                            this.outerHTML = resultHtml;
+                        } else { alert('Помилка: ' + (data.error || 'Невідома помилка')); submitBtn.disabled = false; submitBtn.innerHTML = originalBtnContent; }
+                    })
+                    .catch(error => { console.error('Error:', error); alert('Сталася помилка при відправці відповіді. Спробуйте ще раз.'); submitBtn.disabled = false; submitBtn.innerHTML = originalBtnContent; });
+            });
+        });
+    });
+</script>
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 {% endblock %}

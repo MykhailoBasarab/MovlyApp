@@ -1,41 +1,23 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Профіль {{ user.username }} — MOVLY{% endblock %}
+{% block title %}
+Профіль {{user.username}} — MOVLY
+{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=3.0">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=4.0">
 <style>
     .profile-container {
         position: relative;
         z-index: 10;
         min-height: 100vh;
         overflow: visible;
+        padding-top: 2rem;
     }
 
     .profile-bg-blob {
-        position: fixed;
-        width: 600px;
-        height: 600px;
-        border-radius: 50%;
-        filter: blur(100px);
-        z-index: -1;
-        opacity: 0.15;
-        pointer-events: none;
-    }
-
-    .bg-blob-1 {
-        top: -100px;
-        right: -100px;
-        background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-        animation: floatSlow 15s infinite alternate;
-    }
-
-    .bg-blob-2 {
-        bottom: -100px;
-        left: -100px;
-        background: radial-gradient(circle, #ec4899 0%, transparent 70%);
-        animation: floatSlow 20s infinite alternate-reverse;
+        display: none;
     }
 
     @keyframes floatSlow {
@@ -49,65 +31,15 @@
     }
 
     .profile-header {
-        background: rgba(255, 255, 255, 0.4) !important;
-        backdrop-filter: blur(30px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.5) !important;
-        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.08) !important;
-    }
-
-    .streak-banner {
-        background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%) !important;
-        color: white;
-        padding: 2rem !important;
-        border-radius: 32px !important;
+        background: white;
+        border: 1px solid var(--border);
+        border-top: 4px solid var(--accent);
+        border-radius: 12px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
         display: flex;
         align-items: center;
-        gap: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 20px 40px rgba(245, 158, 11, 0.25) !important;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .streak-banner::before {
-        content: '🔥';
-        position: absolute;
-        right: -10px;
-        bottom: -20px;
-        font-size: 10rem !important;
-        opacity: 0.2 !important;
-        transform: rotate(-15deg);
-    }
-
-    .streak-number {
-        font-size: 4.5rem !important;
-        font-weight: 900 !important;
-        font-family: 'Outfit', sans-serif !important;
-        line-height: 1;
-        text-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-card {
-        border: 1px solid rgba(255, 255, 255, 0.8) !important;
-        background: rgba(255, 255, 255, 0.5) !important;
-        backdrop-filter: blur(10px) !important;
-        border-radius: 32px !important;
-        padding: 2.5rem !important;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-12px) scale(1.02) !important;
-        background: white !important;
-        border-color: var(--accent) !important;
-    }
-
-    .course-progress-card {
-        background: rgba(255, 255, 255, 0.6) !important;
-        backdrop-filter: blur(10px) !important;
-        border-radius: 32px !important;
-        padding: 2rem !important;
-        border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        gap: 2.5rem;
     }
 
     .default-avatar {
@@ -116,36 +48,202 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+        background: var(--accent);
         color: white;
         font-weight: 800;
-        font-size: 4rem !important;
-        font-family: 'Outfit', sans-serif;
+        font-size: 4rem;
+        font-family: var(--font-accent);
     }
 
-    .profile-card {
-        background: rgba(255, 255, 255, 0.6) !important;
-        backdrop-filter: blur(20px) !important;
-        border-radius: 32px !important;
-        border: 1px solid rgba(255, 255, 255, 0.8) !important;
-        padding: 2rem !important;
+    .streak-banner {
+        background: #1e293b;
+        color: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
     }
 
-    .btn-secondary {
-        border-radius: 20px !important;
-        padding: 12px 24px !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
-        background: white !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    .streak-number {
+        font-size: 5rem !important;
+        font-weight: 950 !important;
+        line-height: 1;
+        text-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     }
 
-    .btn-secondary:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+    .stat-card-glass {
+        border: 1px solid var(--border);
+        background: white;
+        border-radius: 12px;
+        padding: 2.5rem;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .stat-card-glass:hover {
+        transform: translateY(-12px);
+        background: #fff !important;
         border-color: var(--accent) !important;
+    }
+
+    .daily-val-big {
+        font-size: 2.8rem;
+        font-weight: 950;
+        color: #6366f1;
+        font-family: var(--font-accent);
+    }
+
+    .daily-val-sub {
+        color: #94a3b8;
+        font-weight: 800;
+        font-size: 1.4rem;
+    }
+
+    .info-value-style {
+        font-weight: 900;
+        color: #1e293b;
+        font-size: 1.1rem;
+        word-break: break-all;
+    }
+
+    /* Premium Settings Styling */
+    .settings-card-modern {
+        background: #ffffff !important;
+        border-radius: 40px !important;
+        padding: 4rem !important;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid rgba(0, 0, 0, 0.02) !important;
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    .settings-title-group {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .settings-title {
+        font-family: var(--font-accent);
+        font-size: 3rem;
+        font-weight: 950;
+        background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .settings-subtitle {
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .form-grid-modern {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2.5rem;
+    }
+
+    .input-group-modern {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .input-label-modern {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.8rem;
+        margin-left: 0.5rem;
+    }
+
+    .input-modern,
+    .settings-form-modern select {
+        width: 100%;
+        background: #f8fafc;
+        border: 2px solid #f1f5f9;
+        border-radius: 22px;
+        padding: 1.2rem 1.6rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    .input-modern:focus,
+    .settings-form-modern select:focus {
+        background: #fff;
+        border-color: var(--accent);
+        box-shadow: 0 12px 24px rgba(99, 102, 241, 0.08);
+        transform: translateY(-2px);
+        outline: none;
+    }
+
+    .btn-group-modern {
+        margin-top: 4rem;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    .btn-save-modern {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: #fff;
+        border: none;
+        padding: 20px 50px;
+        border-radius: 24px;
+        font-weight: 850;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-save-modern:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-cancel-modern {
+        background: #fff;
+        color: #64748b;
+        border: 2px solid #f1f5f9;
+        padding: 20px 50px;
+        border-radius: 24px;
+        font-weight: 850;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel-modern:hover {
+        background: #f8fafc;
+        color: #1e293b;
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .form-grid-modern {
+            grid-template-columns: 1fr;
+        }
+
+        .settings-card-modern {
+            padding: 2.5rem 1.5rem !important;
+        }
     }
 </style>
 {% endblock %}
@@ -155,376 +253,280 @@
 <div class="profile-bg-blob bg-blob-2"></div>
 
 <div class="profile-container">
-    <header class="profile-header" data-aos="fade-down" data-aos-duration="1000">
+    <header class="profile-header">
         <div class="profile-avatar-wrapper">
-            <div class="profile-avatar" id="avatar-preview">
+            <div id="avatar-preview"
+                style="width: 160px; height: 160px; border-radius: 50px; overflow: hidden; position: relative; border: 4px solid #fff;">
                 {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" class="avatar-img">
+                <img src="{{user.avatar.url}}" style="width:100%; height:100%; object-fit:cover;">
                 {% else %}
-                <div class="default-avatar">
-                    {{ user.username|slice:":1"|upper }}
-                </div>
+                <div class="default-avatar">{{user.username|slice:":1"|upper}}</div>
                 {% endif %}
             </div>
-            <button class="edit-avatar-btn" onclick="document.getElementById('id_avatar').click();"
-                title="Змінити аватар">
+            <button onclick="document.getElementById('id_avatar').click();"
+                style="position:absolute; bottom:5px; right:5px; width:45px; height:45px; border-radius:15px; background:var(--accent); color:#fff; border:3px solid #fff; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:20;">
                 <i class="fas fa-camera"></i>
             </button>
         </div>
-        <div class="profile-title-group">
-            <h1 class="profile-name" style="font-size: clamp(2rem, 5vw, 4rem);">{{ user.username }}</h1>
-            <div class="profile-badges">
-                <div class="badge badge-level"
-                    style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); display: flex; align-items: center; gap: 0.5rem; padding: 8px 16px; border-radius: 12px;">
-                    <i class="fas fa-medal"></i> Рівень {{ progress.level }}
+        <div style="flex:1;">
+            <h1
+                style="font-size:clamp(2.5rem,6vw,4.5rem); font-weight:900; margin-bottom:1rem; font-family: var(--font-accent);">
+                {{user.username}}</h1>
+            <div style="display:flex; gap:1rem; margin-bottom:1.5rem;">
+                <div
+                    style="background:linear-gradient(135deg,#6366f1,#4f46e5); color:#fff; padding:10px 20px; border-radius:15px; font-weight:800; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-medal"></i> Рівень {{progress.level}}
                 </div>
-                <div class="badge badge-xp"
-                    style="background: #fffbeb; border: 1px solid #fde68a; display: flex; align-items: center; gap: 0.5rem; padding: 8px 16px; border-radius: 12px; color: #92400e;">
-                    <i class="fas fa-star" style="color: #f59e0b;"></i> {{ progress.total_xp }} XP
+                <div
+                    style="background:#fffbeb; border:1px solid #fde68a; padding:10px 20px; border-radius:15px; color:#92400e; font-weight:800; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-star" style="color:#f59e0b;"></i> {{progress.total_xp}} XP
                 </div>
             </div>
-            <div style="margin-top: 1rem; width: 100%; max-width: 400px;">
+            <div style="width:100%; max-width:450px;">
                 <div
-                    style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.9rem; font-weight: 700; color: #64748b;">
-                    <span>До наступного рівня</span>
-                    <span>{{ progress.xp_to_next_level }} XP</span>
+                    style="display:flex; justify-content:space-between; margin-bottom:0.6rem; font-weight:800; color:#64748b;">
+                    <span>До наступного рівня</span><span>{{progress.xp_to_next_level}} XP</span>
                 </div>
-                <div style="height: 10px; background: rgba(0,0,0,0.05); border-radius: 10px; overflow: hidden;">
+                <div style="height:14px; background:rgba(0,0,0,0.06); border-radius:20px; overflow:hidden;">
                     <div
-                        style="width: {{ progress.level_progress_percentage }}%; height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7); border-radius: 10px;">
+                        style="width:{{progress.level_progress_percentage}}%; height:100%; background:linear-gradient(90deg,#6366f1,#a855f7); border-radius:20px;">
                     </div>
                 </div>
             </div>
         </div>
-        <div class="profile-actions">
-            <button class="btn btn-secondary" id="toggle-edit">
+        <div>
+            <button id="toggle-edit"
+                style="width:56px; height:56px; border-radius:20px; background:#fff; border:1px solid #e2e8f0; font-size:1.3rem; cursor:pointer;">
                 <i class="fas fa-cog"></i>
             </button>
         </div>
     </header>
 
-    <div class="profile-main-layout">
-        <div id="view-mode" class="profile-grid">
-            <div class="profile-main-content">
-                <div class="streak-banner" data-aos="fade-up" data-aos-delay="200">
-                    <div class="streak-number">{{ progress.current_streak }}</div>
-                    <div class="streak-info">
-                        <h3 style="font-size: 1.5rem; font-weight: 800;">Днів у навчанні!</h3>
-                        <p style="font-size: 1.1rem; opacity: 0.95;">
-                            {% if progress.current_streak > 0 %}
-                            Ви молодець! Продовжуйте в тому ж дусі.
-                            {% else %}
-                            Почніть навчання сьогодні, щоб розпочати серію!
-                            {% endif %}
+    <div id="profile-main-grid" style="display:grid; grid-template-columns:1fr 380px; gap:2.5rem;">
+        <div id="view-mode">
+            <div class="streak-banner">
+                <div class="streak-number">{{progress.current_streak}}</div>
+                <div style="flex:1;">
+                    <h3 style="font-size:2rem; font-weight:900; margin-bottom:0.5rem;">Днів у навчанні!</h3>
+                    <p style="font-size:1.2rem; opacity:0.9;">
+                        {% if progress.current_streak > 0 %}
+                        Ви молодець! Продовжуйте в тому ж дусі.
+                        {% else %}
+                        Почніть навчання сьогодні!
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="stat-card-glass" style="margin-bottom:2.5rem; background:#fff !important;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem;">
+                    <div style="display:flex; gap:1.5rem; align-items:center;">
+                        <div
+                            style="width:64px; height:64px; background:rgba(99,102,241,0.1); border-radius:22px; display:flex; align-items:center; justify-content:center; color:#6366f1; font-size:1.8rem;">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3 style="margin:0; font-size:1.6rem; font-weight:900;">Щоденна ціль</h3>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="daily-val-big">{{progress.daily_xp}}</span>
+                        <span class="daily-val-sub">/ {{progress.daily_goal}} XP</span>
+                        <div style="font-size:0.85rem; color:#818cf8; font-weight:900; text-transform:uppercase;">
+                            Сьогодні</div>
+                    </div>
+                </div>
+                <div
+                    style="background:#f1f5f9; height:16px; border-radius:20px; overflow:hidden; margin-bottom:1.5rem;">
+                    <div
+                        style="width:{{daily_progress_percent}}%; height:100%; background:linear-gradient(90deg,#6366f1,#a855f7);">
+                    </div>
+                </div>
+                {% if daily_progress_percent >= 100 %}
+                <div
+                    style="background:#ecfdf5; color:#059669; font-weight:800; padding:12px 20px; border-radius:15px; display:inline-flex; align-items:center; gap:0.75rem;">
+                    <i class="fas fa-check-circle"></i> Ціль виконана!
+                </div>
+                {% else %}
+                <div style="color:#64748b; font-size:1.1rem; font-weight:700;">Залишилося ще <strong
+                        style="color:#6366f1;">{{remaining_xp}} XP</strong></div>
+                {% endif %}
+            </div>
+
+            {% if failed_mistakes_count > 0 %}
+            <div class="stat-card-glass"
+                style="margin-bottom:2.5rem; background:linear-gradient(135deg,#fff1f2,#ffe4e6)!important; border:2px solid #fecdd3!important; display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:1.5rem; align-items:center;">
+                    <div
+                        style="width:70px; height:70px; background:#ef4444; border-radius:24px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:2rem;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h3 style="color:#9f1239; margin:0; font-size:1.8rem; font-weight:950;">Робота над помилками
+                        </h3>
+                        <p style="color:#be123c; margin:0.3rem 0; font-weight:700;">У вас
+                            <strong>{{failed_mistakes_count}}</strong> невідпрацьованих вправ
                         </p>
                     </div>
                 </div>
-
-                {% with xp=progress.daily_xp goal=progress.daily_goal pct=daily_progress_percent rem=remaining_xp %}
-                <div class="stat-card daily-goal-widget" data-aos="fade-up" data-aos-delay="300"
-                    style="margin-bottom: 2rem; background: #ffffff !important; position: relative; overflow: hidden; border: 1px solid rgba(0,0,0,0.05) !important; padding: 2rem !important;">
-
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem; position: relative; z-index: 1;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                            <div style="display: flex; gap: 1rem; align-items: center; min-width: 200px;">
-                                <div
-                                    style="width: 48px; height: 48px; background: #6366f1; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; flex-shrink: 0;">
-                                    <i class="fas fa-bullseye"></i>
-                                </div>
-                                <div>
-                                    <h3 style="font-weight: 800; font-size: 1.4rem; color: #1e293b; margin: 0;">Щоденна
-                                        ціль</h3>
-                                    <p style="color: #64748b; font-size: 0.9rem; margin: 0;">На шляху до успіху!</p>
-                                </div>
-                            </div>
-
-                            <div style="text-align: right; margin-left: auto;">
-                                <div
-                                    style="display: flex; align-items: baseline; gap: 0.3rem; justify-content: flex-end;">
-                                    <span
-                                        style="font-size: 2rem; font-weight: 900; color: #6366f1; font-family: 'Outfit', sans-serif;">{{xp}}</span>
-                                    <span style="color: #94a3b8; font-weight: 700;">/ {{goal}} XP</span>
-                                </div>
-                                <div
-                                    style="font-size: 0.75rem; font-weight: 800; color: #818cf8; text-transform: uppercase;">
-                                    Сьогодні</div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div
-                                style="background: #f1f5f9; height: 12px; border-radius: 10px; overflow: hidden; margin-bottom: 1rem;">
-                                <div class="progress-fill"
-                                    style="width: {{pct}}%; height: 100%; background: linear-gradient(90deg, #6366f1, #a855f7); border-radius: 10px; transition: width 1s ease-out;">
-                                </div>
-                            </div>
-
-                            {% if pct >= 100 %}
-                            <div
-                                style="color: #059669; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
-                                <i class="fas fa-check-circle"></i> Ціль виконана! Ви супер!
-                            </div>
-                            {% else %}
-                            <div style="color: #64748b; font-size: 0.9rem; font-weight: 600;">
-                                Залишилося ще <strong style="color: #6366f1;">{{rem}} XP</strong> до вашої мети
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endwith %}
-
-                <section class="profile-section" data-aos="fade-up" data-aos-delay="400">
-                    <h2 class="section-title">Ваші успіхи</h2>
-                    <div class="stats-grid">
-                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="500">
-                            <div class="stat-icon icon-lessons"
-                                style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
-                                <i class="fas fa-book-open"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value"
-                                    style="font-size: 2.5rem;">{{progress.total_lessons_completed}}</span>
-                                <span class="stat-label">Уроків</span>
-                            </div>
-                        </div>
-                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="600">
-                            <div class="stat-icon icon-exercises"
-                                style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value"
-                                    style="font-size: 2.5rem;">{{progress.total_exercises_completed}}</span>
-                                <span class="stat-label">Вправ</span>
-                            </div>
-                        </div>
-                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="700">
-                            <div class="stat-icon icon-streak"
-                                style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
-                                <i class="fas fa-trophy"></i>
-                            </div>
-                            <div class="stat-info">
-                                <span class="stat-value" style="font-size: 2.5rem;">{{ completed_courses_count }}</span>
-                                <span class="stat-label">Курсів</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="profile-section" style="margin-top: 2rem;" data-aos="fade-up">
-                    <h2 class="section-title">Ваші досягнення</h2>
-                    <div class="badges-grid"
-                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1.5rem;">
-                        {% for ub in badges %}
-                        <div class="badge-card"
-                            style="background: white; border-radius: 24px; padding: 1.5rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s;"
-                            data-aos="zoom-in">
-                            <div
-                                style="width: 64px; height: 64px; background: #fef3c7; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: #d97706; font-size: 1.8rem;">
-                                <i class="{{ ub.badge.icon }}"></i>
-                            </div>
-                            <h4 style="font-size: 0.95rem; font-weight: 800; color: #1e293b; margin-bottom: 0.4rem;">{{
-                                ub.badge.name }}</h4>
-                            <p style="font-size: 0.75rem; color: #64748b; font-weight: 600; line-height: 1.3;">{{
-                                ub.badge.description }}</p>
-                        </div>
-                        {% empty %}
-                        <div
-                            style="grid-column: 1/-1; text-align: center; padding: 3rem; background: rgba(0,0,0,0.02); border-radius: 24px; border: 2px dashed rgba(0,0,0,0.05);">
-                            <p style="color: #64748b; font-weight: 700;">Поки немає досягнень. Проходьте курси, щоб
-                                отримати їх!</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </section>
-
-                <section class="profile-section" style="margin-top: 2rem;" data-aos="fade-up" data-aos-delay="800">
-                    <h2 class="section-title">Пройдені курси</h2>
-                    <div class="completed-courses-grid" style="display: grid; gap: 1.5rem;">
-                        {% if completed_courses %}
-                        {% for progress in completed_courses %}
-                        <div class="course-progress-card" data-aos="fade-left"
-                            data-aos-delay="{{ forloop.counter|add:8 }}00">
-                            <div class="course-icon" style="font-size: 2.5rem;">
-                                {% if progress.course.language == 'en' %}🇬🇧{% elif progress.course.language == 'de'
-                                %}🇩🇪{% elif progress.course.language == 'fr' %}🇫🇷{% else %}🌍{% endif %}
-                            </div>
-                            <div class="course-info-meta">
-                                <h4 style="font-size: 1.3rem; font-weight: 800;">{{ progress.course.title }}</h4>
-                                <div class="progress-bar-container"
-                                    style="height: 12px; border-radius: 100px; background: rgba(0,0,0,0.05);">
-                                    <div class="progress-fill"
-                                        style="width: 100%; background: linear-gradient(90deg, #10b981, #34d399);">
-                                    </div>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                                    <span style="font-size: 0.9rem; color: #059669; font-weight: 800;">ЗАВЕРШЕНО</span>
-                                    <span style="font-size: 0.9rem; color: #64748b; font-weight: 700;">{{
-                                        progress.test_score }}%</span>
-                                </div>
-                            </div>
-                            <div
-                                style="width: 60px; height: 60px; background: #fffbeb; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-certificate" style="color: #f59e0b; font-size: 1.8rem;"></i>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        {% else %}
-                        <div class="empty-state"
-                            style="text-align: center; padding: 4rem 2rem; background: rgba(255,255,255,0.4); backdrop-filter: blur(10px); border-radius: 40px; border: 2px dashed rgba(0,0,0,0.05);">
-                            <div
-                                style="width: 100px; height: 100px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
-                                <i class="fas fa-graduation-cap" style="font-size: 3rem; color: #94a3b8;"></i>
-                            </div>
-                            <h3 style="font-weight: 800; color: #1e293b; margin-bottom: 0.5rem;">Поки що пусто</h3>
-                            <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 2rem;">Ви ще не завершили
-                                жодного курсу. Час почати!</p>
-                            <a href="{% url 'courses:courses-list' %}" class="btn btn-hero-primary"
-                                style="padding: 16px 32px; border-radius: 18px;">До списку курсів</a>
-                        </div>
-                        {% endif %}
-                    </div>
-                </section>
+                <a href="{% url 'courses:mistakes-list' %}"
+                    style="background:#ef4444; color:#fff; padding:16px 32px; border-radius:18px; font-weight:800; text-decoration:none;">Відпрацювати</a>
             </div>
+            {% endif %}
 
-            <aside class="profile-sidebar" data-aos="fade-left" data-aos-delay="600">
-                <div class="profile-card info-card" style="box-shadow: 0 20px 40px rgba(0,0,0,0.05) !important;">
-                    <h2 class="card-subtitle"
-                        style="font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.25rem; margin-bottom: 1.5rem;">
-                        Інформація</h2>
-                    <div class="info-list">
-                        <div class="info-item" data-aos="fade-left" data-aos-delay="700">
-                            <div class="info-icon"
-                                style="background: rgba(99, 102, 241, 0.1); color: #4f46e5; border-radius: 14px;">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="info-content">
-                                <span class="info-label">Email</span>
-                                <span class="info-value" style="word-break: break-all;">{{ user.email }}</span>
-                            </div>
-                        </div>
-                        <div class="info-item" data-aos="fade-left" data-aos-delay="800">
-                            <div class="info-icon"
-                                style="background: rgba(16, 185, 129, 0.1); color: #059669; border-radius: 14px;">
-                                <i class="fas fa-language"></i>
-                            </div>
-                            <div class="info-content">
-                                <span class="info-label">Рідна мова</span>
-                                <span class="info-value">{{ user.get_native_language_display }}</span>
-                            </div>
-                        </div>
-                        <div class="info-item" data-aos="fade-left" data-aos-delay="900">
-                            <div class="info-icon"
-                                style="background: rgba(245, 158, 11, 0.1); color: #d97706; border-radius: 14px;">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="info-content">
-                                <span class="info-label">Вивчаю</span>
-                                <span class="info-value">{{ user.get_learning_language_display }}</span>
-                            </div>
-                        </div>
-                        <div class="info-item" data-aos="fade-left" data-aos-delay="1000">
-                            <div class="info-icon"
-                                style="background: rgba(100, 116, 139, 0.1); color: #475569; border-radius: 14px;">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <div class="info-content">
-                                <span class="info-label">На сайті з</span>
-                                <span class="info-value">{{ user.created_at|date:"d.m.Y" }}</span>
-                            </div>
-                        </div>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:2rem;">
+                <div class="stat-card-glass">
+                    <div style="font-size:2.5rem; margin-bottom:1rem; color:#6366f1;"><i class="fas fa-book-open"></i>
+                    </div>
+                    <span style="font-size:2.5rem; font-weight:900;">{{progress.total_lessons_completed}}</span>
+                    <div style="font-weight:800; color:#94a3b8; text-transform:uppercase; font-size:0.8rem;">Уроків
                     </div>
                 </div>
-
-                {% if progress.last_activity_date %}
-                <div class="activity-card profile-card"
-                    style="margin-top: 1.5rem; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important; color: white !important; padding: 1.5rem !important;"
-                    data-aos="zoom-in" data-aos-delay="1100">
-                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <div
-                                style="width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-bolt" style="color: #fbbf24;"></i>
-                            </div>
-                            <span style="font-size: 0.95rem; font-weight: 700;">Активність</span>
-                        </div>
-                        <span
-                            style="font-size: 1rem; font-weight: 800; background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 8px;">
-                            {{ progress.last_activity_date|date:"d.m" }}
-                        </span>
+                <div class="stat-card-glass">
+                    <div style="font-size:2.5rem; margin-bottom:1rem; color:#10b981;"><i
+                            class="fas fa-check-circle"></i></div>
+                    <span style="font-size:2.5rem; font-weight:900;">{{progress.total_exercises_completed}}</span>
+                    <div style="font-weight:800; color:#94a3b8; text-transform:uppercase; font-size:0.8rem;">Вправ</div>
+                </div>
+                <div class="stat-card-glass">
+                    <div style="font-size:2.5rem; margin-bottom:1rem; color:#f59e0b;"><i class="fas fa-trophy"></i>
+                    </div>
+                    <span style="font-size:2.5rem; font-weight:900;">{{completed_courses_count}}</span>
+                    <div style="font-weight:800; color:#94a3b8; text-transform:uppercase; font-size:0.8rem;">Курсів
                     </div>
                 </div>
-                {% endif %}
-            </aside>
+            </div>
         </div>
 
-        <div id="edit-mode" style="display: none;" class="animate-slide-up">
-            <div class="edit-card">
-                <h2 class="section-title">Налаштування профілю</h2>
-                <form method="post" enctype="multipart/form-data" class="profile-form">
-                    {% csrf_token %}
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>{{ form.username.label }}</label>
-                            {{ form.username }}
-                        </div>
-                        <div class="form-group">
-                            <label>{{ form.email.label }}</label>
-                            {{ form.email }}
-                        </div>
-                        <div class="form-group">
-                            <label>{{ form.native_language.label }}</label>
-                            {{ form.native_language }}
-                        </div>
-                        <div class="form-group">
-                            <label>{{ form.learning_language.label }}</label>
-                            {{ form.learning_language }}
-                        </div>
-                        <div class="form-group">
-                            <label>{{ form.level.label }}</label>
-                            {{ form.level }}
-                        </div>
-                        <div style="display: none;">{{ form.avatar }}</div>
+        <aside>
+            <div class="stat-card-glass" style="background:#fff !important;">
+                <h3
+                    style="font-size:1.5rem; font-weight:950; margin-bottom:2rem; border-bottom:2px solid #f1f5f9; padding-bottom:1rem;">
+                    Інформація</h3>
+                <div style="display:flex; flex-direction:column; gap:1.8rem;">
+                    <div>
+                        <span class="info-label-style">Email</span>
+                        <span class="info-value-style">{{user.email}}</span>
                     </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Зберегти зміни</button>
-                        <button type="button" class="btn btn-secondary" id="cancel-edit">Скасувати</button>
+                    <div>
+                        <span class="info-label-style">Рідна мова</span>
+                        <span class="info-value-style">{{user.get_native_language_display}}</span>
                     </div>
-                </form>
+                    <div>
+                        <span class="info-label-style">Вивчаю</span>
+                        <span class="info-value-style">{{user.get_learning_language_display}}</span>
+                    </div>
+                    <div>
+                        <span class="info-label-style">Приєднався</span>
+                        <span class="info-value-style">{{user.created_at|date:"d.m.Y"}}</span>
+                    </div>
+                </div>
             </div>
+            {% if progress.last_activity_date %}
+            <div class="stat-card-glass"
+                style="margin-top:2rem; background:linear-gradient(135deg,#6366f1,#4f46e5)!important; color:#fff!important; padding:1.5rem!important;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:800;"><i class="fas fa-bolt"></i> Активність</span>
+                    <span
+                        style="font-weight:950; background:rgba(0,0,0,0.1); padding:5px 12px; border-radius:10px;">{{progress.last_activity_date|date:"d.m"}}</span>
+                </div>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+
+    <div id="edit-mode" style="display:none; margin-top:2rem;">
+        <div class="settings-card-modern">
+            <div class="settings-title-group">
+                <h2 class="settings-title">Налаштування</h2>
+                <p class="settings-subtitle">Персоналізуйте свій досвід навчання</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="settings-form-modern">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div
+                    style="background:#fee2e2; border:1px solid #fecaca; color:#ef4444; padding:1.5rem; border-radius:16px; margin-bottom:2rem; font-weight:700;">
+                    <ul>
+                        {% for field in form %}
+                        {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <div class="form-grid-modern">
+                    <div class="input-group-modern">
+                        <label class="input-label-modern">{{form.username.label}}</label>
+                        <input type="text" name="username" value="{{user.username}}" class="input-modern" required
+                            id="id_username">
+                    </div>
+                    <div class="input-group-modern">
+                        <label class="input-label-modern">{{form.email.label}}</label>
+                        <input type="email" name="email" value="{{user.email}}" class="input-modern" required
+                            id="id_email">
+                    </div>
+                    <div class="input-group-modern">
+                        <label class="input-label-modern">{{form.native_language.label}}</label>
+                        {{ form.native_language }}
+                    </div>
+                    <div class="input-group-modern">
+                        <label class="input-label-modern">{{form.learning_language.label}}</label>
+                        {{ form.learning_language }}
+                    </div>
+                    <div class="input-group-modern">
+                        <label class="input-label-modern">{{form.level.label}}</label>
+                        {{ form.level }}
+                    </div>
+                </div>
+
+                <div style="display:none;">{{form.avatar}}</div>
+
+                <div class="btn-group-modern">
+                    <button type="submit" class="btn-save-modern">
+                        <i class="fas fa-check-circle"></i> Зберегти зміни
+                    </button>
+                    <button type="button" id="cancel-edit" class="btn-cancel-modern">
+                        Скасувати
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const v = document.getElementById('view-mode'),
+        const v = document.getElementById('view-mode'), // unused now but kept for compatibility
+            m = document.getElementById('profile-main-grid'),
             e = document.getElementById('edit-mode'),
             t = document.getElementById('toggle-edit'),
-            c = document.getElementById('cancel-edit');
+            c = document.getElementById('cancel-edit'),
+            g = document.querySelector('.profile-main-layout') ? document.querySelector('.profile-main-layout') : null;
 
         if (t) t.onclick = () => {
-            v.style.display = 'none';
+            if (g) g.style.display = 'none';
+            if (m) m.style.display = 'none';
             e.style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
         if (c) c.onclick = () => {
-            v.style.display = 'grid';
+            if (g) g.style.display = 'grid';
+            if (m) m.style.display = 'grid';
             e.style.display = 'none';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         const ai = document.getElementById('id_avatar');
         if (ai) ai.onchange = function () {
             if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    document.getElementById('avatar-preview').innerHTML = `<img src="${ev.target.result}" class="avatar-img">`;
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    const preview = document.getElementById('avatar-preview');
+                    preview.innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
                 };
-                reader.readAsDataURL(this.files[0]);
-                if (v.style.display !== 'none') t.onclick();
+                r.readAsDataURL(this.files[0]);
             }
         };
     });

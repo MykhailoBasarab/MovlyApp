@@ -146,7 +146,7 @@
   --glass: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
   --font-serif: 'Space Grotesk', sans-serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
 }
 
 
@@ -176,10 +176,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg);
-  background-image:
-    radial-gradient(circle at 15% 25%, rgba(15, 118, 110, 0.025) 0%, transparent 45%),
-    radial-gradient(circle at 85% 75%, rgba(15, 118, 110, 0.02) 0%, transparent 45%),
-    linear-gradient(180deg, transparent 0%, rgba(15, 118, 110, 0.01) 50%, transparent 100%);
   color: var(--text);
   min-height: 100vh;
   display: flex;
@@ -187,10 +183,6 @@ body {
   line-height: 1.6;
   font-size: 1rem;
   position: relative;
-}
-
-body::before {
-  content: none;
 }
 
 .main {
@@ -211,14 +203,26 @@ body::before {
 }
 
 .header {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  padding: 1.5rem 0;
-  position: relative;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 1.25rem 0;
+  position: sticky;
+  top: 0;
   z-index: 1000;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  border-bottom: 1px solid var(--border);
+  transition: padding 0.2s ease;
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.15;
 }
 
 .header.scrolled {
@@ -318,25 +322,11 @@ body::before {
 
 .nav a:not(.btn-logout):hover {
   color: var(--accent);
-  background: rgba(99, 102, 241, 0.05);
-  transform: translateY(-2px);
+  background: var(--accent-soft);
 }
 
 .nav a:not(.btn-logout)::after {
-  content: '';
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: var(--accent);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  transform: translateX(-50%);
-  border-radius: 2px;
-}
-
-.nav a:not(.btn-logout):hover::after {
-  width: 16px;
+  display: none;
 }
 
 
@@ -357,8 +347,6 @@ body::before {
 .btn-logout:hover {
   background: #ef4444;
   color: white;
-  transform: translateY(-4px) scale(1.03);
-  box-shadow: 0 15px 30px -5px rgba(239, 68, 68, 0.4);
   border-color: #ef4444;
 }
 
@@ -1304,61 +1292,52 @@ body::before {
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 80px);
-  /* Adjust based on header height */
-  padding: 4rem 1rem;
+  padding: 4rem 1.5rem;
   position: relative;
-  overflow: hidden;
-  background: radial-gradient(circle at 10% 20%, rgba(20, 184, 166, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.03) 0%, transparent 40%);
 }
 
 .form-container {
   width: 100%;
-  max-width: 460px;
+  max-width: 440px;
   padding: 3rem;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--accent);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
   position: relative;
   z-index: 10;
-  animation: modalEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: authEnter 0.4s ease-out;
 }
 
-@keyframes modalEnter {
+@keyframes authEnter {
   from {
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
+    transform: translateY(10px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 .form-container h2 {
-  font-family: 'Outfit', sans-serif;
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 2.5rem;
+  font-family: var(--font-accent);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 2rem;
   text-align: center;
-  letter-spacing: -0.025em;
-}
-
-.form-group {
-  margin-bottom: 1.75rem;
+  letter-spacing: -0.03em;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.625rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #475569;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1366,22 +1345,21 @@ body::before {
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 0.875rem 1.25rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   font-family: inherit;
   font-size: 1rem;
-  color: #1e293b;
+  color: var(--text-main);
   background: #f8fafc;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #14b8a6;
+  border-color: var(--accent);
   background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
 }
 
 .form-footer {
@@ -1404,60 +1382,7 @@ body::before {
 
 /* Decorative elements */
 .decorative-float {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  color: #14b8a6;
-  opacity: 0.15;
-  user-select: none;
-}
-
-.float-1 {
-  font-size: 8rem;
-  top: 10%;
-  left: 5%;
-  transform: rotate(-15deg);
-  animation: floatAnim 8s infinite ease-in-out;
-}
-
-.float-2 {
-  font-size: 6rem;
-  top: 60%;
-  left: 15%;
-  transform: rotate(10deg);
-  animation: floatAnim 10s infinite ease-in-out reverse;
-}
-
-.float-3 {
-  font-size: 7rem;
-  top: 20%;
-  right: 10%;
-  transform: rotate(20deg);
-  animation: floatAnim 12s infinite ease-in-out 1s;
-}
-
-.float-4 {
-  width: 300px;
-  height: 300px;
-  background: #14b8a6;
-  filter: blur(100px);
-  border-radius: 50%;
-  top: -100px;
-  right: -100px;
-  opacity: 0.05;
-}
-
-.float-5 {
-  width: 400px;
-  height: 400px;
-  background: #0f172a;
-  filter: blur(120px);
-  border-radius: 50%;
-  bottom: -150px;
-  left: -150px;
-  opacity: 0.05;
+  display: none;
 }
 
 @keyframes floatAnim {

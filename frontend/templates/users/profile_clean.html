@@ -83,7 +83,7 @@
     .streak-number {
         font-size: 4.5rem !important;
         font-weight: 900 !important;
-        font-family: 'Outfit', sans-serif !important;
+        font-family: var(--font-accent) !important;
         line-height: 1;
         text-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
@@ -120,7 +120,7 @@
         color: white;
         font-weight: 800;
         font-size: 4rem !important;
-        font-family: 'Outfit', sans-serif;
+        font-family: var(--font-accent);
     }
 
     .profile-card {
@@ -174,9 +174,9 @@
         <div class="profile-title-group">
             <h1 class="profile-name" style="font-size: clamp(2rem, 5vw, 4rem);">{{ user.username }}</h1>
             <div class="profile-badges">
-                <span class="badge badge-level"
-                    style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">{{ user.get_level_display
-                    }}</span>
+                <span class="badge badge-level" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                    {{ user.get_level_display }}
+                </span>
                 <span class="badge badge-xp" style="background: #fffbeb; border: 1px solid #fde68a;"><i
                         class="fas fa-star" style="color: #f59e0b;"></i> {{ progress.total_xp }}
                     XP</span>
@@ -196,9 +196,13 @@
                     <div class="streak-number">{{ progress.current_streak }}</div>
                     <div class="streak-info">
                         <h3 style="font-size: 1.5rem; font-weight: 800;">Днів у навчанні!</h3>
-                        <p style="font-size: 1.1rem; opacity: 0.95;">{% if progress.current_streak > 0 %}Ви молодець!
-                            Продовжуйте в тому ж дусі.{% else %}Почніть навчання сьогодні, щоб розпочати серію!{% endif
-                            %}</p>
+                        <p style="font-size: 1.1rem; opacity: 0.95;">
+                            {% if progress.current_streak > 0 %}
+                            Ви молодець! Продовжуйте в тому ж дусі.
+                            {% else %}
+                            Почніть навчання сьогодні, щоб розпочати серію!
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
 
@@ -248,8 +252,11 @@
                         <div class="course-progress-card" data-aos="fade-left"
                             data-aos-delay="{{ forloop.counter|add:8 }}00">
                             <div class="course-icon" style="font-size: 2.5rem;">
-                                {% if course.language == 'en' %}🇬🇧{% elif course.language == 'de' %}🇩🇪{% elif
-                                course.language == 'fr' %}🇫🇷{% else %}🌍{% endif %}
+                                {% if course.language == 'en' %}🇬🇧
+                                {% elif course.language == 'de' %}🇩🇪
+                                {% elif course.language == 'fr' %}🇫🇷
+                                {% else %}🌍
+                                {% endif %}
                             </div>
                             <div class="course-info-meta">
                                 <h4 style="font-size: 1.3rem; font-weight: 800;">{{ course.title }}</h4>
@@ -350,8 +357,9 @@
                             <span style="font-size: 0.95rem; font-weight: 700;">Активність</span>
                         </div>
                         <span
-                            style="font-size: 1rem; font-weight: 800; background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 8px;">{{
-                            progress.last_activity_date|date:"d.m" }}</span>
+                            style="font-size: 1rem; font-weight: 800; background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 8px;">
+                            {{ progress.last_activity_date|date:"d.m" }}
+                        </span>
                     </div>
                 </div>
                 {% endif %}

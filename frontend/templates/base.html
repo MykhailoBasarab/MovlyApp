@@ -1,41 +1,180 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MOVLY — Вивчення іноземних мов{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     {% load static %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/main.css' %}?v=4.0">
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}?v=4.0">
-
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
-        html {
-            scroll-behavior: smooth;
+        :root {
+            --primary: #6366f1;
+            --slate-800: #0f172a;
+            --slate-600: #334155;
+            --slate-400: #64748b;
+            --font-main: 'Space Grotesk', sans-serif;
+            --font-accent: 'Space Grotesk', sans-serif;
+            --font-serif: 'Space Grotesk', sans-serif;
         }
 
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-main); background-color: #f8fafc; margin: 0; }
 
-        [data-aos] {
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            /* Збільшена висота для ефекту протягнутості вниз */
+            height: 120px; 
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+        }
+
+        .header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .logo-image { height: 55px; width: auto; }
+
+        .project-name {
+            font-family: var(--font-accent);
+            font-weight: 800;
+            font-size: 2.2rem;
+            letter-spacing: -1.5px;
+            color: var(--slate-800);
+            text-transform: uppercase;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: var(--slate-600);
+            font-weight: 600;
+            /* Трохи менший шрифт для навігації */
+            font-size: 1.05rem; 
+            padding: 12px 20px;
+            border-radius: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .nav a:hover {
+            color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f1f5f9;
+            padding: 10px 22px !important;
+            border-radius: 16px !important;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            background: #fff;
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar.placeholder {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            border: none;
+        }
+
+        .btn-logout {
+            background: #fff1f2 !important;
+            color: #e11d48 !important;
+            font-weight: 700 !important;
+            margin-left: 10px;
+        }
+
+        .btn-login {
+            background: var(--primary) !important;
+            color: white !important;
+            padding: 14px 30px !important;
+            font-weight: 700 !important;
+        }
+
+        .main { padding: 60px 0; min-height: calc(100vh - 120px - 400px); }
+
+        .alert {
+            padding: 16px 24px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 500px;
+            margin-left: auto;
+        }
+
+        .alert-success { background: #ecfdf5; color: #059669; border: 1px solid #10b98144; }
+        .alert-info { background: #eff6ff; color: #2563eb; border: 1px solid #3b82f644; }
+        .alert-error, .alert-danger { background: #fef2f2; color: #dc2626; border: 1px solid #ef444444; }
+        .alert-warning { background: #fffbeb; color: #d97706; border: 1px solid #f59e0b44; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .messages-container {
+            position: fixed;
+            top: 140px;
+            right: 40px;
+            z-index: 9999;
+            width: 100%;
+            max-width: 450px;
             pointer-events: none;
         }
-
-        [data-aos].aos-animate {
-            pointer-events: auto;
-        }
+        .alert { pointer-events: auto; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
-
 <body>
-    <a href="#main-content" class="skip-link">Перейти до контенту</a>
-
     <header class="header">
         <div class="container">
             <a href="{% url 'home' %}" class="logo">
@@ -45,118 +184,97 @@
             <nav class="nav">
                 <a href="{% url 'courses:courses-list' %}">Курси</a>
                 <a href="{% url 'tests:tests-list' %}">Тести</a>
-                <a href="{% url 'users:leaderboard' %}">Лідерборд</a>
+                <a href="{% url 'users:missions' %}">Місії</a>
                 {% if user.is_authenticated %}
-                <a href="{% url 'users:profile' %}">Профіль</a>
+                <a href="{% url 'users:profile' %}" class="profile-btn">
+                    <div class="user-avatar {% if not user.avatar %}placeholder{% endif %}" style="overflow: hidden;">
+                        {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                        {{ user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <span style="font-weight: 700; color: var(--slate-800);">Профіль</span>
+                </a>
                 <a href="{% url 'users:logout' %}" class="btn-logout">Вийти</a>
                 {% else %}
-                <a href="{% url 'users:login' %}">Вхід</a>
+                <a href="{% url 'users:login' %}" class="btn-login">Вхід</a>
                 {% endif %}
             </nav>
         </div>
     </header>
 
-
-    <main class="main" id="main-content" tabindex="-1">
-        <div class="container">
-            {% if messages %}
+    <div class="messages-container">
+        {% if messages %}
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-            </div>
+                <div class="alert alert-{{ message.tags }}" data-aos="fade-left">
+                    {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
+                    {% elif message.tags == 'info' %}<i class="fas fa-info-circle"></i>
+                    {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+                    {% elif message.tags == 'error' %}<i class="fas fa-times-circle"></i>
+                    {% endif %}
+                    <span>{{ message }}</span>
+                </div>
             {% endfor %}
-            {% endif %}
+        {% endif %}
+    </div>
 
+    <main class="main">
+        <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
             {% block content %}{% endblock %}
         </div>
     </main>
 
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section footer-brand">
-                    <a href="{% url 'home' %}" class="footer-logo">
-                        <img src="{% static 'images/logo.png' %}" alt="MOVLY" class="footer-logo-image">
-                        <span>MOVLY</span>
+    <footer class="footer" style="background: #fff; border-top: 1px solid #f1f5f9; padding: 80px 0;">
+        <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px;">
+                <div>
+                    <a href="{% url 'home' %}" style="text-decoration:none; display:flex; align-items:center; gap:12px; margin-bottom:25px;">
+                        <img src="{% static 'images/logo.png' %}" alt="MOVLY" style="height:45px;">
+                        <span style="font-family: var(--font-accent); font-weight:800; font-size:1.8rem; color:var(--slate-800);">MOVLY</span>
                     </a>
-                    <p class="footer-tagline">Сучасна платформа для вивчення іноземних мов</p>
-                    <div class="footer-social">
-                        <a href="#" aria-label="Facebook" class="social-link">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                            </svg>
-                        </a>
-                        <a href="#" aria-label="Instagram" class="social-link">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                            </svg>
-                        </a>
-                        <a href="#" aria-label="Twitter" class="social-link">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                            </svg>
-                        </a>
-                    </div>
+                    <p style="color:var(--slate-400); line-height:1.7; font-size:1.1rem;">Ваш персональний AI-помічник у вивченні мов.</p>
                 </div>
-
-                <div class="footer-section">
-                    <h3 class="footer-title">Навчання</h3>
-                    <ul class="footer-links">
-                        <li><a href="{% url 'courses:courses-list' %}">Курси</a></li>
-                        <li><a href="{% url 'tests:tests-list' %}">Тести</a></li>
-                        <li><a href="#">Прогрес</a></li>
+                <div>
+                    <h4 style="margin-bottom:25px; color:var(--slate-800); font-size:1.2rem;">Навігація</h4>
+                    <ul style="list-style:none; padding:0; margin:0; line-height:2.2;">
+                        <li><a href="{% url 'courses:courses-list' %}" style="text-decoration:none; color:var(--slate-400);">Всі курси</a></li>
+                        <li><a href="{% url 'tests:tests-list' %}" style="text-decoration:none; color:var(--slate-400);">Тестування</a></li>
                     </ul>
                 </div>
-
-                <div class="footer-section">
-                    <h3 class="footer-title">Підтримка</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Допомога</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Контакти</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-section">
-                    <h3 class="footer-title">Компанія</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Про нас</a></li>
-                        <li><a href="#">Блог</a></li>
-                        <li><a href="#">Кар'єра</a></li>
+                <div>
+                    <h4 style="margin-bottom:25px; color:var(--slate-800); font-size:1.2rem;">Інфо</h4>
+                    <ul style="list-style:none; padding:0; margin:0; line-height:2.2;">
+                        <li><a href="#" style="text-decoration:none; color:var(--slate-400);">Про проєкт</a></li>
+                        <li><a href="#" style="text-decoration:none; color:var(--slate-400);">Контакти</a></li>
                     </ul>
                 </div>
             </div>
-
-            <div class="footer-bottom">
-                <p>&copy; 2024 MOVLY. Всі права захищені.</p>
-                <div class="footer-legal">
-                    <a href="#">Політика конфіденційності</a>
-                    <a href="#">Умови використання</a>
-                </div>
+            <div style="margin-top:70px; padding-top:30px; border-top:1px solid #f1f5f9; text-align:center; color:#94a3b8;">
+                &copy; 2026 MOVLY. Всі права захищені.
             </div>
         </div>
     </footer>
 
-    {% load static %}
-    <script src="{% static 'js/main.js' %}"></script>
-
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            AOS.init({
-                duration: 1000,
-                once: true,
-                offset: 120,
-                easing: 'ease-out-back',
-                disable: 'mobile' 
+            AOS.init({ duration: 800, once: true });
+
+            // Auto-dismiss alerts
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'all 0.5s ease';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateX(20px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 500);
+                }, 5000);
             });
         });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
-
 </html>

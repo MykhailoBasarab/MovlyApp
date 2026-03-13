@@ -7,141 +7,106 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=12.0">
-<style>
-    .lesson-content-box h3 {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #1e293b;
-        margin-top: 2.5rem;
-        margin-bottom: 1.25rem;
-        font-family: 'Space Grotesk', sans-serif;
-    }
-
-    .lesson-content-box ul {
-        list-style: none;
-        padding-left: 0;
-    }
-
-    .lesson-content-box li {
-        background: #f8fafc;
-        margin-bottom: 0.75rem;
-        padding: 1rem 1.5rem;
-        border-radius: 16px;
-        border: 1px solid rgba(0, 0, 0, 0.03);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .lesson-content-box li::before {
-        content: '\f058';
-        font-family: 'Font Awesome 5 Free';
-        font-weight: 900;
-        color: #6366f1;
-    }
-
-    .exc-form .form-check {
-        background: white;
-        padding: 1.25rem 1.5rem 1.25rem 3.5rem;
-        border-radius: 20px;
-        margin-bottom: 1rem;
-        border: 2px solid #e2e8f0;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=14.0">
 {% endblock %}
 
 {% block content %}
 <div class="course-detail-container">
-    <div class="lesson-page-header" data-aos="fade-down">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <a href="{% url 'courses:course-detail' lesson.course.id %}"
-                style="text-decoration: none; color: #64748b; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-arrow-left"></i> Назад
-            </a>
-            <div
-                style="background: rgba(99, 102, 241, 0.1); color: #6366f1; padding: 6px 16px; border-radius: 100px; font-weight: 800; font-size: 0.85rem;">
-                Урок {{ lesson.order }} з {{ lesson.course.lessons.count }}
-            </div>
+
+    <nav class="lesson-nav">
+        <a href="{% url 'courses:course-detail' lesson.course.id %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Назад до курсу
+        </a>
+        <div class="lesson-badge">
+            Урок {{ lesson.order }} з {{ lesson.course.lessons.count }}
         </div>
-        <h1
-            style="font-size: 3rem; font-weight: 900; color: #1e293b; margin-bottom: 0.5rem; font-family: 'Space Grotesk', sans-serif;">
-            {{ lesson.title }}
-        </h1>
-        <p style="font-size: 1.2rem; color: #64748b; font-weight: 500;">
-            {{ lesson.description }}
-        </p>
+    </nav>
+    <h1 class="lesson-main-title">{{ lesson.title }}</h1>
+    <p class="lesson-main-desc">{{ lesson.description }}</p>
+    </header>
+
+    <div class="lesson-content-card" data-aos="fade-up">
+        <div class="theory-badge-pill">
+            <i class="fas fa-graduation-cap"></i> Навчальний матеріал
+        </div>
+        <div class="theory-body" id="theory-content">
+            {{ lesson.content|safe }}
+        </div>
     </div>
 
-    <div class="lesson-content-box" data-aos="fade-up">
-        {{ lesson.content|safe }}
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const theoryBody = document.getElementById('theory-content');
+            if (theoryBody) {
+                const rawContent = theoryBody.textContent.trim();
 
-    <div class="exercises-section">
+                if (rawContent.includes('#') || rawContent.includes('*') || rawContent.includes('-')) {
+                    theoryBody.innerHTML = marked.parse(rawContent);
+                }
+            }
+        });
+    </script>
+
+    <div class="exercises-container">
         {% for ex in exercises %}
-        <div class="exercise-modern-card" data-aos="fade-up">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.8rem;">
-                    <span
-                        style="width: 32px; height: 32px; background: #6366f1; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900;">
-                        {{ forloop.counter }}
-                    </span>
-                    <h3 style="margin:0; font-size:1.2rem; font-weight:800;">
-                        {{ ex.get_exercise_type_display }}
+        <div class="exercise-modern-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+            <div class="exercise-header">
+                <div class="exercise-type-tag">
+                    <span class="exercise-num">{{ forloop.counter }}</span>
+                    <h3 class="exercise-label">{{ ex.get_exercise_type_display|premium_label:lesson.course.language }}
                     </h3>
                 </div>
             </div>
 
-            <div
-                style="background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(0,0,0,0.03); margin-bottom: 1.5rem;">
-                <p style="font-size: 1.15rem; color: #1e293b; font-weight: 700; margin: 0;">
-                    {{ ex.question }}
-                </p>
+            <div class="exercise-question-box">
+                <p class="exercise-question-text">{{ ex.question|linebreaksbr }}</p>
             </div>
 
             {% with at=attempts|get_item:ex.id %}
             {% if at and at.is_correct %}
-            <div style="padding:1.5rem; border-radius:20px; background:#ecfdf5;">
-                <div style="font-weight:800; color:#065f46;">
-                    ✓ Правильно!
-                </div>
-                <p style="margin-top: 0.5rem; margin-bottom: 0;">Твоя відповідь: <strong>{{ at.user_answer }}</strong>
-                </p>
+            <div class="feedback-box feedback-success">
+                <div class="feedback-title">✓ Правильно!</div>
+                <p class="feedback-text">Твоя відповідь: <strong>{{ at.user_answer }}</strong></p>
             </div>
             {% else %}
-            {% if at %}
-            <div
-                style="padding:1.25rem; border-radius:20px; background:#fef2f2; margin-bottom: 1.5rem; border: 1px solid #fee2e2;">
-                <div style="font-weight:800; color:#991b1b; display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-redo"></i> Спробуй ще раз!
-                </div>
-                <p style="margin-top:0.5rem;margin-bottom:0;color:#b91c1c;">Попередня
-                    відповідь:<strong>{{at.user_answer}}</strong></p>
+            {% if at and not at.is_correct and ex.id == feedback_ex_id %}
+            <div class="feedback-box feedback-error">
+                <div class="feedback-title"><i class="fas fa-redo"></i> Спробуй ще раз!</div>
+                <p class="feedback-text">Попередня відповідь: <strong>{{ at.user_answer }}</strong></p>
             </div>
             {% endif %}
-            <form method="post" action="{% url 'courses:submit-exercise' ex.id %}" class="exc-form">
+
+            {% if ex.exercise_type == 'listening' %}
+            <div class="audio-player-container mb-4">
+                <audio id="audio-{{ ex.id }}"
+                    src="{% url 'ai_services:tts' %}?text={{ ex.question|urlencode }}&language=uk"></audio>
+                <button type="button" class="btn-play-audio"
+                    onclick="document.getElementById('audio-{{ ex.id }}').play()">
+                    <i class="fas fa-volume-up"></i> Прослухати завдання
+                </button>
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'courses:submit-exercise' ex.id %}" class="exercise-form">
                 {% csrf_token %}
-                {% if ex.exercise_type == 'multiple_choice' %}
-                <div class="options-grid" style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                {% if ex.options %}
+                <div class="options-grid">
                     {% for opt in ex.options %}
-                    <div class="form-check" style="margin-bottom: 0; position: relative;">
-                        <input class="form-check-input" type="radio" name="answer"
-                            id="opt{{ ex.id }}_{{ forloop.counter }}" value="{{ opt }}" required
-                            style="position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%);">
-                        <label class="form-check-label" for="opt{{ ex.id }}_{{ forloop.counter }}"
-                            style="cursor:pointer;display:block;width:100%;font-weight:600;color:#334155;">{{opt}}</label>
-                    </div>
+                    <label class="option-item">
+                        <input type="radio" name="answer" value="{{ opt }}" required>
+                        <span class="option-label">{{ opt }}</span>
+                    </label>
                     {% endfor %}
                 </div>
+                {% elif ex.exercise_type in 'ai_generated,speaking,translation' %}
+                <textarea name="answer" class="exercise-input exercise-textarea" rows="4"
+                    placeholder="Введіть вашу відповідь тут..." required></textarea>
                 {% else %}
-                <input type="text" name="answer" class="form-control"
-                    style="width: 100%; padding: 1.25rem; border-radius: 20px; border: 2px solid #e2e8f0; font-weight: 700; margin-bottom: 1.5rem; font-size: 1.1rem; transition: all 0.3s;"
-                    placeholder="Введіть вашу відповідь тут..." required>
+                <input type="text" name="answer" class="exercise-input" placeholder="Введіть вашу відповідь тут..."
+                    required>
                 {% endif %}
-                <button type="submit" class="btn btn-primary"
-                    style="padding: 1.1rem 3rem; border-radius: 100px; font-weight: 850; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); transition: all 0.3s ease;">
+                <button type="submit" class="btn-submit">
                     Перевірити відповідь
                 </button>
             </form>
@@ -150,5 +115,107 @@
         </div>
         {% endfor %}
     </div>
+
+    <div class="text-center" style="margin-top: 4rem; margin-bottom: 2rem;">
+        <form method="post" action="{% url 'courses:complete-lesson' lesson.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-finish-lesson">
+                <i class="fas fa-check-circle"></i> Завершити урок
+            </button>
+        </form>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const forms = document.querySelectorAll('.exercise-form');
+
+        forms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnContent = submitBtn.innerHTML;
+                const formData = new FormData(this);
+                const url = this.action;
+                const card = this.closest('.exercise-modern-card');
+
+
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ПЕРЕВІРКА...';
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+
+                            const oldFeedbacks = card.querySelectorAll('.feedback-box, .ai-feedback-box');
+                            oldFeedbacks.forEach(el => el.remove());
+
+                            if (data.is_correct) {
+                                let successHtml = `
+                            <div class="field-feedback field-success" style="animation: lessonFadeIn 0.5s ease;">
+                                <div class="feedback-title">✓ Правильно!</div>
+                                <p class="feedback-text">Твоя відповідь: <strong>${data.user_answer}</strong></p>
+                            </div>`;
+
+                                if (data.ai_feedback) {
+                                    successHtml += `
+                                    <div class="ai-feedback-box">
+                                        <p><strong>Відгук AI:</strong> ${data.ai_feedback}</p>
+                                    </div>`;
+                                }
+
+                                this.outerHTML = successHtml;
+                            } else {
+
+                                let errorHtml = `
+                            <div class="field-feedback field-error" style="animation: lessonShake 0.5s ease;">
+                                <div class="feedback-title"><i class="fas fa-redo"></i> Спробуй ще раз!</div>
+                                <p class="feedback-text">Попередня відповідь: <strong>${data.user_answer}</strong></p>
+                            </div>`;
+
+                                if (data.ai_feedback) {
+                                    errorHtml += `
+                                <div class="ai-hint-box">
+                                    <p><strong>Підказка AI:</strong> ${data.ai_feedback}</p>
+                                </div>`;
+                                }
+
+
+                                this.insertAdjacentHTML('beforebegin', errorHtml);
+
+
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnContent;
+                            }
+                        } else {
+                            alert('Помилка: ' + (data.error || 'Невідома помилка'));
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnContent;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Сталася помилка при відправці відповіді. Спробуйте ще раз.');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnContent;
+                    });
+            });
+        });
+    });
+</script>
+
+
 {% endblock %}

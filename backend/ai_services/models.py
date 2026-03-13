@@ -6,7 +6,6 @@ User = get_user_model()
 
 
 class AIInteraction(models.Model):
-    """Модель для збереження взаємодій з AI"""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -19,18 +18,17 @@ class AIInteraction(models.Model):
             ('exercise_generation', 'Генерація вправи'),
             ('feedback', 'Відгук'),
             ('answer_check', 'Перевірка відповіді'),
-            ('audio_generation', 'Генерація аудіо'),
         ],
         verbose_name='Тип взаємодії'
     )
     prompt = models.TextField(verbose_name='Запит')
-    response = models.TextField(verbose_name='Відповідь AI')
+    response = models.TextField(verbose_name='Відповідь')
     tokens_used = models.IntegerField(default=0, verbose_name='Використано токенів')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Створено')
 
     class Meta:
-        verbose_name = 'Взаємодія з AI'
-        verbose_name_plural = 'Взаємодії з AI'
+        verbose_name = 'Взаємодія'
+        verbose_name_plural = 'Взаємодії'
         db_table = 'ai_interactions'
         ordering = ['-created_at']
 
@@ -39,7 +37,6 @@ class AIInteraction(models.Model):
 
 
 class LearningAnalytics(models.Model):
-    """Аналітика навчання (зберігається в окремій БД)"""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -55,7 +52,7 @@ class LearningAnalytics(models.Model):
         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
         verbose_name='Точність (%)'
     )
-    ai_interactions_count = models.IntegerField(default=0, verbose_name='Взаємодій з AI')
+    ai_interactions_count = models.IntegerField(default=0, verbose_name='Взаємодій')
 
     class Meta:
         verbose_name = 'Аналітика навчання'

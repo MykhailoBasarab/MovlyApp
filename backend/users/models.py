@@ -1,9 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Q
+from django.utils import timezone
+from django.utils.timezone import localdate
+from datetime import timedelta
 
 
 class CustomUser(AbstractUser):
-    """Розширена модель користувача"""
     native_language = models.CharField(
         max_length=10,
         choices=[
@@ -55,11 +58,7 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-from django.utils import timezone
-from datetime import timedelta
-
 class UserProgress(models.Model):
-    """Прогрес користувача"""
     user = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE,
@@ -81,23 +80,18 @@ class UserProgress(models.Model):
         db_table = 'user_progress'
 
     def update_activity(self):
-        """Оновлення серії днів активності та скидання щоденного досвіду"""
-        today = timezone.now().date()
+        today = localdate()
         
         if self.last_activity_date:
             if self.last_activity_date == today:
-                # Вже була активність сьогодні
                 pass
             elif self.last_activity_date == today - timedelta(days=1):
-                # Активність була вчора, продовжуємо серію
                 self.current_streak += 1
-                self.daily_xp = 0  # Новий день - скидаємо XP
+                self.daily_xp = 0
             else:
-                # Перерва в навчанні
                 self.current_streak = 1
                 self.daily_xp = 0
         else:
-            # Перша активність
             self.current_streak = 1
             self.daily_xp = 0
             
@@ -107,27 +101,42 @@ class UserProgress(models.Model):
         self.save()
 
     def add_xp(self, amount):
-        """Додавання досвіду та повернення True, якщо рівень підвищився"""
         old_level = self.level
         self.update_activity()
         self.total_xp += amount
         self.daily_xp += amount
         self.save()
+        
+
+        from .models import Badge, UserBadge
+        xp_badges = Badge.objects.filter(criteria_type='xp_reached', criteria_value__lte=self.total_xp)
+        for badge in xp_badges:
+            UserBadge.objects.get_or_create(user=self.user, badge=badge)
+            
         return self.level > old_level
+
+    def award_badge(self, criteria_type, criteria_value=None):
+        from .models import Badge, UserBadge
+        query = Q(criteria_type=criteria_type)
+        if criteria_value is not None:
+            query &= Q(criteria_value=criteria_value)
+            
+        badge = Badge.objects.filter(query).first()
+        if badge:
+            ub, created = UserBadge.objects.get_or_create(user=self.user, badge=badge)
+            return created
+        return False
 
     @property
     def level(self):
-        """Розрахунок рівня на основі XP (кожні 1000 XP = 1 рівень)"""
         return (self.total_xp // 1000) + 1
 
     @property
     def xp_to_next_level(self):
-        """Скільки XP залишилось до наступного рівня"""
         return 1000 - (self.total_xp % 1000)
 
     @property
     def level_progress_percentage(self):
-        """Відсоток прогресу до наступного рівня"""
         return (self.total_xp % 1000) / 10
 
     def __str__(self):
@@ -136,7 +145,6 @@ class UserProgress(models.Model):
 
 
 class Badge(models.Model):
-    """Модель значка/досягнення"""
     name = models.CharField(max_length=100, verbose_name='Назва')
     description = models.TextField(verbose_name='Опис')
     icon = models.CharField(max_length=50, verbose_name='Іконка (FontAwesome class)')
@@ -144,6 +152,7 @@ class Badge(models.Model):
         max_length=50,
         choices=[
             ('course_completed', 'Завершення курсу'),
+            ('test_completed', 'Складання тесту'),
             ('xp_reached', 'Досягнення XP'),
             ('streak_reached', 'Серія днів'),
             ('exercise_count', 'Кількість вправ'),
@@ -163,7 +172,6 @@ class Badge(models.Model):
 
 
 class UserBadge(models.Model):
-    """Значки, отримані користувачем"""
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='badges')
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
     earned_at = models.DateTimeField(auto_now_add=True)

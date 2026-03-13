@@ -5,46 +5,491 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/courses.css' %}">
+<style>
+    #courses-container {
+        transition: opacity 0.4s ease;
+    }
+
+    .btn-filter {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-filter:hover {
+        background: var(--bg-subtle);
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .btn-filter.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+    }
+
+    .lang-filter-chip {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 20px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.95rem;
+    }
+
+    .lang-filter-chip:hover {
+        border-color: var(--accent);
+        background: var(--bg-subtle);
+    }
+
+    .lang-filter-chip.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+    }
+
+    .lang-filter-chip .chip-count {
+        font-size: 0.8rem;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-weight: 800;
+        transition: all 0.3s ease;
+    }
+
+    .lang-filter-chip.active .chip-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .lang-filter-chip span:first-child {
+        font-size: 1.4rem;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .selection-hub {
+        display: none;
+    }
+
+    .lang-tile {
+        background: white;
+        padding: 2.2rem 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        min-width: 200px;
+        border: 1px solid var(--border);
+        justify-content: center;
+        position: relative;
+    }
+
+    .lang-tile:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.07);
+        background: #ffffff;
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .lang-tile.active {
+        background: #ffffff;
+        border: 2px solid var(--accent);
+        box-shadow: 0 20px 50px rgba(99, 102, 241, 0.12);
+        transform: scale(1.03) translateY(-5px);
+    }
+
+    .lang-tile.active::after {
+        content: '\f058';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: var(--accent);
+        font-size: 1.2rem;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .lang-flag {
+        font-size: 3.5rem;
+        display: block;
+        margin-bottom: 1.2rem;
+        filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.08));
+        transition: transform 0.4s ease;
+    }
+
+    .lang-tile:hover .lang-flag {
+        transform: scale(1.15) rotate(3deg);
+    }
+
+    .lang-name {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: #1e293b;
+        display: block;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .lang-count {
+        font-size: 0.9rem;
+        color: var(--accent);
+        font-weight: 800;
+        background: var(--accent-soft);
+        padding: 6px 16px;
+        border-radius: 100px;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .lang-tile:hover .lang-count {
+        background: var(--accent);
+        color: white;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<h1>IELTS-подібні тести</h1>
+<div class="courses-header-wrapper" data-aos="fade-down"
+    style="border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 3rem;">
+    <div class="courses-header-section">
+        <h1 style="font-size: 3rem; font-weight: 900; color: #1e293b; letter-spacing: -0.04em;">Мовні тести</h1>
+        <p class="lead-text" style="color: var(--text-muted); font-size: 1.15rem; max-width: 700px;">Перевір свої знання
+            та отримай сертифікат. Наші тести допоможуть точно визначити твій рівень володіння мовою.</p>
+    </div>
+</div>
 
-<form method="get" class="filters">
-    <div class="form-group">
-        {{ form.language.label_tag }}
-        {{ form.language }}
-    </div>
-    <div class="form-group">
-        {{ form.level.label_tag }}
-        {{ form.level }}
-    </div>
-    <div>
-        <button type="submit" class="btn btn-primary">Фільтрувати</button>
-        <a href="{% url 'tests:tests-list' %}" class="btn btn-secondary">Скинути</a>
-    </div>
-</form>
 
-{% if tests %}
-    <div class="courses-grid">
-        {% for test in tests %}
-            <a href="{% url 'tests:test-detail' test.id %}" class="course-card">
-                <div class="course-header">
-                    <h3>{{ test.title }}</h3>
-                    <span class="course-language">{{ test.get_language_display }}</span>
+<div class="selection-hub" style="display: none;">
+    {% regroup tests by language as language_list %}
+    {% for lang in language_list %}
+    <div class="lang-tile" data-lang="{{ lang.grouper }}" onclick="filterTests('{{ lang.grouper }}', this)">
+        <span class="lang-flag">{{ lang.list.0.get_flag }}</span>
+        <span class="lang-name">{{ lang.list.0.get_language_display }}</span>
+        <span class="lang-count">{{ lang.list|length }} тести</span>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="text-center" style="margin-top: 1rem; margin-bottom: 1rem;">
+    <button id="reset-filter-top" onclick="resetFilter()" class="btn btn-secondary"
+        style="border-radius: 100px; padding: 12px 30px; display: none; background: white; color: var(--accent); border: 2px solid var(--accent); font-weight: 800;">
+        Скинути всі фільтри
+    </button>
+</div>
+
+
+
+<div id="courses-container">
+    <div class="filter-dashboard" data-aos="fade-up"
+        style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
+            <div style="flex: 1; min-width: 300px;">
+                <h2 id="selected-lang-name"
+                    style="font-size: 1.8rem; font-weight: 900; margin-bottom: 1.5rem; color: #1e293b;">Усі доступні
+                    тести</h2>
+                <div class="search-box-premium" style="position: relative; max-width: 500px;">
+                    <i class="fas fa-search"
+                        style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--accent); opacity: 0.6;"></i>
+                    <input type="text" id="test-search" placeholder="Пошук тестів за назвою..."
+                        style="width: 100%; padding: 16px 20px 16px 55px; border-radius: 18px; border: 2px solid #f1f5f9; background: #f8fafc; font-weight: 600; transition: all 0.3s ease;">
                 </div>
-                <p class="course-description">{{ test.description|truncatewords:20 }}</p>
-                <div class="course-footer">
-                    <span class="course-level">{{ test.get_level_display }}</span>
-                    <span class="course-lessons">{{ test.sections.count }} секцій</span>
+            </div>
+
+            <div class="filter-controls" style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="filter-row" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <span class="filter-label"
+                        style="font-weight: 800; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 80px;">Мова:</span>
+                    <div class="btn-group-premium" id="language-filters"
+                        style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <div onclick="filterTests('all', this)" class="lang-filter-chip active">
+                            <span>Усі</span>
+                        </div>
+                        {% regroup tests by language as language_list %}
+                        {% for lang in language_list %}
+                        <div onclick="filterTests('{{ lang.grouper }}', this)" class="lang-filter-chip"
+                            data-lang="{{ lang.grouper }}">
+                            <span>{{ lang.list.0.get_flag }}</span>
+                            <span>{{ lang.list.0.get_language_display }}</span>
+                            <span class="chip-count">{{ lang.list|length }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </a>
+
+                <div class="filter-row" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <span class="filter-label"
+                        style="font-weight: 800; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 80px;">Статус:</span>
+                    <div class="btn-group-premium" id="status-filters">
+                        <button onclick="filterStatus('all', this)" class="btn-filter active">Всі</button>
+                        <button onclick="filterStatus('active', this)" class="btn-filter">В процесі</button>
+                        <button onclick="filterStatus('completed', this)" class="btn-filter">Пройдені</button>
+                        <button onclick="filterStatus('new', this)" class="btn-filter">Нові</button>
+                    </div>
+                </div>
+
+                <div class="filter-row" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                    <span class="filter-label"
+                        style="font-weight: 800; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; min-width: 80px;">Рівень:</span>
+                    <div class="btn-group-premium" id="level-filters">
+                        <button onclick="filterLevel('all', this)" class="btn-filter active">Всі</button>
+                        <button onclick="filterLevel('beginner', this)" class="btn-filter">Початковий</button>
+                        <button onclick="filterLevel('elementary', this)" class="btn-filter">Елементарний</button>
+                        <button onclick="filterLevel('intermediate', this)" class="btn-filter">Середній</button>
+                        <button onclick="filterLevel('upper_intermediate', this)" class="btn-filter">Вище
+                            середнього</button>
+                        <button onclick="filterLevel('advanced', this)" class="btn-filter">Просунутий</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if tests %}
+    {% regroup tests by get_language_display as language_groups %}
+
+    <div id="tests-wrapper">
+        {% for group in language_groups %}
+        <div class="language-group-section" data-lang-code="{{ group.list.0.language }}" style="margin-bottom: 4rem;">
+            <div class="section-header" style="display: flex; align-items: center; gap: 15px; margin-bottom: 2rem;">
+                <span style="font-size: 2.5rem;">{{ group.list.0.get_flag }}</span>
+                <h2 style="font-size: 1.8rem; font-weight: 800; margin: 0; color: var(--text-dark);">{{ group.grouper }}
+                </h2>
+                <div
+                    style="flex: 1; height: 2px; background: linear-gradient(90deg, rgba(99, 102, 241, 0.2), transparent); margin-left: 10px;">
+                </div>
+            </div>
+
+            <div class="courses-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
+                {% for test in group.list %}
+                <a href="{% url 'tests:test-detail' test.id %}" class="course-card" data-lang="{{ test.language }}"
+                    data-status="{% if test.id in completed_test_ids %}completed{% elif test.id in started_test_ids %}active{% else %}new{% endif %}"
+                    data-level="{{ test.level }}" data-aos="zoom-in">
+
+                    {% if test.id in completed_test_ids %}
+                    <div class="course-completed-badge"
+                        style="position: absolute; top: 1.5rem; left: 1.5rem; z-index: 10; background: #10b981; color: white; padding: 6px 16px; border-radius: 100px; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.05em; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 6px; border: 2px solid white;">
+                        <i class="fas fa-check-circle"></i> ПРОЙДЕНО
+                    </div>
+                    {% endif %}
+
+                    {% if test.image %}
+                    <div class="course-badge-flag has-image"
+                        style="background-image: url('{{ test.image.url }}'); height: 180px; border-radius: 24px 24px 0 0; position: relative; overflow: hidden; background-size: cover; background-position: center;">
+                        <div class="course-image-overlay"
+                            style="position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.2));">
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="course-badge-flag"
+                        style="height: 180px; background: #f1f5f9; border-radius: 24px 24px 0 0; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <i class="fas fa-file-alt" style="font-size: 3rem; color: #cbd5e1;"></i>
+                    </div>
+                    {% endif %}
+
+                    <div class="course-card-content" style="padding: 1.5rem 1.8rem 1.8rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <div
+                                style="font-size: 0.75rem; font-weight: 800; color: #64748b; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px;">
+                                {{ test.language|upper }}</div>
+                            <div
+                                style="font-size: 0.85rem; font-weight: 900; color: #6366f1; letter-spacing: 0.05em; text-transform: uppercase;">
+                                {{ test.get_language_display }}</div>
+                        </div>
+
+                        <h3
+                            style="font-size: 1.35rem; font-weight: 900; color: #1e293b; line-height: 1.3; margin: 0 0 0.8rem; min-height: 3.5rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-family: var(--font-accent);">
+                            {{ test.title }}
+                        </h3>
+
+                        <p class="course-description"
+                            style="color: #64748b; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem; min-height: 2.7rem; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            {{ test.description|truncatewords:12 }}
+                        </p>
+
+                        <div style="height: 1px; background: #f1f5f9; margin-bottom: 1.2rem;"></div>
+
+                        <div class="course-footer"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="course-meta-item"
+                                style="display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 700; font-size: 0.85rem;">
+                                <i class="fas fa-layer-group" style="color: #6366f1;"></i>
+                                <span>{{ test.get_level_display }}</span>
+                            </div>
+                            <div class="course-meta-item"
+                                style="display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 700; font-size: 0.85rem;">
+                                <i class="fas fa-list-ul" style="color: #6366f1;"></i>
+                                <span>{{ test.sections.count }} секції</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
         {% endfor %}
     </div>
-{% else %}
-    <div class="no-courses">
-        <p>Тести не знайдено. Спробуйте змінити фільтри.</p>
-    </div>
-{% endif %}
-{% endblock %}
 
+    <div id="no-results" class="no-courses" style="display: none; padding: 4rem 2rem;">
+        <h3>Тести не знайдено</h3>
+        <p>Спробуйте інші параметри фільтрації.</p>
+    </div>
+    {% else %}
+    <div class="no-courses" style="padding: 4rem 2rem;">
+        <h3>Тестів поки що немає</h3>
+        <p>Завітайте пізніше або виберіть іншу мову.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    let currentLang = 'all';
+    let currentStatus = 'all';
+    let currentLevel = 'all';
+
+    let searchQuery = '';
+    const searchInput = document.getElementById('test-search');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase();
+            applyFilters();
+        });
+    }
+
+    function filterTests(lang, element) {
+        currentLang = lang;
+        document.querySelectorAll('.lang-filter-chip').forEach(t => t.classList.remove('active'));
+        if (element) element.classList.add('active');
+
+        const titleEl = document.getElementById('selected-lang-name');
+        const resetButton = document.getElementById('reset-filter-top');
+
+        if (lang === 'all') {
+            if (titleEl) titleEl.textContent = 'Усі доступні тести';
+            if (resetButton) resetButton.style.display = 'none';
+        } else {
+            const langName = element.querySelector('span:nth-child(2)')?.textContent || 'Обрана мова';
+            if (titleEl) titleEl.textContent = 'Тести: ' + langName;
+            if (resetButton) resetButton.style.display = 'inline-block';
+        }
+
+        applyFilters();
+
+        if (lang !== 'all' && element) {
+            const container = document.getElementById('courses-container');
+            if (container) {
+                window.scrollTo({ top: container.offsetTop - 100, behavior: 'smooth' });
+            }
+        }
+    }
+
+    function filterStatus(status, element) {
+        currentStatus = status;
+        document.querySelectorAll('#status-filters .btn-filter').forEach(b => b.classList.remove('active'));
+        if (element) element.classList.add('active');
+        applyFilters();
+    }
+
+    function filterLevel(level, element) {
+        currentLevel = level;
+        document.querySelectorAll('#level-filters .btn-filter').forEach(b => b.classList.remove('active'));
+        if (element) element.classList.add('active');
+        applyFilters();
+    }
+
+    function resetFilter() {
+        currentLang = 'all';
+        currentStatus = 'all';
+        currentLevel = 'all';
+        searchQuery = '';
+        if (searchInput) searchInput.value = '';
+
+        document.querySelectorAll('.lang-filter-chip').forEach(t => t.classList.remove('active'));
+        document.querySelector('.lang-filter-chip:first-of-type')?.classList.add('active');
+
+        document.querySelectorAll('#status-filters .btn-filter').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#level-filters .btn-filter').forEach(b => b.classList.remove('active'));
+
+        document.querySelector('#status-filters .btn-filter:first-of-type')?.classList.add('active');
+        document.querySelector('#level-filters .btn-filter:first-of-type')?.classList.add('active');
+
+        const titleEl = document.getElementById('selected-lang-name');
+        const resetButton = document.getElementById('reset-filter-top');
+        if (titleEl) titleEl.textContent = 'Усі доступні тести';
+        if (resetButton) resetButton.style.display = 'none';
+
+        applyFilters();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function applyFilters() {
+        const sections = document.querySelectorAll('.language-group-section');
+        let totalVisible = 0;
+
+        sections.forEach(section => {
+            const cards = section.querySelectorAll('.course-card');
+            let sectionVisibleCount = 0;
+
+            cards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const desc = card.querySelector('.course-description').textContent.toLowerCase();
+
+                const langMatch = currentLang === 'all' || card.getAttribute('data-lang') === currentLang;
+                const statusMatch = currentStatus === 'all' || card.getAttribute('data-status') === currentStatus;
+                const levelMatch = currentLevel === 'all' || card.getAttribute('data-level') === currentLevel;
+                const searchMatch = searchQuery === '' || title.includes(searchQuery) || desc.includes(searchQuery);
+
+                if (langMatch && statusMatch && levelMatch && searchMatch) {
+                    card.style.display = 'flex';
+                    sectionVisibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (sectionVisibleCount > 0) {
+                section.style.display = 'block';
+                totalVisible += sectionVisibleCount;
+            } else {
+                section.style.display = 'none';
+            }
+        });
+
+        const noResults = document.getElementById('no-results');
+        if (noResults) {
+            noResults.style.display = totalVisible === 0 ? 'block' : 'none';
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', applyFilters);
+</script>
+{% endblock %}

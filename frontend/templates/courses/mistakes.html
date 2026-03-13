@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Робота над помилками — MOVLY{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/courses.css' %}?v=14.0">
+<style>
+    .mistakes-page {
+        min-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        position: relative;
+    }
+
+    .session-progress-container {
+        width: 100%;
+        max-width: 800px;
+        margin-bottom: 40px;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .session-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-weight: 800;
+        color: #1e293b;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .progress-bar-wrapper {
+        height: 8px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--accent);
+        width: 0%;
+        transition: width 0.6s ease;
+    }
+
+    .mistake-session-card {
+        width: 100%;
+        max-width: 800px;
+        display: none;
+        animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .mistake-card-header {
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .prev-attempt-box {
+        background: #fff1f2;
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border: 1px dashed #fecdd3;
+    }
+
+    .prev-attempt-title {
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: #e11d48;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .source-badge {
+        display: inline-flex;
+        align-items: center;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 6px 14px;
+        border-radius: 12px;
+        text-decoration: none !important;
+        color: #64748b !important;
+        font-size: 0.8rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 700;
+        gap: 8px;
+    }
+
+    .source-badge:hover {
+        background: #ffffff;
+        border-color: #6366f1;
+        color: #6366f1 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+    }
+
+    .source-type-tag {
+        background: #6366f1;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .btn-review {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 12px 20px;
+        border-radius: 16px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-review:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .session-finished {
+        text-align: center;
+        padding: 60px;
+        display: none;
+    }
+
+    .confetti-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<canvas class="confetti-canvas" id="confetti"></canvas>
+
+<div class="mistakes-page">
+    <header class="mistakes-header" data-aos="fade-down" id="intro-header"
+        style="border-left: 4px solid var(--accent); padding-left: 1.5rem; margin-bottom: 3rem; width: 100%; max-width: 800px;">
+        <h1
+            style="font-family: var(--font-accent); font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.2rem; letter-spacing: -0.04em;">
+            Майстерня помилок</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500;">Перетворимо помилки на знання.
+            Виправте всі завдання!</p>
+    </header>
+
+    {% if failed_exercises %}
+    <div class="session-progress-container" data-aos="fade-up">
+        <div class="session-progress-header">
+            <span>Прогрес виправлення</span>
+            <span id="progress-text">0 з {{ total_mistakes }}</span>
+        </div>
+        <div class="progress-bar-wrapper">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <div id="exercises-track">
+        {% for ex in failed_exercises %}
+        <div class="mistake-session-card" id="mistake-{{ forloop.index0 }}" data-index="{{ forloop.index0 }}">
+            <div class="exercise-modern-card">
+                <div class="mistake-card-header">
+                    <div class="exercise-type-tag">
+                        <span class="exercise-num">{{ forloop.counter }}</span>
+                        <h3 class="exercise-label">{{ ex.get_exercise_type_display }}</h3>
+                    </div>
+                    <div class="mistake-meta" style="margin: 0;">
+                        <a href="{{ ex.source_url }}" target="_blank" class="source-badge">
+                            <span class="source-type-tag">{{ ex.source_type }}</span>
+                            <span>{{ ex.source_name }}</span>
+                            <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="exercise-question-box">
+                    <p class="exercise-question-text" style="font-size: 1.4rem;">{{ ex.question|linebreaksbr }}</p>
+                </div>
+
+                {% if ex.last_attempt %}
+                <div class="prev-attempt-box">
+                    <div class="prev-attempt-title"><i class="fas fa-times-circle"></i> Твоя попередня відповідь:</div>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 1.1rem; filter: blur(0.5px);">
+                        "{{ex.last_attempt.user_answer}}"</div>
+                </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'courses:submit-exercise' ex.id %}"
+                    class="exercise-form session-form" style="display: block !important;">
+                    {% csrf_token %}
+
+                    <div class="exercise-interactive-area">
+                        {% if ex.options %}
+                        <div class="options-grid" style="display: grid !important;">
+                            {% for opt in ex.options %}
+                            <label class="option-item">
+                                <input type="radio" name="answer" value="{{ opt }}" required>
+                                <span class="option-label">{{ opt }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% elif ex.exercise_type in 'ai_generated,speaking,translation' %}
+                        <textarea name="answer" class="exercise-input exercise-textarea" rows="4"
+                            placeholder="Твій виправлений варіант..." required></textarea>
+                        {% else %}
+                        <div class="input-group-premium">
+                            <input type="text" name="answer" class="exercise-input"
+                                placeholder="Введіть правильну відповідь тут..." required autocomplete="off">
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex flex-column flex-md-row gap-3 mt-4" style="visibility: visible !important;">
+                        <button type="submit" class="btn-hero-primary flex-grow-1" style="border: none;">
+                            ПЕРЕВІРИТИ
+                        </button>
+                        {% if ex.theory_url %}
+                        <a href="{{ ex.theory_url }}" target="_blank" class="btn-hero-secondary flex-grow-1"
+                            style="text-decoration: none; text-align: center;">
+                            <i class="fas fa-book-open"></i> ПЕРЕГЛЯНУТИ ТЕМУ
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="session-finished" id="session-finished-success" style="text-align: center; padding: 4rem 2rem;">
+        <div style="font-size: 5rem; margin-bottom: 2rem;">🏆</div>
+        <h2
+            style="font-family: var(--font-accent); font-weight: 800; font-size: 3rem; color: var(--text-main); margin-bottom: 1rem; letter-spacing: -0.04em;">
+            Справу зроблено!</h2>
+        <p
+            style="color: var(--text-muted); font-size: 1.25rem; font-weight: 500; margin-bottom: 3rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+            Ти успішно виправив усі помилки та став ще досвідченішим. Так тримати!</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'courses:courses-list' %}" class="btn-hero-primary"
+                style="text-decoration: none; border: none;">До нових знань <i class="fas fa-arrow-right"
+                    style="margin-left: 10px;"></i></a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-mistakes" data-aos="zoom-in" style="text-align: center; padding: 3rem 2rem;">
+        <div style="font-size: 5rem; margin-bottom: 2rem;">✨</div>
+        <h2
+            style="font-family: var(--font-accent); font-weight: 800; font-size: 2.5rem; color: var(--text-main); margin-bottom: 1rem; letter-spacing: -0.04em;">
+            Помилок немає!</h2>
+        <p style="color: var(--text-muted); font-size: 1.25rem; font-weight: 500; margin-bottom: 2rem;">Продовжуйте навчання!</p>
+        <a href="{% url 'courses:courses-list' %}" class="btn-hero-primary"
+            style="text-decoration: none; border: none;">
+            Почати новий урок <i class="fas fa-play" style="margin-left: 10px;"></i>
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let currentIndex = 0;
+        const totalMistakes = parseInt("{{ total_mistakes|default:0 }}");
+        let clearedMistakes = 0;
+
+        const cards = document.querySelectorAll('.mistake-session-card');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const finishedSection = document.getElementById('session-finished-success');
+        const header = document.getElementById('intro-header');
+
+        function showCard(index) {
+            cards.forEach(card => card.style.display = 'none');
+            if (index < cards.length) {
+                cards[index].style.display = 'block';
+                updateProgress();
+            } else {
+                finishSession();
+            }
+        }
+
+        function updateProgress() {
+            if (totalMistakes > 0) {
+                const percent = (clearedMistakes / totalMistakes) * 100;
+                progressFill.style.width = percent + '%';
+                progressText.innerText = `${clearedMistakes} з ${totalMistakes} виправлено`;
+            }
+        }
+
+        function finishSession() {
+            document.querySelector('.session-progress-container').style.display = 'none';
+            header.style.display = 'none';
+            finishedSection.style.display = 'block';
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#6366f1', '#a855f7', '#ec4899'] });
+        }
+
+        if (cards.length > 0) showCard(0);
+
+        const forms = document.querySelectorAll('.session-form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnContent = submitBtn.innerHTML;
+                const formData = new FormData(this);
+                const url = this.action;
+                const card = this.closest('.mistake-session-card');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ПЕРЕВІРКА...';
+
+                fetch(url, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': formData.get('csrfmiddlewaretoken') } })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const oldFeedback = card.querySelector('.dynamic-feedback');
+                            if (oldFeedback) oldFeedback.remove();
+
+                            if (data.is_correct) {
+                                clearedMistakes++;
+                                updateProgress();
+                                card.querySelector('.exercise-modern-card').style.borderColor = 'var(--success)';
+                                card.querySelector('.exercise-modern-card').style.background = 'white';
+                                submitBtn.className = 'btn-hero-primary mt-3';
+                                submitBtn.style.background = 'var(--success)';
+                                submitBtn.style.border = 'none';
+                                submitBtn.innerHTML = '<i class="fas fa-check"></i> ВИПРАВЛЕНО!';
+                                setTimeout(() => { currentIndex++; showCard(currentIndex); }, 1000);
+                            } else {
+                                let feedbackHtml = `<div class="field-feedback field-error dynamic-feedback">
+                                    <div class="feedback-title"><i class="fas fa-redo"></i> Спробуй ще раз!</div>
+                                    <p class="feedback-text">Все ще не зовсім так. Поглянь на завдання уважніше.</p>
+                                </div>`;
+                                this.insertAdjacentHTML('beforebegin', feedbackHtml);
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnContent;
+                            }
+                        } else { alert('Помилка: ' + (data.error || 'Невідома помилка')); submitBtn.disabled = false; submitBtn.innerHTML = originalBtnContent; }
+                    })
+                    .catch(error => { console.error('Error:', error); submitBtn.disabled = false; submitBtn.innerHTML = originalBtnContent; });
+            });
+        });
+    });
+</script>
+
+<style>
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-5px);
+        }
+
+        75% {
+            transform: translateX(5px);
+        }
+    }
+
+    .btn-submit {
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}

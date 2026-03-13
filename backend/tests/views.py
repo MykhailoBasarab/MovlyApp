@@ -6,16 +6,17 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.http import JsonResponse
 from .models import TestType, Test, TestSection, TestQuestion, TestAttempt, TestAnswer
-from ai_services.services import AIExerciseService, AITextToSpeechService
+from users.models import UserProgress
+from users.services import get_missions_status, check_mission_completions
+from ai_services.services import AIExerciseService
 from .forms import TestFilterForm, TestAnswerForm, MultipleChoiceTestForm
 
 
-# Template views
 def tests_list_view(request):
-    """Список тестів - template view"""
     form = TestFilterForm(request.GET)
-    tests = Test.objects.filter(is_active=True)
+    tests = Test.objects.filter(is_active=True).order_by('language')
     
     if form.is_valid():
         language = form.cleaned_data.get('language')
@@ -26,48 +27,77 @@ def tests_list_view(request):
         if level:
             tests = tests.filter(level=level)
     
+    completed_test_ids = set()
+    started_test_ids = set()
+    if request.user.is_authenticated:
+        completed_test_ids = set(TestAttempt.objects.filter(
+            user=request.user, 
+            status='completed'
+        ).values_list('test_id', flat=True).distinct())
+        
+        started_test_ids = set(TestAttempt.objects.filter(
+            user=request.user,
+            status='in_progress'
+        ).values_list('test_id', flat=True).distinct())
+    
     context = {
         'tests': tests,
         'form': form,
+        'completed_test_ids': completed_test_ids,
+        'started_test_ids': started_test_ids,
     }
     return render(request, 'tests/list.html', context)
 
 
 def test_detail_view(request, pk):
-    """Деталі тесту - template view"""
     test = get_object_or_404(Test, pk=pk, is_active=True)
     sections = test.sections.all().order_by('order')
     
-    # Перевірка чи є активна спроба
     active_attempt = None
+    completed_attempt = None
     if request.user.is_authenticated:
         active_attempt = TestAttempt.objects.filter(
             user=request.user,
             test=test,
             status='in_progress'
         ).first()
+        
+        completed_attempt = TestAttempt.objects.filter(
+            user=request.user,
+            test=test,
+            status='completed'
+        ).order_by('-completed_at').first()
     
     context = {
         'test': test,
         'sections': sections,
         'active_attempt': active_attempt,
+        'completed_attempt': completed_attempt,
     }
     return render(request, 'tests/detail.html', context)
 
 
 @login_required
 def test_attempt_view(request, pk):
-    """Проходження тесту - template view"""
     attempt = get_object_or_404(TestAttempt, pk=pk, user=request.user)
     
-    if attempt.status != 'in_progress':
-        messages.warning(request, 'Цей тест вже завершено')
+    if attempt.status not in ['in_progress', 'completed']:
+        messages.warning(request, 'Цей тест не доступний для перегляду')
         return redirect('tests:test-detail', pk=attempt.test.id)
     
-    sections = attempt.test.sections.all().order_by('order')
+    sections = list(attempt.test.sections.all().order_by('order'))
     
-    # Отримуємо відповіді користувача
+    global_counter = 1
+    for section in sections:
+        questions = list(section.questions.all().order_by('order'))
+        for question in questions:
+            question.global_index = global_counter
+            global_counter += 1
+        section.questions_list = questions
+    
     answers = {}
+    answered_count = 0
+    total_questions = 0
     for section in sections:
         section_answers = TestAnswer.objects.filter(
             attempt=attempt,
@@ -76,24 +106,27 @@ def test_attempt_view(request, pk):
         section_dict = {}
         for answer in section_answers:
             section_dict[answer.question.id] = answer
+            answered_count += 1
         if section_dict:
             answers[section.id] = section_dict
+        
+        total_questions += len(section.questions_list)
     
     context = {
         'attempt': attempt,
         'test': attempt.test,
         'sections': sections,
         'answers': answers,
+        'answered_count': answered_count,
+        'total_questions': total_questions,
     }
     return render(request, 'tests/attempt.html', context)
 
 
 @login_required
 def start_test_view(request, pk):
-    """Початок проходження тесту"""
     test = get_object_or_404(Test, pk=pk, is_active=True)
     
-    # Перевірка чи є активна спроба
     active_attempt = TestAttempt.objects.filter(
         user=request.user,
         test=test,
@@ -103,7 +136,6 @@ def start_test_view(request, pk):
     if active_attempt:
         return redirect('tests:test-attempt', pk=active_attempt.id)
     
-    # Створення нової спроби
     attempt = TestAttempt.objects.create(
         user=request.user,
         test=test,
@@ -117,7 +149,6 @@ def start_test_view(request, pk):
 
 @login_required
 def submit_test_answer_view(request, attempt_id, question_id):
-    """Відправка відповіді на питання тесту"""
     attempt = get_object_or_404(TestAttempt, pk=attempt_id, user=request.user)
     question = get_object_or_404(TestQuestion, pk=question_id, section__test=attempt.test)
     
@@ -133,33 +164,34 @@ def submit_test_answer_view(request, attempt_id, question_id):
     if form.is_valid():
         user_answer = form.cleaned_data['answer']
         
-        # Перевірка відповіді
         correct = question.correct_answer.strip().lower()
-        user = user_answer.lower()
+        user = user_answer.strip().lower()
         
-        if question.question_type == 'multiple_choice':
-            is_correct = correct == user
-        elif question.question_type == 'true_false':
-            is_correct = correct == user
-        elif question.question_type == 'fill_blank':
-            is_correct = correct in user or user in correct
-        else:
-            is_correct = False
-        
-        points_earned = question.points if is_correct else 0
-        
-        # AI відгук для складних типів
-        ai_feedback = None
-        if question.question_type in ['essay', 'speaking_record', 'short_answer']:
+        is_correct = False
+        if question.question_type in ['essay', 'short_answer']:
             ai_service = AIExerciseService()
-            ai_feedback = ai_service.get_feedback(
+            ai_result = ai_service.check_answer_and_get_feedback(
                 question.question_text,
                 question.correct_answer,
                 user_answer,
                 question.question_type
             )
+            is_correct = ai_result['is_correct']
+            ai_feedback = ai_result['feedback']
+        else:
+            ai_feedback = None
+            correct = question.correct_answer.strip().lower()
+            user = user_answer.strip().lower()
+            
+            if question.question_type == 'multiple_choice':
+                is_correct = correct == user
+            elif question.question_type == 'true_false':
+                is_correct = correct == user
+            elif question.question_type == 'fill_blank':
+                is_correct = correct == user
+
+        points_earned = question.points if is_correct else 0
         
-        # Оновлення або створення відповіді
         answer, created = TestAnswer.objects.get_or_create(
             attempt=attempt,
             question=question,
@@ -178,32 +210,44 @@ def submit_test_answer_view(request, attempt_id, question_id):
             answer.ai_feedback = ai_feedback
             answer.save()
         
-        if is_correct:
-            messages.success(request, f'Правильно! Ви отримали {points_earned} балів.')
-        else:
-            messages.error(request, f'Неправильно.')
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1'
         
+        if not is_ajax:
+            if is_correct:
+                messages.success(request, f'Правильно! Ви отримали {points_earned} балів.')
+            else:
+                messages.error(request, f'Неправильно.')
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'is_correct': is_correct,
+                'points_earned': points_earned,
+                'user_answer': user_answer,
+                'correct_answer': question.correct_answer,
+                'ai_feedback': ai_feedback
+            })
+            
         return redirect('tests:test-attempt', pk=attempt_id)
     
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+        return JsonResponse({'success': False, 'error': 'Помилка при відправці відповіді'}, status=400)
+        
     messages.error(request, 'Помилка при відправці відповіді')
     return redirect('tests:test-attempt', pk=attempt_id)
 
 
 @login_required
 def complete_test_view(request, pk):
-    """Завершення тесту"""
     attempt = get_object_or_404(TestAttempt, pk=pk, user=request.user)
     
     if attempt.status != 'in_progress':
         messages.warning(request, 'Тест вже завершено')
         return redirect('tests:test-detail', pk=attempt.test.id)
     
-    # Підрахунок балів по секціях
     sections = attempt.test.sections.all()
-    listening_score = 0
     reading_score = 0
     writing_score = 0
-    speaking_score = 0
     
     for section in sections:
         answers = TestAnswer.objects.filter(
@@ -211,36 +255,42 @@ def complete_test_view(request, pk):
             question__section=section
         )
         section_score = sum(a.points_earned for a in answers)
-        
-        if section.section_type == 'listening':
-            listening_score = section_score
-        elif section.section_type == 'reading':
-            reading_score = section_score
+        if section.section_type == 'reading':
+            reading_score += section_score
         elif section.section_type == 'writing':
-            writing_score = section_score
-        elif section.section_type == 'speaking':
-            speaking_score = section_score
+            writing_score += section_score
+        else:
+            reading_score += section_score
+            
+    total_score = reading_score + writing_score
     
-    total_score = listening_score + reading_score + writing_score + speaking_score
-    
-    # Оновлення спроби
     attempt.status = 'completed'
     attempt.completed_at = timezone.now()
     attempt.total_score = total_score
-    attempt.listening_score = listening_score
     attempt.reading_score = reading_score
     attempt.writing_score = writing_score
-    attempt.speaking_score = speaking_score
     attempt.save()
+    
+    attempt.save()
+    
+    user_progress, _ = UserProgress.objects.get_or_create(user=request.user)
+    
+    # Check missions BEFORE adding XP
+    before_missions = get_missions_status(request.user)
+    
+    xp_reward = int(total_score * 0.5) + 50
+    user_progress.add_xp(xp_reward)
+    
+    # Check missions AFTER adding XP
+    check_mission_completions(request, before_missions)
+    
+    user_progress.award_badge('test_completed', criteria_value=attempt.test.id)
     
     messages.success(request, f'Тест завершено! Ваш результат: {total_score}/{attempt.max_score} балів')
     return redirect('tests:test-detail', pk=attempt.test.id)
 
 
-# API Views (залишаються як були)
 class TestTypeListView(APIView):
-    """Список типів тестів"""
-    
     def get(self, request):
         test_types = TestType.objects.all()
         data = [{
@@ -255,8 +305,6 @@ class TestTypeListView(APIView):
 
 
 class TestListView(APIView):
-    """Список тестів"""
-    
     def get(self, request):
         language = request.query_params.get('language', None)
         level = request.query_params.get('level', None)
@@ -285,8 +333,6 @@ class TestListView(APIView):
 
 
 class TestDetailView(APIView):
-    """Деталі тесту"""
-    
     def get(self, request, pk):
         test = get_object_or_404(Test, pk=pk, is_active=True)
         
@@ -312,13 +358,11 @@ class TestDetailView(APIView):
 
 
 class StartTestView(APIView):
-    """Початок проходження тесту"""
     permission_classes = [IsAuthenticated]
     
     def post(self, request, pk):
         test = get_object_or_404(Test, pk=pk, is_active=True)
         
-        # Перевірка чи є активна спроба
         active_attempt = TestAttempt.objects.filter(
             user=request.user,
             test=test,
@@ -331,7 +375,6 @@ class StartTestView(APIView):
                 'message': 'У вас вже є активна спроба цього тесту'
             })
         
-        # Створення нової спроби
         attempt = TestAttempt.objects.create(
             user=request.user,
             test=test,
@@ -348,7 +391,6 @@ class StartTestView(APIView):
 
 
 class TestAttemptDetailView(APIView):
-    """Деталі спроби тесту"""
     permission_classes = [IsAuthenticated]
     
     def get(self, request, pk):
@@ -384,16 +426,13 @@ class TestAttemptDetailView(APIView):
             'scores': {
                 'total': attempt.total_score,
                 'max': attempt.max_score,
-                'listening': attempt.listening_score,
                 'reading': attempt.reading_score,
                 'writing': attempt.writing_score,
-                'speaking': attempt.speaking_score,
             } if attempt.status == 'completed' else None,
         })
 
 
 class SectionQuestionsView(APIView):
-    """Питання секції тесту"""
     permission_classes = [IsAuthenticated]
     
     def get(self, request, pk, section_id):
@@ -417,24 +456,14 @@ class SectionQuestionsView(APIView):
                 'order': question.order,
             }
             
-            # Додаємо аудіо якщо є
-            if question.audio_url:
-                question_data['audio_url'] = question.audio_url
-            elif question.audio_text and question.is_ai_generated:
-                question_data['audio_text'] = question.audio_text
-                question_data['needs_audio_generation'] = True
             
-            # Додаємо варіанти відповідей для multiple choice
             if question.options:
                 question_data['options'] = question.options
             
-            # Додаємо відповідь користувача якщо є
             if answer:
                 question_data['user_answer'] = answer.user_answer
                 question_data['is_correct'] = answer.is_correct
                 question_data['points_earned'] = answer.points_earned
-                if answer.audio_answer_url:
-                    question_data['audio_answer_url'] = answer.audio_answer_url
             
             questions_data.append(question_data)
         
@@ -450,7 +479,6 @@ class SectionQuestionsView(APIView):
 
 
 class SubmitAnswerView(APIView):
-    """Відправка відповіді на питання тесту"""
     permission_classes = [IsAuthenticated]
     
     def post(self, request, pk):
@@ -464,7 +492,6 @@ class SubmitAnswerView(APIView):
         
         question_id = request.data.get('question_id')
         user_answer = request.data.get('answer', '').strip()
-        audio_answer_url = request.data.get('audio_answer_url', None)
         
         if not question_id:
             return Response(
@@ -474,28 +501,27 @@ class SubmitAnswerView(APIView):
         
         question = get_object_or_404(TestQuestion, pk=question_id, section__test=attempt.test)
         
-        # Перевірка відповіді
-        is_correct = self._check_answer(question, user_answer)
-        points_earned = question.points if is_correct else 0
-        
-        # AI відгук для складних типів питань
-        ai_feedback = None
-        if question.question_type in ['essay', 'speaking_record', 'short_answer']:
+        if question.question_type in ['essay', 'short_answer']:
             ai_service = AIExerciseService()
-            ai_feedback = ai_service.get_feedback(
+            ai_result = ai_service.check_answer_and_get_feedback(
                 question.question_text,
                 question.correct_answer,
                 user_answer,
                 question.question_type
             )
+            is_correct = ai_result['is_correct']
+            ai_feedback = ai_result['feedback']
+        else:
+            ai_feedback = None
+            is_correct = self._check_answer(question, user_answer)
+            
+        points_earned = question.points if is_correct else 0
         
-        # Оновлення або створення відповіді
         answer, created = TestAnswer.objects.get_or_create(
             attempt=attempt,
             question=question,
             defaults={
                 'user_answer': user_answer,
-                'audio_answer_url': audio_answer_url,
                 'is_correct': is_correct,
                 'points_earned': points_earned,
                 'ai_feedback': ai_feedback,
@@ -507,19 +533,16 @@ class SubmitAnswerView(APIView):
             answer.is_correct = is_correct
             answer.points_earned = points_earned
             answer.ai_feedback = ai_feedback
-            if audio_answer_url:
-                answer.audio_answer_url = audio_answer_url
             answer.save()
         
         return Response({
             'is_correct': is_correct,
             'points_earned': points_earned,
-            'ai_feedback': ai_feedback,
             'correct_answer': question.correct_answer if not is_correct else None,
+            'ai_feedback': ai_feedback
         })
     
     def _check_answer(self, question, user_answer):
-        """Перевірка відповіді"""
         correct = question.correct_answer.strip().lower()
         user = user_answer.lower()
         
@@ -534,7 +557,6 @@ class SubmitAnswerView(APIView):
 
 
 class CompleteTestView(APIView):
-    """Завершення тесту"""
     permission_classes = [IsAuthenticated]
     
     def post(self, request, pk):
@@ -546,12 +568,9 @@ class CompleteTestView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Підрахунок балів по секціях
         sections = attempt.test.sections.all()
-        listening_score = 0
         reading_score = 0
         writing_score = 0
-        speaking_score = 0
         
         for section in sections:
             answers = TestAnswer.objects.filter(
@@ -560,73 +579,33 @@ class CompleteTestView(APIView):
             )
             section_score = sum(a.points_earned for a in answers)
             
-            if section.section_type == 'listening':
-                listening_score = section_score
-            elif section.section_type == 'reading':
-                reading_score = section_score
+            if section.section_type == 'reading':
+                reading_score += section_score
             elif section.section_type == 'writing':
-                writing_score = section_score
-            elif section.section_type == 'speaking':
-                speaking_score = section_score
+                writing_score += section_score
+            else:
+                reading_score += section_score
         
-        total_score = listening_score + reading_score + writing_score + speaking_score
+        total_score = reading_score + writing_score
         
-        # Оновлення спроби
         attempt.status = 'completed'
         attempt.completed_at = timezone.now()
         attempt.total_score = total_score
-        attempt.listening_score = listening_score
         attempt.reading_score = reading_score
         attempt.writing_score = writing_score
-        attempt.speaking_score = speaking_score
         attempt.save()
+        
+        progress_obj, _ = UserProgress.objects.get_or_create(user=request.user)
+        xp_reward = int(total_score * 0.5) + 50
+        progress_obj.add_xp(xp_reward)
+        progress_obj.award_badge('test_completed', criteria_value=attempt.test.id)
         
         return Response({
             'message': 'Тест завершено!',
             'total_score': total_score,
             'max_score': attempt.max_score,
             'scores': {
-                'listening': listening_score,
                 'reading': reading_score,
                 'writing': writing_score,
-                'speaking': speaking_score,
             }
-        })
-
-
-class GenerateAudioView(APIView):
-    """Генерація аудіо через AI"""
-    permission_classes = [IsAuthenticated]
-    
-    def post(self, request, pk):
-        attempt = get_object_or_404(TestAttempt, pk=pk, user=request.user)
-        question_id = request.data.get('question_id')
-        text = request.data.get('text')
-        
-        if not question_id or not text:
-            return Response(
-                {'error': 'Не вказано question_id або text'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        question = get_object_or_404(TestQuestion, pk=question_id, section__test=attempt.test)
-        
-        # Генерація аудіо через AI
-        tts_service = AITextToSpeechService()
-        audio_url = tts_service.generate_speech(text, question.section.test.language)
-        
-        if not audio_url:
-            return Response(
-                {'error': 'Не вдалося згенерувати аудіо'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        
-        # Оновлення питання з URL аудіо
-        if not question.audio_url:
-            question.audio_url = audio_url
-            question.save()
-        
-        return Response({
-            'audio_url': audio_url,
-            'question_id': question.id,
         })

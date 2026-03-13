@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Course, Lesson, Exercise, UserLessonProgress, UserExerciseAttempt
+from .models import Course, Lesson, Exercise, UserLessonProgress, UserExerciseAttempt, CourseTest
+
+
+@admin.register(CourseTest)
+class CourseTestAdmin(admin.ModelAdmin):
+    list_display = ['title', 'course', 'passing_score', 'created_at']
+    list_filter = ['course']
+    search_fields = ['title']
 
 
 @admin.register(Course)

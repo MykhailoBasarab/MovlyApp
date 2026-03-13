@@ -3,16 +3,22 @@ from django.conf import settings
 from typing import Optional
 import json
 import re
+import httpx
 
 
-class AIExerciseService:
-    """Сервіс для роботи з AI для генерації та перевірки вправ"""
-    
+
+class AIExerciseService:    
     def __init__(self):
         self.api_key = settings.OPENAI_API_KEY
         self.client = None
         if self.api_key:
-            self.client = OpenAI(api_key=self.api_key)
+            try:
+                self.client = OpenAI(
+                    api_key=self.api_key,
+                    http_client=httpx.Client(trust_env=False)
+                )
+            except Exception as e:
+                print(f"Помилка ініціалізації OpenAI: {e}")
     
     def generate_exercise(
         self,
@@ -21,18 +27,6 @@ class AIExerciseService:
         language: str = 'en',
         level: str = 'beginner'
     ) -> Optional[dict]:
-        """
-        Генерує вправу за допомогою AI
-        
-        Args:
-            lesson_topic: Тема уроку
-            exercise_type: Тип вправи
-            language: Мова вивчення
-            level: Рівень складності
-        
-        Returns:
-            dict з полями: question, correct_answer, options (якщо потрібно)
-        """
         if not self.api_key:
             return None
         
@@ -64,107 +58,105 @@ class AIExerciseService:
             print(f"Помилка генерації вправи: {e}")
             return None
     
-    def get_feedback(
+    def check_answer_and_get_feedback(
         self,
         question: str,
         correct_answer: str,
         user_answer: str,
-        exercise_type: str
-    ) -> Optional[str]:
+        exercise_type: str = 'short_answer'
+    ) -> dict:
         """
-        Отримує відгук AI на відповідь користувача
-        
-        Args:
-            question: Питання вправи
-            correct_answer: Правильна відповідь
-            user_answer: Відповідь користувача
-            exercise_type: Тип вправи
-        
-        Returns:
-            Текст відгуку
+        Об'єднана перевірка: отримує і статус правильності, і фідбек одним запитом.
+        Це гарантує консистентність (щоб не було 'Правильно', але з негативним фідбеком).
         """
-        if not self.api_key:
-            return None
-        
-        if not self.client:
-            return None
+        if not self.api_key or not self.client:
+            return {"is_correct": False, "feedback": "AI-сервіс тимчасово недоступний."}
         
         try:
             prompt = f"""
-            Надай конструктивний відгук на відповідь студента.
+            Task: Act as a professional language teacher. Evaluate the user's answer.
             
-            Питання: {question}
-            Правильна відповідь: {correct_answer}
-            Відповідь студента: {user_answer}
-            Тип вправи: {exercise_type}
+            Question: {question}
+            Reference Answer/Criteria: {correct_answer}
+            User's Answer: {user_answer}
+            Exercise Type: {exercise_type}
             
-            Надай короткий, корисний відгук українською мовою. Якщо відповідь неправильна, поясни помилку та дай підказку.
+            Requirements:
+            1. Determine if the answer is correct (True/False). Be strict but fair. "I don't know" or empty/irrelevant answers are ALWAYS False.
+            2. Provide a short, encouraging feedback in Ukrainian. If wrong, explain why and give a hint.
+            3. Return only valid JSON.
+            
+            Format:
+            {{
+                "is_correct": boolean,
+                "feedback": "string (Ukrainian)"
+            }}
             """
             
             response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "Ти вчитель мов, який надає корисні відгуки студентам."},
+                    {"role": "system", "content": "You are a language teacher. Respond ONLY with JSON."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.5,
-                max_tokens=200
+                temperature=0.0,
+                response_format={ "type": "json_object" }
             )
             
-            return response.choices[0].message.content.strip()
+            result = json.loads(response.choices[0].message.content)
+            return {
+                "is_correct": bool(result.get("is_correct", False)),
+                "feedback": result.get("feedback", "")
+            }
             
         except Exception as e:
-            print(f"Помилка отримання відгуку: {e}")
-            return None
-    
-    def check_answer_with_ai(
+            print(f"Помилка комбінованої перевірки: {e}")
+            return {"is_correct": False, "feedback": "Сталася помилка при перевірці AI."}
+
+    def generate_lesson_content(
         self,
-        question: str,
-        correct_answer: str,
-        user_answer: str
-    ) -> tuple[bool, Optional[str]]:
-        """
-        Перевіряє відповідь за допомогою AI (для складних випадків)
-        
-        Returns:
-            tuple: (is_correct, feedback)
-        """
-        if not self.api_key:
-            return False, None
-        
-        if not self.client:
-            return False, None
-        
+        topic: str,
+        language: str,
+        level: str
+    ) -> Optional[str]:
+        if not self.api_key or not self.client:
+            return None
+
         try:
             prompt = f"""
-            Перевір відповідь студента на питання.
+            Створи захоплюючий та глибокий навчальний матеріал для уроку іноземної мови.
             
-            Питання: {question}
-            Правильна відповідь: {correct_answer}
-            Відповідь студента: {user_answer}
+            Мова вивчення: {language}
+            Рівень: {level}
+            Тема: {topic}
             
-            Відповісти тільки: CORRECT або INCORRECT, потім через новий рядок короткий відгук українською.
+            Вимоги до контенту:
+            1. Детальне пояснення теми з акцентом на нюанси, а не лише на базові правила.
+            2. "Живі" приклади речень: використовуй сучасний сленг (якщо доречно), ідіоми або ділові ситуації з перекладом на українську.
+            3. Словничок (15-20 слів) з транскрипцією, перекладом та коротким прикладом вживання для кожного слова.
+            4. Розділ "Чи знаєте ви?": цікаві факти про мову або культуру країни, де цією мовою розмовляють.
+            5. Поради від поліглотів щодо запам'ятовування саме цієї теми.
+            6. Структуруй все за допомогою Markdown. Використовуй емодзі для розділів.
+            
+            Відповідь надай українською мовою, але приклади та словник мають бути мовою вивчення ({language}) з перекладом.
+            Зроби матеріал об'ємним, корисним та таким, що надихає.
             """
-            
+
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4-turbo-preview", 
                 messages=[
-                    {"role": "system", "content": "Ти перевіряєш відповіді студентів."},
+                    {"role": "system", "content": "Ти професійний методист і викладач іноземних мов."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.3,
-                max_tokens=150
+                temperature=0.7,
+                max_tokens=2000
             )
-            
-            result = response.choices[0].message.content.strip()
-            is_correct = result.startswith('CORRECT')
-            feedback = '\n'.join(result.split('\n')[1:]) if '\n' in result else None
-            
-            return is_correct, feedback
-            
+
+            return response.choices[0].message.content.strip()
+
         except Exception as e:
-            print(f"Помилка перевірки відповіді: {e}")
-            return False, None
+            print(f"Помилка генерації контенту уроку: {e}")
+            return None
     
     def _build_generation_prompt(
         self,
@@ -173,46 +165,45 @@ class AIExerciseService:
         language: str,
         level: str
     ) -> str:
-        """Побудова промпту для генерації вправи"""
         type_descriptions = {
             'multiple_choice': 'Вправа з вибором правильної відповіді з кількох варіантів',
             'fill_blank': 'Вправа на заповнення пропуску',
             'translation': 'Вправа на переклад',
-            'listening': 'Вправа на аудіювання',
             'speaking': 'Вправа на говоріння',
         }
         
         return f"""
-        Створи вправу для вивчення {language} мови.
+        Створи цікаву та контекстну вправу для вивчення {language} мови.
         
         Тема: {topic}
         Тип вправи: {type_descriptions.get(exercise_type, exercise_type)}
         Рівень: {level}
         
+        ВАЖЛИВО: 
+        - Уникай занадто простих питань типу "Як перекласти hello".
+        - Використовуй життєві ситуації, діалоги або короткі описи.
+        - Якщо це multiple_choice, варіанти мають бути схожими, щоб змусити задуматися.
+        - НЕ ПИШИ варіанти відповіді (A, B, C, D) прямо в тексті питання ("question")! Вони мають бути ТІЛЬКИ в полі "options".
+        - Питання має бути пов'язане з темою "{topic}".
+        
         Формат відповіді (JSON):
         {{
-            "question": "текст питання",
+            "question": "текст питання (з контекстом, БЕЗ переліку варіантів в кінці)",
             "correct_answer": "правильна відповідь",
-            "options": ["варіант1", "варіант2", "варіант3", "варіант4"] (тільки для multiple_choice)
+            "options": ["варіант1", "варіант2", "варіант3", "варіант4"] (тільки для multiple_choice, НЕ ПИШИ A, B, C тут)
         }}
-        
-        Створи вправу відповідно до рівня складності.
         """
     
     def _parse_exercise_response(self, response: str, exercise_type: str) -> dict:
-        """Парсинг відповіді AI"""
-        # Спрощений парсинг (в реальному проекті краще використовувати JSON)
         import json
         
         try:
-            # Спробуємо знайти JSON в відповіді
             json_match = re.search(r'\{.*\}', response, re.DOTALL)
             if json_match:
                 return json.loads(json_match.group())
         except:
             pass
         
-        # Якщо не вдалося розпарсити JSON, повертаємо базову структуру
         lines = response.split('\n')
         question = lines[0] if lines else "Вправа"
         correct_answer = lines[1] if len(lines) > 1 else "Відповідь"
@@ -228,68 +219,4 @@ class AIExerciseService:
         return result
 
 
-class AITextToSpeechService:
-    """Сервіс для генерації аудіо через AI (Text-to-Speech)"""
-    
-    def __init__(self):
-        self.api_key = settings.OPENAI_API_KEY
-        self.client = None
-        if self.api_key:
-            from openai import OpenAI
-            self.client = OpenAI(api_key=self.api_key)
-    
-    def generate_speech(self, text: str, language: str = 'en') -> Optional[str]:
-        """
-        Генерує аудіо з тексту через OpenAI TTS API
-        
-        Args:
-            text: Текст для озвучування
-            language: Мова тексту
-        
-        Returns:
-            URL або шлях до згенерованого аудіо файлу
-        """
-        if not self.api_key:
-            return None
-        
-        if not self.client:
-            return None
-        
-        try:
-            # Використовуємо OpenAI TTS API
-            response = self.client.audio.speech.create(
-                model="tts-1",
-                voice="alloy",  # Можна вибрати: alloy, echo, fable, onyx, nova, shimmer
-                input=text
-            )
-            
-            # Зберігаємо аудіо файл
-            # В реальному проекті тут буде збереження файлу та повернення URL
-            # Для прикладу повертаємо заглушку
-            # response.stream_to_file(f"media/audio/{hash(text)}.mp3")
-            return f"/media/audio/{hash(text)}.mp3"
-            
-        except Exception as e:
-            print(f"Помилка генерації аудіо: {e}")
-            # Fallback: використовуємо інший сервіс або повертаємо None
-            return None
-    
-    def generate_listening_audio(
-        self,
-        text: str,
-        language: str = 'en',
-        speed: float = 1.0
-    ) -> Optional[str]:
-        """
-        Генерує аудіо для аудіювання з можливістю налаштування швидкості
-        
-        Args:
-            text: Текст для озвучування
-            language: Мова
-            speed: Швидкість відтворення (0.5 - 2.0)
-        
-        Returns:
-            URL до аудіо файлу
-        """
-        return self.generate_speech(text, language)
 
