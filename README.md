@@ -9,7 +9,7 @@
 - 🤖 **AI інтеграція** - Генерація вправ, перевірка відповідей, відгуки через OpenAI
 - 🔊 **Аудіювання** - Генерація аудіо через AI Text-to-Speech
 - 📊 **Аналітика** - Відстеження прогресу та статистики
-- 🌍 **6 мов** - English, Deutsch, Français, Español, Italiano, Polski
+- 🌍 **5 мов** - English, Deutsch, Français, Español, Italiano
 - 💾 **Дві БД** - Основна база даних + окрема для аналітики
 - 🎨 **Django Templates** - Frontend інтегровано в Django
 
