@@ -1,9 +1,10 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.timezone import localdate
-from datetime import timedelta
 
 
 class CustomUser(AbstractUser):

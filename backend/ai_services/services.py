@@ -1,9 +1,11 @@
-from openai import OpenAI
-from django.conf import settings
-from typing import Optional
 import json
 import re
+from typing import Optional
+
+from django.conf import settings
+
 import httpx
+from openai import OpenAI
 
 
 class AIExerciseService:

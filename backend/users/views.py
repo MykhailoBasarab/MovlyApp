@@ -1,16 +1,19 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.db.models import Count, Q
-from .models import CustomUser, UserProgress
-from .forms import CustomUserCreationForm, LoginForm, UserProfileForm
-from courses.models import Course, UserCourseProgress
-from django.utils.timezone import localdate, now, make_aware
 import datetime
+
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.timezone import localdate, make_aware, now
+
+from courses.models import Course, UserCourseProgress
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .forms import CustomUserCreationForm, LoginForm, UserProfileForm
+from .models import CustomUser, UserProgress
 from .services import get_missions_status
 
 

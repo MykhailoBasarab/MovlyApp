@@ -1,9 +1,12 @@
-from django.utils.timezone import localdate, now, make_aware
 import datetime
+
 from django.contrib import messages
-from .models import UserProgress
+from django.utils.timezone import localdate, make_aware, now
+
 from courses.models import Exercise, UserExerciseAttempt
-from tests.models import TestAttempt, TestAnswer
+from tests.models import TestAnswer, TestAttempt
+
+from .models import UserProgress
 
 
 def get_missions_status(user):

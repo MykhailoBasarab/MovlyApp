@@ -1,17 +1,19 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
+from ai_services.services import AIExerciseService
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.utils import timezone
-from django.http import JsonResponse
-from .models import TestType, Test, TestSection, TestQuestion, TestAttempt, TestAnswer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from users.models import UserProgress
-from users.services import get_missions_status, check_mission_completions
-from ai_services.services import AIExerciseService
-from .forms import TestFilterForm, TestAnswerForm, MultipleChoiceTestForm
+from users.services import check_mission_completions, get_missions_status
+
+from .forms import MultipleChoiceTestForm, TestAnswerForm, TestFilterForm
+from .models import Test, TestAnswer, TestAttempt, TestQuestion, TestSection, TestType
 
 
 def tests_list_view(request):

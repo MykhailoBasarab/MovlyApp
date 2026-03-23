@@ -1,29 +1,30 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils import timezone
+
+from ai_services.services import AIExerciseService
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.utils import timezone
-from django.db.models import Q, Count
-from django.http import JsonResponse
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from tests.models import Test, TestAttempt
+from users.models import Badge, UserBadge, UserProgress
+from users.services import check_mission_completions, get_missions_status
 
+from .forms import ExerciseAnswerForm, FilterForm, MultipleChoiceForm
 from .models import (
     Course,
-    Lesson,
-    Exercise,
-    UserLessonProgress,
-    UserExerciseAttempt,
     CourseTest,
+    Exercise,
+    Lesson,
     UserCourseProgress,
+    UserExerciseAttempt,
+    UserLessonProgress,
 )
-from tests.models import Test, TestAttempt
-from users.models import UserProgress, Badge, UserBadge
-from users.services import get_missions_status, check_mission_completions
-from ai_services.services import AIExerciseService
-from .forms import FilterForm, ExerciseAnswerForm, MultipleChoiceForm
 
 
 @login_required

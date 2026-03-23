@@ -1,11 +1,12 @@
 from django.contrib import admin
+
 from .models import (
     Course,
-    Lesson,
-    Exercise,
-    UserLessonProgress,
-    UserExerciseAttempt,
     CourseTest,
+    Exercise,
+    Lesson,
+    UserExerciseAttempt,
+    UserLessonProgress,
 )
 
 

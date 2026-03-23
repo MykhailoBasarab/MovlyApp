@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import TestType, Test, TestSection, TestQuestion, TestAttempt, TestAnswer
+
+from .models import Test, TestAnswer, TestAttempt, TestQuestion, TestSection, TestType
 
 
 @admin.register(TestType)
