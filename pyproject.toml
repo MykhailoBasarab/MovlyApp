@@ -1,5 +1,5 @@
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "backend.settings"
+DJANGO_SETTINGS_MODULE = "language_learning.settings"
 python_files = ["test_*.py"]
 
 [tool.black]
