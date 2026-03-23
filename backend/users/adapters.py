@@ -1,6 +1,7 @@
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib.auth import get_user_model
 
+
 class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         """
@@ -11,7 +12,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             return
 
         # Check if the email is provided by the social provider
-        email = sociallogin.account.extra_data.get('email')
+        email = sociallogin.account.extra_data.get("email")
         if not email:
             return
 

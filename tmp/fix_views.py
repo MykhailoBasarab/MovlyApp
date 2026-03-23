@@ -1,7 +1,7 @@
 import os
 
-path = r'c:\Users\myhai\OneDrive\Desktop\Diplom Project\backend\tests\views.py'
-with open(path, 'r', encoding='utf-8') as f:
+path = r"c:\Users\myhai\OneDrive\Desktop\Diplom Project\backend\tests\views.py"
+with open(path, "r", encoding="utf-8") as f:
     content = f.read()
 
 # Replace block 1
@@ -48,9 +48,12 @@ old_block_2 = """        if question.question_type in ['essay', 'short_answer']:
 
 # Try replacing with re for flexibility with whitespace if exact match fails
 import re
+
 pattern = r"if question\.question_type in \['essay', 'short_answer'\]:\s+ai_service = AIExerciseService\(\)\s+is_correct = ai_service\.check_answer_with_ai\(\s+question\.question_text,\s+question\.correct_answer,\s+user_answer\s+\)\s+ai_feedback = ai_service\.get_feedback\(\s+question\.question_text,\s+question\.correct_answer,\s+user_answer,\s+question\.question_type\s+\)"
 
-new_content = re.sub(pattern, new_block_1.replace('        ', '            '), content) # Adjust indent if needed
+new_content = re.sub(
+    pattern, new_block_1.replace("        ", "            "), content
+)  # Adjust indent if needed
 
 # If re fails, try simple replace
 if new_content == content:
@@ -58,7 +61,7 @@ if new_content == content:
 
 # Check if anything changed
 if new_content != content:
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, "w", encoding="utf-8") as f:
         f.write(new_content)
     print("Success")
 else:
