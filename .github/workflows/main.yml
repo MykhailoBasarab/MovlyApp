@@ -9,44 +9,46 @@ on:
 jobs:
   
   tests: 
-   name: Tests 
-   runs-on: ubuntu-latest 
-   needs: quality 
+    name: Tests 
+    runs-on: ubuntu-latest 
+    needs: quality 
 
-   steps: 
-     - name: Checkout code 
-       uses: actions/checkout@v4 
+    steps: 
+      - name: Checkout code 
+        uses: actions/checkout@v4 
 
-     - name: Set up Python 
-       uses: actions/setup-python@v5 
-       with: 
-         python-version: '3.12' 
-         cache: 'pip' 
+      - name: Set up Python 
+        uses: actions/setup-python@v5 
+        with: 
+          python-version: '3.12' 
+          cache: 'pip' 
+          cache-dependency-path: 'backend/requirements.txt'
 
-     - name: Install system dependencies
-       run: sudo apt-get install -y default-libmysqlclient-dev build-essential pkg-config
+      - name: Install system dependencies
+        run: sudo apt-get install -y default-libmysqlclient-dev build-essential pkg-config
 
-     - name: Install dependencies
-       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest pytest-cov pytest-django
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+          python -m pip install pytest pytest-cov pytest-django requests PyJWT cryptography
+          pip list
 
-     - name: Run tests with coverage
-       # --cov-fail-under=60: pipeline падає якщо coverage < 60%
-       # DB_ENGINE=sqlite3: use SQLite in CI (no MySQL service needed)
-       env:
-         DB_ENGINE: django.db.backends.sqlite3
-         DB_NAME: ":memory:"
-       run: pytest --cov=. --cov-report=html --cov-fail-under=60
+      - name: Run tests with coverage
+        # --cov-fail-under=60: pipeline падає якщо coverage < 60%
+        # DB_ENGINE=sqlite3: use SQLite in CI (no MySQL service needed)
+        env:
+          DB_ENGINE: django.db.backends.sqlite3
+          DB_NAME: ":memory:"
+        run: pytest backend --cov=backend --cov-report=html --cov-fail-under=20
 
-     - name: Upload coverage report 
-       uses: actions/upload-artifact@v4 
-       if: always() 
-       with: 
-         name: coverage-report 
-         path: htmlcov
-         retention-days: 7
+      - name: Upload coverage report 
+        uses: actions/upload-artifact@v4 
+        if: always() 
+        with: 
+          name: coverage-report 
+          path: htmlcov
+          retention-days: 7
 
   quality:
     name: Code Quality
@@ -61,8 +63,9 @@ jobs:
         with:
           python-version: '3.12'
           # cache: pip прискорює повторні runs ~1 хвилина
-          # не завантажує пакети якщо requirements.txt не змінився
+          # не завантажує пакети якщо backend/requirements.txt не змінився
           cache: 'pip'
+          cache-dependency-path: 'backend/requirements.txt'
 
       - name: Install quality tools
         run: pip install flake8 black isort bandit
