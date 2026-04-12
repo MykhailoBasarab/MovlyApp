@@ -24,8 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-this-in-production-12345")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = ["*"]
 
@@ -56,6 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -97,21 +97,30 @@ WSGI_APPLICATION = "language_learning.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Використовуємо SQLite локально для простого запуску (в продакшені слід повернути PostgreSQL)
+DB_HOST = os.getenv("DB_HOST", "127.0.0.1").strip()
+DB_PORT = os.getenv("DB_PORT", "3306").strip()
+DB_NAME = os.getenv("DB_NAME", "movly_db").strip()
+DB_USER = os.getenv("DB_USER", "root").strip()
+DB_PASSWORD = os.getenv("DB_PASSWORD", "").strip()
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("DB_NAME", "movly_db"),
-        "USER": os.getenv("DB_USER", "root"),
-        "PASSWORD": os.getenv("DB_PASSWORD", ""),
-        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-        "PORT": os.getenv("DB_PORT", "3306"),
+        "NAME": DB_NAME,
+        "USER": DB_USER,
+        "PASSWORD": DB_PASSWORD,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
         "OPTIONS": {
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES', NAMES utf8mb4",
             "charset": "utf8mb4",
         },
     }
 }
+
+# Додаємо SSL для Aiven MySQL, якщо ми не на локалхості
+if DB_HOST != "127.0.0.1" and DB_HOST != "localhost":
+    DATABASES["default"]["OPTIONS"]["ssl"] = {"ssl_mode": "REQUIRED"}
 
 
 # Database Router для розподілу моделей між базами даних
