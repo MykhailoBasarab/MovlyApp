@@ -10,10 +10,10 @@
     {% load static %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/main.css' %}?v=4.0">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/animations.css' %}?v=6.0">
     <style>
         :root {
-            --primary: #6366f1;
+            --primary: #2563eb;
             --slate-800: #0f172a;
             --slate-600: #334155;
             --slate-400: #64748b;
@@ -29,14 +29,14 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            /* Збільшена висота для ефекту протягнутості вниз */
-            height: 120px; 
+            height: 80px;
             background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid #f1f5f9;
             display: flex;
             align-items: center;
+            overflow: visible;
         }
 
         .header .container {
@@ -46,23 +46,23 @@
             width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 40px;
+            padding: 0 30px;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             text-decoration: none;
         }
 
-        .logo-image { height: 55px; width: auto; }
+        .logo-image { height: 40px; width: auto; }
 
         .project-name {
             font-family: var(--font-accent);
             font-weight: 800;
-            font-size: 2.2rem;
-            letter-spacing: -1.5px;
+            font-size: 1.8rem;
+            letter-spacing: -1px;
             color: var(--slate-800);
             text-transform: uppercase;
         }
@@ -77,10 +77,9 @@
             text-decoration: none;
             color: var(--slate-600);
             font-weight: 600;
-            /* Трохи менший шрифт для навігації */
-            font-size: 1.05rem; 
-            padding: 12px 20px;
-            border-radius: 14px;
+            font-size: 1rem; 
+            padding: 10px 15px;
+            border-radius: 12px;
             transition: all 0.2s ease;
         }
 
@@ -89,28 +88,49 @@
             background: #f8fafc;
         }
 
+
+        .profile-dropdown {
+            position: relative;
+        }
+
         .profile-btn {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: #f1f5f9;
-            padding: 10px 22px !important;
-            border-radius: 16px !important;
+            padding: 8px 18px !important;
+            border-radius: 14px !important;
+            cursor: pointer;
+            user-select: none;
+            border: none;
+            font-family: var(--font-main);
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .profile-btn:hover {
+            background: #e8edf5 !important;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.10);
+        }
+
+        .profile-btn.active {
+            background: #e8edf5 !important;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
         }
 
         .user-avatar {
-            width: 42px;
-            height: 42px;
+            width: 36px;
+            height: 36px;
             background: #fff;
             color: var(--primary);
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
+            overflow: hidden;
         }
 
         .user-avatar.placeholder {
@@ -119,11 +139,147 @@
             border: none;
         }
 
-        .btn-logout {
+        .profile-btn-chevron {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+            transition: transform 0.25s ease;
+        }
+
+        .profile-btn.active .profile-btn-chevron {
+            transform: rotate(180deg);
+        }
+
+
+        .profile-menu {
+            position: fixed;
+            width: 248px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 24px 64px rgba(15,23,42,0.14), 0 4px 16px rgba(37, 99, 235, 0.10);
+            border: 1px solid #eef0f8;
+            padding: 10px;
+            z-index: 99999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px) scale(0.97);
+            transform-origin: top right;
+            transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+        }
+
+        .profile-menu.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+
+        .profile-menu-header {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 14px 14px 16px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f8faff 0%, #f1f5ff 100%);
+            border: 1px solid #e8ecf8;
+            margin-bottom: 8px;
+        }
+
+        .profile-menu-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #f1f5f9;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid #e2e8f0;
+        }
+
+        .profile-menu-avatar.placeholder {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            border: none;
+        }
+
+        .profile-menu-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--slate-800);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-menu-sub {
+            font-size: 0.78rem;
+            color: var(--slate-400);
+            font-weight: 500;
+        }
+
+
+        .profile-menu a {
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px !important;
+            border-radius: 12px;
+            color: var(--slate-600) !important;
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            text-decoration: none;
+            transition: background 0.18s, color 0.18s;
+        }
+
+        .profile-menu a:hover {
+            background: #f8fafc !important;
+            color: var(--primary) !important;
+        }
+
+        .profile-menu a .menu-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--primary);
+            transition: background 0.18s;
+            flex-shrink: 0;
+        }
+
+        .profile-menu a:hover .menu-icon {
+            background: #ede9fe;
+        }
+
+        .profile-menu .menu-divider {
+            height: 1px;
+            background: #f1f5f9;
+            margin: 6px 0;
+        }
+
+        .profile-menu .menu-logout {
+            color: #e11d48 !important;
+        }
+
+        .profile-menu .menu-logout .menu-icon {
+            background: #fff1f2;
+            color: #e11d48;
+        }
+
+        .profile-menu .menu-logout:hover {
             background: #fff1f2 !important;
             color: #e11d48 !important;
-            font-weight: 700 !important;
-            margin-left: 10px;
+        }
+
+        .profile-menu .menu-logout:hover .menu-icon {
+            background: #ffe4e6;
         }
 
         .btn-login {
@@ -185,18 +341,59 @@
                 <a href="{% url 'courses:courses-list' %}">Курси</a>
                 <a href="{% url 'tests:tests-list' %}">Тести</a>
                 <a href="{% url 'users:missions' %}">Місії</a>
+                <a href="{% url 'users:leaderboard' %}">Лідерборд</a>
                 {% if user.is_authenticated %}
-                <a href="{% url 'users:profile' %}" class="profile-btn">
-                    <div class="user-avatar {% if not user.avatar %}placeholder{% endif %}" style="overflow: hidden;">
-                        {% if user.avatar %}
-                        <img src="{{ user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
-                        {% else %}
-                        {{ user.username|slice:":1"|upper }}
-                        {% endif %}
+                <div class="profile-dropdown">
+                    <button class="profile-btn nav-no-style" id="profileDropdownBtn" aria-expanded="false" aria-haspopup="true">
+                        <div class="user-avatar {% if not user.avatar %}placeholder{% endif %}">
+                            {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                            {{ user.username|slice:":1"|upper }}
+                            {% endif %}
+                        </div>
+                        <span style="font-weight: 700; color: var(--slate-800);">Профіль</span>
+                        <i class="fas fa-chevron-down profile-btn-chevron"></i>
+                    </button>
+
+                    <div class="profile-menu" id="profileDropdownMenu" role="menu">
+                        
+                        <div class="profile-menu-header">
+                            <div class="profile-menu-avatar {% if not user.avatar %}placeholder{% endif %}">
+                                {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                {{ user.username|slice:":1"|upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="profile-menu-name">{{ user.username }}</div>
+                            </div>
+                        </div>
+
+                        
+                        <a href="{% url 'users:profile' %}" role="menuitem">
+                            <span class="menu-icon"><i class="fas fa-user"></i></span>
+                            Мій профіль
+                        </a>
+                        <a href="{% url 'courses:courses-list' %}" role="menuitem">
+                            <span class="menu-icon"><i class="fas fa-book-open"></i></span>
+                            Мої курси
+                        </a>
+                        <a href="{% url 'users:missions' %}" role="menuitem">
+                            <span class="menu-icon"><i class="fas fa-fire"></i></span>
+                            Місії
+                        </a>
+
+
+                        <div class="menu-divider"></div>
+
+                        <a href="{% url 'users:logout' %}" class="menu-logout" role="menuitem">
+                            <span class="menu-icon"><i class="fas fa-sign-out-alt"></i></span>
+                            Вийти
+                        </a>
                     </div>
-                    <span style="font-weight: 700; color: var(--slate-800);">Профіль</span>
-                </a>
-                <a href="{% url 'users:logout' %}" class="btn-logout">Вийти</a>
+                </div>
                 {% else %}
                 <a href="{% url 'users:login' %}" class="btn-login">Вхід</a>
                 {% endif %}
@@ -207,7 +404,7 @@
     <div class="messages-container">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" data-aos="fade-left">
+                <div class="alert alert-{{ message.tags }}">
                     {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
                     {% elif message.tags == 'info' %}<i class="fas fa-info-circle"></i>
                     {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
@@ -256,23 +453,59 @@
         </div>
     </footer>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="{% static 'js/animations.js' %}?v=6.0"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            AOS.init({ duration: 800, once: true });
 
-            // Auto-dismiss alerts
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.style.transition = 'all 0.5s ease';
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateX(20px)';
-                    setTimeout(() => {
-                        alert.remove();
-                    }, 500);
-                }, 5000);
-            });
+            const dropdownBtn  = document.getElementById('profileDropdownBtn');
+            const dropdownMenu = document.getElementById('profileDropdownMenu');
+
+            function positionMenu() {
+                const rect = dropdownBtn.getBoundingClientRect();
+                const menuWidth = 248;
+                const gap = 10;
+
+                let right = window.innerWidth - rect.right;
+
+                if (rect.right - menuWidth < 8) right = window.innerWidth - rect.left - menuWidth;
+                right = Math.max(8, right);
+
+                dropdownMenu.style.top  = (rect.bottom + gap) + 'px';
+                dropdownMenu.style.right = right + 'px';
+                dropdownMenu.style.left  = 'auto';
+            }
+
+            if (dropdownBtn && dropdownMenu) {
+                dropdownBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const willOpen = !dropdownMenu.classList.contains('open');
+                    if (willOpen) positionMenu();
+                    dropdownMenu.classList.toggle('open', willOpen);
+                    dropdownBtn.classList.toggle('active', willOpen);
+                    dropdownBtn.setAttribute('aria-expanded', willOpen);
+                });
+
+                window.addEventListener('resize', function () {
+                    if (dropdownMenu.classList.contains('open')) positionMenu();
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('open');
+                        dropdownBtn.classList.remove('active');
+                        dropdownBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') {
+                        dropdownMenu.classList.remove('open');
+                        dropdownBtn.classList.remove('active');
+                        dropdownBtn.setAttribute('aria-expanded', 'false');
+                        dropdownBtn.focus();
+                    }
+                });
+            }
         });
     </script>
     {% block extra_js %}{% endblock %}

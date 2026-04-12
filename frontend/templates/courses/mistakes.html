@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 {% load custom_filters %}
 
@@ -171,7 +171,7 @@
 <canvas class="confetti-canvas" id="confetti"></canvas>
 
 <div class="mistakes-page">
-    <header class="mistakes-header" data-aos="fade-down" id="intro-header"
+    <header class="mistakes-header" data-sa="fade-down" id="intro-header"
         style="border-left: 4px solid var(--accent); padding-left: 1.5rem; margin-bottom: 3rem; width: 100%; max-width: 800px;">
         <h1
             style="font-family: var(--font-accent); font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.2rem; letter-spacing: -0.04em;">
@@ -181,7 +181,7 @@
     </header>
 
     {% if failed_exercises %}
-    <div class="session-progress-container" data-aos="fade-up">
+    <div class="session-progress-container" data-sa="fade-up">
         <div class="session-progress-header">
             <span>Прогрес виправлення</span>
             <span id="progress-text">0 з {{ total_mistakes }}</span>
@@ -278,7 +278,7 @@
         </div>
     </div>
     {% else %}
-    <div class="empty-mistakes" data-aos="zoom-in" style="text-align: center; padding: 3rem 2rem;">
+    <div class="empty-mistakes" data-sa="zoom-in" style="text-align: center; padding: 3rem 2rem;">
         <div style="font-size: 5rem; margin-bottom: 2rem;">✨</div>
         <h2
             style="font-family: var(--font-accent); font-weight: 800; font-size: 2.5rem; color: var(--text-main); margin-bottom: 1rem; letter-spacing: -0.04em;">

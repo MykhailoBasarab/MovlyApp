@@ -126,12 +126,12 @@ class CourseTest(models.Model):
 
 class Exercise(models.Model):
     EXERCISE_TYPES = [
-        ("multiple_choice", "Вибір відповіді"),
-        ("fill_blank", "Заповнити пропуск"),
-        ("translation", "Переклад"),
-        ("listening", "Аудіювання"),
-        ("speaking", "Говоріння"),
-        ("ai_generated", "Згенерована"),
+        ("multiple_choice", "Вибір правильної відповіді"),
+        ("fill_blank", "Заповни пропуски"),
+        ("translation", "Майстер перекладу"),
+        ("listening", "Аудіо-аналіз"),
+        ("speaking", "Мовна практика"),
+        ("ai_generated", "Майстер-квест"),
     ]
 
     lesson = models.ForeignKey(

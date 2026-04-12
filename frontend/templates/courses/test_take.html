@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Тест: {{ course.title }} — MOVLY{% endblock %}
@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="test-container-centered">
-    <header class="lesson-page-header" data-aos="fade-down"
+    <header class="lesson-page-header" data-sa="fade-down"
         style="border-left: 4px solid var(--accent); padding-left: 1.5rem; margin-bottom: 3rem;">
         <div class="lesson-nav" style="border: none; padding-bottom: 0;">
             <h1 class="lesson-main-title"
@@ -27,7 +27,7 @@
         {% csrf_token %}
 
         {% for question in questions %}
-        <div class="exercise-modern-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+        <div class="exercise-modern-card" data-sa="fade-up" data-sa-delay="{{ forloop.counter0 }}00">
             <div class="exercise-header">
                 <div class="exercise-type-tag">
                     <span class="exercise-num">{{ forloop.counter }}</span>

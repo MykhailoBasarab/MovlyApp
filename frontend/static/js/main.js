@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {

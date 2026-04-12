@@ -6,256 +6,461 @@
 {% block extra_css %}
 <style>
     .leaderboard-container {
-        padding: 4rem 0;
-        max-width: 900px;
+        padding: 60px 0 100px;
+        max-width: 1000px;
         margin: 0 auto;
-    }
-
-    .leaderboard-header {
-        text-align: center;
-        margin-bottom: 4rem;
-    }
-
-    .leaderboard-title {
-        font-family: var(--font-accent);
-        font-size: 3rem;
-        font-weight: 800;
-        color: var(--text-main);
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.04em;
-    }
-
-    .leaderboard-subtitle {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-        font-weight: 500;
-    }
-
-    .top-three {
-        display: flex;
-        justify-content: center;
-        align-items: flex-end;
-        gap: 2rem;
-        margin-bottom: 5rem;
-        padding-top: 2rem;
-    }
-
-    .podium-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         position: relative;
     }
 
-    .podium-rank {
-        width: 40px;
-        height: 40px;
+
+    .bg-blob {
+        position: absolute;
         border-radius: 50%;
-        display: flex;
+        filter: blur(80px);
+        z-index: -1;
+        opacity: 0.6;
+        animation: floatBlob 10s ease-in-out infinite alternate;
+    }
+    .blob-1 {
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 60%);
+        top: -100px; left: -150px;
+    }
+    .blob-2 {
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 60%);
+        top: 200px; right: -250px;
+        animation-duration: 14s;
+        animation-delay: -5s;
+    }
+
+    @keyframes floatBlob {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(40px, -40px) scale(1.1); }
+    }
+
+
+    .leaderboard-header {
+        text-align: center;
+        margin-bottom: 80px;
+        position: relative;
+    }
+    .badge-weekly {
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
+        gap: 8px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.05));
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        color: var(--primary);
+        padding: 6px 16px;
+        border-radius: 100px;
         font-weight: 800;
-        color: white;
-        margin-bottom: -20px;
-        z-index: 2;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 20px;
+    }
+    .leaderboard-title {
+        font-family: var(--font-accent);
+        font-size: clamp(3rem, 6vw, 4rem);
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 12px;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+    }
+    .text-gradient-gold {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .leaderboard-subtitle {
+        color: #64748b;
+        font-size: 1.2rem;
+        max-width: 500px;
+        margin: 0 auto;
+        font-weight: 500;
     }
 
-    .rank-1 {
-        background: #f59e0b;
-        width: 44px;
-        height: 44px;
-        font-size: 1.1rem;
+
+    .podium-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 24px;
+        margin-bottom: 60px;
+        height: 380px;
     }
 
-    .rank-2 {
-        background: #64748b;
+    .podium-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 140px;
+        position: relative;
     }
 
-    .rank-3 {
-        background: #b45309;
+    .podium-avatar-wrapper {
+        position: relative;
+        margin-bottom: 16px;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .podium-column:hover .podium-avatar-wrapper {
+        transform: translateY(-10px) scale(1.05);
     }
 
     .podium-avatar {
-        width: 90px;
-        height: 90px;
-        border-radius: 12px;
+        width: 100px;
+        height: 100px;
+        border-radius: 28px;
         overflow: hidden;
-        border: 2px solid var(--border);
-        background: white;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #64748b;
-    }
-
-    .item-1 .podium-avatar {
-        width: 110px;
-        height: 110px;
-        border-color: #f59e0b;
-        border-width: 3px;
-    }
-
-    .podium-name {
-        font-weight: 800;
-        font-size: 1.1rem;
-        color: #1e293b;
-        margin-bottom: 0.25rem;
-    }
-
-    .podium-xp {
-        font-weight: 700;
-        color: #6366f1;
-        font-size: 0.9rem;
-    }
-
-    .leaderboard-list {
-        background: white;
-        border-radius: 12px;
-        border: 1px solid var(--border);
-        padding: 0.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-    }
-
-    .leaderboard-item {
-        display: grid;
-        grid-template-columns: 60px 60px 1fr 120px;
-        align-items: center;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        transition: background 0.2s ease;
-    }
-
-    .leaderboard-item:hover {
-        background: var(--bg-subtle);
-    }
-
-    .leaderboard-item.is-current {
-        background: var(--accent-soft);
-        border: 1px solid var(--accent);
-    }
-
-    .item-rank {
-        font-weight: 800;
-        color: #94a3b8;
-        font-size: 1.1rem;
-    }
-
-    .item-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
+        border: 4px solid white;
         background: #f1f5f9;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 700;
-        color: #64748b;
-        margin-right: 1rem;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #94a3b8;
+        box-shadow: 0 15px 35px rgba(15, 23, 42, 0.1);
+        position: relative;
+        z-index: 10;
+        transform: rotate(-3deg);
+        transition: all 0.4s ease;
+    }
+
+    .podium-column.pos-1 .podium-avatar {
+        width: 130px;
+        height: 130px;
+        border-color: #fef3c7;
+        box-shadow: 0 20px 40px rgba(245, 158, 11, 0.3), 0 0 0 4px #f59e0b;
+        transform: rotate(2deg);
+    }
+
+    .podium-column.pos-2 .podium-avatar {
+        box-shadow: 0 15px 30px rgba(148, 163, 184, 0.3), 0 0 0 4px #94a3b8;
+    }
+
+    .podium-column.pos-3 .podium-avatar {
+        box-shadow: 0 15px 30px rgba(180, 83, 9, 0.2), 0 0 0 4px #b45309;
+        transform: rotate(4deg);
+    }
+
+    .crown-icon {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2.5rem;
+        color: #f59e0b;
+        z-index: 20;
+        filter: drop-shadow(0 4px 6px rgba(245, 158, 11, 0.4));
+        animation: floatCrown 3s ease-in-out infinite;
+    }
+
+    @keyframes floatCrown {
+        0%, 100% { transform: translateX(-50%) translateY(0) rotate(-10deg); }
+        50% { transform: translateX(-50%) translateY(-10px) rotate(5deg); }
+    }
+
+    .podium-info {
+        text-align: center;
+        margin-bottom: 20px;
+        z-index: 5;
+    }
+
+    .podium-name {
+        font-weight: 850;
+        font-size: 1.15rem;
+        color: #0f172a;
+        display: block;
+        margin-bottom: 4px;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 130px;
+    }
+
+    .pos-1 .podium-name {
+        font-size: 1.4rem;
+        color: #b45309;
+    }
+
+    .podium-xp {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+        padding: 4px 12px;
+        border-radius: 10px;
+        display: inline-block;
+    }
+
+    .podium-base {
+        width: 100%;
+        background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(241, 245, 249, 0.7) 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,1);
+        border-bottom: none;
+        border-radius: 24px 24px 0 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 20px;
+        font-size: 3rem;
+        font-weight: 900;
+        color: rgba(15, 23, 42, 0.1);
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.03), inset 0 2px 0 rgba(255,255,255,1);
+        position: relative;
         overflow: hidden;
     }
 
+    .podium-base::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 100%;
+        background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .base-1 { height: 160px; background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%); color: rgba(245, 158, 11, 0.2); border-color: rgba(253, 230, 138, 0.8); }
+    .base-2 { height: 110px; }
+    .base-3 { height: 80px; }
+
+
+    .leaderboard-list {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        padding: 12px;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .list-item {
+        display: flex;
+        align-items: center;
+        padding: 16px 24px;
+        border-radius: 16px;
+        background: white;
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        border: 1px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .list-item:hover {
+        transform: translateX(6px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+        border-color: rgba(226, 232, 240, 0.9);
+    }
+
+    .list-item.is-current {
+        background: linear-gradient(90deg, #f5f3ff, white);
+        border-color: rgba(99, 102, 241, 0.3);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.1);
+    }
+    
+    .list-item.is-current::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0; width: 4px;
+        background: var(--primary);
+    }
+
+    .item-rank-num {
+        width: 40px;
+        font-size: 1.25rem;
+        font-weight: 850;
+        color: #94a3b8;
+    }
+
+    .list-item.is-current .item-rank-num {
+        color: var(--primary);
+    }
+
+    .item-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #64748b;
+        margin-right: 20px;
+        overflow: hidden;
+        border: 2px solid white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .item-details {
+        flex: 1;
+    }
+
     .item-name {
-        font-weight: 700;
+        font-weight: 800;
         color: #1e293b;
+        font-size: 1.05rem;
+        margin-bottom: 2px;
+    }
+
+    .item-level {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     .item-xp {
+        font-weight: 850;
+        color: #0f172a;
+        font-size: 1.1rem;
         text-align: right;
-        font-weight: 800;
+    }
+    .item-xp span {
         color: #6366f1;
+        font-size: 0.85rem;
+        margin-left: 2px;
     }
 
+
     .user-footer-rank {
-        margin-top: 3rem;
-        text-align: center;
-        padding: 1.5rem 2rem;
-        background: #1e293b;
-        border-radius: 12px;
+        margin-top: 40px;
+        padding: 24px 32px;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
         color: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        box-shadow: 0 25px 50px rgba(15, 23, 42, 0.2), inset 0 2px 0 rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.1);
     }
 
     .footer-rank-info {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 20px;
     }
 
     .footer-rank-number {
-        font-size: 2rem;
+        font-size: 2.2rem;
         font-weight: 900;
-        opacity: 0.5;
+        color: rgba(255,255,255,0.4);
+    }
+
+    @media (max-width: 768px) {
+        .podium-container { gap: 12px; height: 320px; }
+        .podium-column { width: 100px; }
+        .podium-avatar { width: 70px; height: 70px; }
+        .podium-column.pos-1 .podium-avatar { width: 90px; height: 90px; }
+        .podium-name { font-size: 0.9rem; max-width: 90px; }
+        .pos-1 .podium-name { font-size: 1.1rem; }
+        .base-1 { height: 120px; }
+        .base-2 { height: 80px; }
+        .base-3 { height: 50px; }
+        .list-item { padding: 12px 16px; }
+        .user-footer-rank { flex-direction: column; gap: 20px; text-align: center; }
+        .footer-rank-info { flex-direction: column; text-align: center; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="leaderboard-container">
-    <header class="leaderboard-header" data-aos="fade-down">
-        <h1 class="leaderboard-title">Лідерборд</h1>
-        <p class="leaderboard-subtitle">Найкращі студенти MOVLY цього тижня</p>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <header class="leaderboard-header" data-sa="fade-down">
+        <div class="badge-weekly"><i class="fas fa-calendar-week"></i> Тижневий рейтинг</div>
+        <h1 class="leaderboard-title">Зал <span class="text-gradient-gold">Слави</span></h1>
+        <p class="leaderboard-subtitle">Змагайся з іншими студентами, отримуй XP за уроки та тести і піднімайся в топ рейтингу.</p>
     </header>
 
-    <div class="top-three">
+    {% if top_users %}
+    <div class="podium-container">
+        
         {% if top_users|length >= 2 %}
-        <div class="podium-item item-2" data-aos="fade-up" data-aos-delay="100">
-            <div class="podium-rank rank-2">2</div>
-            <div class="podium-avatar">
-                {% if top_users.1.user.avatar %}
-                <img src="{{ top_users.1.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
-                {% else %}
-                {{ top_users.1.user.username|slice:":1"|upper }}
-                {% endif %}
+        <div class="podium-column pos-2" data-sa="fade-up" data-sa-delay="100">
+            <div class="podium-avatar-wrapper">
+                <div class="podium-avatar">
+                    {% if top_users.1.user.avatar %}
+                    <img src="{{ top_users.1.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    {{ top_users.1.user.username|slice:":1"|upper }}
+                    {% endif %}
+                </div>
             </div>
-            <span class="podium-name">{{ top_users.1.user.username }}</span>
-            <span class="podium-xp">{{ top_users.1.total_xp }} XP</span>
+            <div class="podium-info">
+                <span class="podium-name">{{ top_users.1.user.username }}</span>
+                <span class="podium-xp">{{ top_users.1.total_xp }} XP</span>
+            </div>
+            <div class="podium-base base-2">2</div>
         </div>
         {% endif %}
 
+        
         {% if top_users|length >= 1 %}
-        <div class="podium-item item-1" data-aos="fade-up">
-            <div class="podium-rank rank-1">
-                <i class="fas fa-crown"></i>
+        <div class="podium-column pos-1" data-sa="fade-up" data-sa-delay="0">
+            <div class="podium-avatar-wrapper">
+                <i class="fas fa-crown crown-icon"></i>
+                <div class="podium-avatar">
+                    {% if top_users.0.user.avatar %}
+                    <img src="{{ top_users.0.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    {{ top_users.0.user.username|slice:":1"|upper }}
+                    {% endif %}
+                </div>
             </div>
-            <div class="podium-avatar">
-                {% if top_users.0.user.avatar %}
-                <img src="{{ top_users.0.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
-                {% else %}
-                {{ top_users.0.user.username|slice:":1"|upper }}
-                {% endif %}
+            <div class="podium-info">
+                <span class="podium-name">{{ top_users.0.user.username }}</span>
+                <span class="podium-xp" style="background: rgba(245, 158, 11, 0.15); color: #d97706;">{{ top_users.0.total_xp }} XP</span>
             </div>
-            <span class="podium-name">{{ top_users.0.user.username }}</span>
-            <span class="podium-xp">{{ top_users.0.total_xp }} XP</span>
+            <div class="podium-base base-1">1</div>
         </div>
         {% endif %}
 
+        
         {% if top_users|length >= 3 %}
-        <div class="podium-item item-3" data-aos="fade-up" data-aos-delay="200">
-            <div class="podium-rank rank-3">3</div>
-            <div class="podium-avatar">
-                {% if top_users.2.user.avatar %}
-                <img src="{{ top_users.2.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
-                {% else %}
-                {{ top_users.2.user.username|slice:":1"|upper }}
-                {% endif %}
+        <div class="podium-column pos-3" data-sa="fade-up" data-sa-delay="200">
+            <div class="podium-avatar-wrapper">
+                <div class="podium-avatar">
+                    {% if top_users.2.user.avatar %}
+                    <img src="{{ top_users.2.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    {{ top_users.2.user.username|slice:":1"|upper }}
+                    {% endif %}
+                </div>
             </div>
-            <span class="podium-name">{{ top_users.2.user.username }}</span>
-            <span class="podium-xp">{{ top_users.2.total_xp }} XP</span>
+            <div class="podium-info">
+                <span class="podium-name">{{ top_users.2.user.username }}</span>
+                <span class="podium-xp">{{ top_users.2.total_xp }} XP</span>
+            </div>
+            <div class="podium-base base-3">3</div>
         </div>
         {% endif %}
     </div>
 
-    <div class="leaderboard-list" data-aos="fade-up" data-aos-delay="300">
+    
+    {% if top_users|length > 3 %}
+    <div class="leaderboard-list sa-stagger">
         {% for entry in top_users %}
         {% if forloop.counter > 3 %}
-        <div class="leaderboard-item {% if entry.user == request.user %}is-current{% endif %}">
-            <span class="item-rank">#{{ forloop.counter }}</span>
+        <div class="list-item {% if entry.user == request.user %}is-current{% endif %}">
+            <div class="item-rank-num">{{ forloop.counter }}</div>
             <div class="item-avatar">
                 {% if entry.user.avatar %}
                 <img src="{{ entry.user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -263,18 +468,30 @@
                 {{ entry.user.username|slice:":1"|upper }}
                 {% endif %}
             </div>
-            <span class="item-name">{{ entry.user.username }}</span>
-            <span class="item-xp">{{ entry.total_xp }} XP</span>
+            <div class="item-details">
+                <div class="item-name">{{ entry.user.username }}</div>
+                <div class="item-level">Студент</div>
+            </div>
+            <div class="item-xp">{{ entry.total_xp }} <span>XP</span></div>
         </div>
         {% endif %}
         {% endfor %}
     </div>
+    {% endif %}
+    {% else %}
+    <div style="text-align: center; padding: 60px; background: white; border-radius: 24px; border: 1px dashed #cbd5e1;" data-sa="zoom-in">
+        <i class="fas fa-ghost" style="font-size: 3rem; color: #94a3b8; margin-bottom: 20px;"></i>
+        <h3 style="font-weight: 800; color: #1e293b;">Поки що порожньо</h3>
+        <p style="color: #64748b;">Пройди свій перший урок, щоб потрапити до лідерборду!</p>
+    </div>
+    {% endif %}
 
+    
     {% if user_rank > 10 %}
-    <div class="user-footer-rank" data-aos="zoom-in">
+    <div class="user-footer-rank" data-sa="fade-up">
         <div class="footer-rank-info">
             <span class="footer-rank-number">#{{ user_rank }}</span>
-            <div class="item-avatar" style="background: rgba(255,255,255,0.1); color: white;">
+            <div class="item-avatar" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white; width: 60px; height: 60px;">
                 {% if user.avatar %}
                 <img src="{{ user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
                 {% else %}
@@ -282,11 +499,13 @@
                 {% endif %}
             </div>
             <div style="text-align: left;">
-                <div style="font-weight: 800; font-size: 1.2rem;">{{ user.username }} (Ви)</div>
-                <div style="font-size: 0.9rem; opacity: 0.7;">Продовжуйте вчитися, щоб піднятися вище!</div>
+                <div style="font-weight: 850; font-size: 1.3rem;">{{ user.username }} (Ви)</div>
+                <div style="font-size: 0.95rem; color: rgba(255,255,255,0.7); margin-top: 4px;">Залишилось трохи, щоб увійти в ТОП-10!</div>
             </div>
         </div>
-        <div class="item-xp" style="color: #818cf8; font-size: 1.3rem;">{{ request.user.progress.total_xp }} XP</div>
+        <div style="text-align: right;">
+            <div style="color: #818cf8; font-weight: 900; font-size: 1.8rem;">{{ request.user.progress.total_xp }} <span style="font-size: 1rem;">XP</span></div>
+        </div>
     </div>
     {% endif %}
 </div>

@@ -118,12 +118,12 @@ class TestSection(models.Model):
 
 class TestQuestion(models.Model):
     QUESTION_TYPES = [
-        ("multiple_choice", "Вибір відповіді"),
-        ("fill_blank", "Заповнити пропуск"),
-        ("true_false", "Правда/Неправда"),
-        ("matching", "Зіставлення"),
-        ("short_answer", "Коротка відповідь"),
-        ("essay", "Есе"),
+        ("multiple_choice", "Вибір правильної відповіді"),
+        ("fill_blank", "Заповни пропуски"),
+        ("true_false", "Логічний вибір"),
+        ("matching", "Виклик зіставлення"),
+        ("short_answer", "Експрес-відповідь"),
+        ("essay", "Творче есе"),
     ]
 
     section = models.ForeignKey(

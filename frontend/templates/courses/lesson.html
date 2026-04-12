@@ -25,7 +25,7 @@
     <p class="lesson-main-desc">{{ lesson.description }}</p>
     </header>
 
-    <div class="lesson-content-card" data-aos="fade-up">
+    <div class="lesson-content-card" data-sa="fade-up">
         <div class="theory-badge-pill">
             <i class="fas fa-graduation-cap"></i> Навчальний матеріал
         </div>
@@ -50,7 +50,7 @@
 
     <div class="exercises-container">
         {% for ex in exercises %}
-        <div class="exercise-modern-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+        <div class="exercise-modern-card" data-sa="fade-up" data-sa-delay="{{ forloop.counter0|add:1 }}00">
             <div class="exercise-header">
                 <div class="exercise-type-tag">
                     <span class="exercise-num">{{ forloop.counter }}</span>
@@ -160,7 +160,7 @@
                     .then(data => {
                         if (data.success) {
 
-                            const oldFeedbacks = card.querySelectorAll('.feedback-box, .ai-feedback-box');
+                            const oldFeedbacks = card.querySelectorAll('.field-feedback, .ai-feedback-box, .ai-hint-box');
                             oldFeedbacks.forEach(el => el.remove());
 
                             if (data.is_correct) {

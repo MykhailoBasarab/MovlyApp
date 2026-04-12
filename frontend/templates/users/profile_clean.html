@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Профіль {{ user.username }} — MOVLY{% endblock %}
@@ -155,7 +155,7 @@
 <div class="profile-bg-blob bg-blob-2"></div>
 
 <div class="profile-container">
-    <header class="profile-header" data-aos="fade-down" data-aos-duration="1000">
+    <header class="profile-header" data-sa="fade-down" >
         <div class="profile-avatar-wrapper">
             <div class="profile-avatar" id="avatar-preview">
                 {% if user.avatar %}
@@ -192,7 +192,7 @@
     <div class="profile-main-layout">
         <div id="view-mode" class="profile-grid">
             <div class="profile-main-content">
-                <div class="streak-banner" data-aos="fade-up" data-aos-delay="200">
+                <div class="streak-banner" data-sa="fade-up" data-sa-delay="200">
                     <div class="streak-number">{{ progress.current_streak }}</div>
                     <div class="streak-info">
                         <h3 style="font-size: 1.5rem; font-weight: 800;">Днів у навчанні!</h3>
@@ -206,10 +206,10 @@
                     </div>
                 </div>
 
-                <section class="profile-section" data-aos="fade-up" data-aos-delay="400">
+                <section class="profile-section" data-sa="fade-up" data-sa-delay="400">
                     <h2 class="section-title">Ваші успіхи</h2>
                     <div class="stats-grid">
-                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="500">
+                        <div class="stat-card" data-sa="zoom-in" data-sa-delay="500">
                             <div class="stat-icon icon-lessons"
                                 style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
                                 <i class="fas fa-book-open"></i>
@@ -220,7 +220,7 @@
                                 <span class="stat-label">Уроків</span>
                             </div>
                         </div>
-                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="600">
+                        <div class="stat-card" data-sa="zoom-in" data-sa-delay="600">
                             <div class="stat-icon icon-exercises"
                                 style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
                                 <i class="fas fa-check-circle"></i>
@@ -231,7 +231,7 @@
                                 <span class="stat-label">Вправ</span>
                             </div>
                         </div>
-                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="700">
+                        <div class="stat-card" data-sa="zoom-in" data-sa-delay="700">
                             <div class="stat-icon icon-streak"
                                 style="width: 70px; height: 70px; border-radius: 24px; font-size: 2rem;">
                                 <i class="fas fa-trophy"></i>
@@ -244,13 +244,13 @@
                     </div>
                 </section>
 
-                <section class="profile-section" style="margin-top: 2rem;" data-aos="fade-up" data-aos-delay="800">
+                <section class="profile-section" style="margin-top: 2rem;" data-sa="fade-up" data-sa-delay="800">
                     <h2 class="section-title">Пройдені курси</h2>
                     <div class="completed-courses-grid" style="display: grid; gap: 1.5rem;">
                         {% if completed_courses %}
                         {% for course in completed_courses %}
-                        <div class="course-progress-card" data-aos="fade-left"
-                            data-aos-delay="{{ forloop.counter|add:8 }}00">
+                        <div class="course-progress-card" data-sa="fade-left"
+                            data-sa-delay="{{ forloop.counter|add:8 }}00">
                             <div class="course-icon" style="font-size: 2.5rem;">
                                 {% if course.language == 'en' %}🇬🇧
                                 {% elif course.language == 'de' %}🇩🇪
@@ -295,13 +295,13 @@
                 </section>
             </div>
 
-            <aside class="profile-sidebar" data-aos="fade-left" data-aos-delay="600">
+            <aside class="profile-sidebar" data-sa="fade-left" data-sa-delay="600">
                 <div class="profile-card info-card" style="box-shadow: 0 20px 40px rgba(0,0,0,0.05) !important;">
                     <h3 class="card-subtitle"
                         style="font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.25rem; margin-bottom: 1.5rem;">
                         Інформація</h3>
                     <div class="info-list">
-                        <div class="info-item" data-aos="fade-left" data-aos-delay="700">
+                        <div class="info-item" data-sa="fade-left" data-sa-delay="700">
                             <div class="info-icon"
                                 style="background: rgba(99, 102, 241, 0.1); color: #4f46e5; border-radius: 14px;">
                                 <i class="fas fa-envelope"></i>
@@ -311,7 +311,7 @@
                                 <span class="info-value" style="word-break: break-all;">{{ user.email }}</span>
                             </div>
                         </div>
-                        <div class="info-item" data-aos="fade-left" data-aos-delay="800">
+                        <div class="info-item" data-sa="fade-left" data-sa-delay="800">
                             <div class="info-icon"
                                 style="background: rgba(16, 185, 129, 0.1); color: #059669; border-radius: 14px;">
                                 <i class="fas fa-language"></i>
@@ -321,7 +321,7 @@
                                 <span class="info-value">{{ user.get_native_language_display }}</span>
                             </div>
                         </div>
-                        <div class="info-item" data-aos="fade-left" data-aos-delay="900">
+                        <div class="info-item" data-sa="fade-left" data-sa-delay="900">
                             <div class="info-icon"
                                 style="background: rgba(245, 158, 11, 0.1); color: #d97706; border-radius: 14px;">
                                 <i class="fas fa-graduation-cap"></i>
@@ -331,7 +331,7 @@
                                 <span class="info-value">{{ user.get_learning_language_display }}</span>
                             </div>
                         </div>
-                        <div class="info-item" data-aos="fade-left" data-aos-delay="1000">
+                        <div class="info-item" data-sa="fade-left" data-sa-delay="1000">
                             <div class="info-icon"
                                 style="background: rgba(100, 116, 139, 0.1); color: #475569; border-radius: 14px;">
                                 <i class="fas fa-calendar-alt"></i>
@@ -347,7 +347,7 @@
                 {% if progress.last_activity_date %}
                 <div class="activity-card profile-card"
                     style="margin-top: 1.5rem; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important; color: white !important; padding: 1.5rem !important;"
-                    data-aos="zoom-in" data-aos-delay="1100">
+                    data-sa="zoom-in" data-sa-delay="1100">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <div
@@ -366,7 +366,7 @@
             </aside>
         </div>
 
-        <!-- Edit Mode -->
+        
         <div id="edit-mode" style="display: none;" class="animate-slide-up">
             <div class="edit-card">
                 <h2 class="section-title">Налаштування профілю</h2>

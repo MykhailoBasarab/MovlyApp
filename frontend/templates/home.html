@@ -1,21 +1,47 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 <style>
     .hero {
-        padding: 40px 0 60px;
+        padding: 50px 0 100px;
         position: relative;
         overflow: visible;
+    }
 
+    .hero::before {
+        content: '';
+        position: absolute;
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 60%);
+        top: -200px;
+        left: -100px;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .hero::after {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
+        bottom: -150px;
+        right: -100px;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        pointer-events: none;
     }
 
     .hero-content {
         display: flex;
-
         align-items: center;
         gap: 0;
-
         position: relative;
         z-index: 10;
         max-width: 1400px;
@@ -26,42 +52,120 @@
         flex: 1.1;
         position: relative;
         z-index: 20;
-
         padding-right: 50px;
     }
 
     .hero-text h1 {
         font-family: var(--font-accent);
-        font-size: clamp(3.5rem, 8vw, 6rem);
-        line-height: 1;
+        font-size: clamp(3.2rem, 8vw, 6.2rem);
+        line-height: 1.05;
         font-weight: 900;
         letter-spacing: -0.04em;
-        margin-bottom: 20px;
-        color: #1e293b;
+        margin-bottom: 24px;
+        color: #0f172a;
     }
 
     .text-gradient {
-        background: linear-gradient(135deg, var(--accent) 0%, #3b82f6 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 50%, #10b981 100%);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
         display: inline-block;
+        animation: gradientShift 6s ease infinite alternate;
+        background-size: 200% 200%;
+    }
+
+    @keyframes gradientShift {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        100% {
+            background-position: 100% 50%;
+        }
     }
 
     .subtitle {
         font-size: 1.25rem;
-        color: var(--text-muted);
-        margin-bottom: 2rem;
-        max-width: 45ch;
-        line-height: 1.5;
+        color: #475569;
+        margin-bottom: 2.5rem;
+        max-width: 48ch;
+        line-height: 1.6;
         font-weight: 400;
     }
 
     .hero-actions {
         display: flex;
         gap: 20px;
+        flex-wrap: wrap;
     }
 
+    .btn-hero-prime {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white !important;
+        padding: 18px 42px;
+        border-radius: 100px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 1.05rem;
+        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-hero-prime::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: 0.5s;
+    }
+
+    .btn-hero-prime:hover::after {
+        left: 100%;
+    }
+
+    .btn-hero-prime:hover {
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 20px 45px rgba(37, 99, 235, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-hero-second {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: #1e293b !important;
+        padding: 16px 36px;
+        border-radius: 100px;
+        font-weight: 850;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 1.05rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(203, 213, 225, 0.6);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-hero-second:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border-color: rgba(148, 163, 184, 0.8);
+        background: rgba(255, 255, 255, 0.95);
+    }
 
     .hero-visual {
         flex: 1;
@@ -70,25 +174,30 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 10;
     }
 
     .bg-dots {
         position: absolute;
         inset: 0;
-        background-image: radial-gradient(var(--border) 1px, transparent 1px);
-        background-size: 30px 30px;
-        opacity: 0.3;
+        background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+        background-size: 32px 32px;
+        opacity: 0.4;
         z-index: 0;
+        mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
     }
 
     .hero-dashboard-card {
-        background: white;
-        padding: 16px 20px;
-        border-radius: 16px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 20px 28px;
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(226, 232, 240, 0.9);
         position: absolute;
-        animation: floatHand 5s ease-in-out infinite;
+        animation: floatHand 7s ease-in-out infinite;
         z-index: 10;
         width: fit-content;
     }
@@ -97,104 +206,127 @@
 
         0%,
         100% {
-            transform: translateY(0);
+            transform: translateY(0) rotate(var(--rot));
         }
 
         50% {
-            transform: translateY(-12px);
+            transform: translateY(-15px) rotate(var(--rot));
         }
     }
 
     .icon-circle {
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         flex-shrink: 0;
     }
 
     .hero-app-window {
-        width: 360px;
-        height: 440px;
-        background: white;
-        border-radius: 24px;
-        border: 1px solid var(--border);
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
+        width: 380px;
+        height: 480px;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 50px 100px rgba(15, 23, 42, 0.15), 0 20px 50px rgba(99, 102, 241, 0.1), inset 0 2px 5px rgba(255, 255, 255, 1);
         overflow: hidden;
         position: relative;
         z-index: 5;
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     }
 
     .window-header {
-        height: 54px;
-        background: #f8fafc;
+        height: 60px;
+        background: rgba(248, 250, 252, 0.8);
         border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
-        padding: 0 20px;
+        padding: 0 24px;
         gap: 20px;
     }
 
     .window-dots {
         display: flex;
-        gap: 6px;
+        gap: 8px;
     }
 
     .window-dots span {
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
-        background: #e2e8f0;
+        background: #cbd5e1;
+    }
+
+    .window-dots span:nth-child(1) {
+        background: #ef4444;
+    }
+
+    .window-dots span:nth-child(2) {
+        background: #f59e0b;
+    }
+
+    .window-dots span:nth-child(3) {
+        background: #10b981;
     }
 
     .window-search {
         flex: 1;
-        height: 30px;
+        height: 34px;
         background: white;
         border: 1px solid var(--border);
-        border-radius: 8px;
-        font-size: 0.8rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
         display: flex;
         align-items: center;
-        padding: 0 12px;
+        padding: 0 14px;
         color: #94a3b8;
-        font-weight: 500;
+        font-weight: 600;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
     }
 
     .window-content {
-        padding: 24px;
+        padding: 28px;
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 16px;
     }
 
     .content-item {
         display: flex;
         align-items: center;
-        gap: 14px;
-        padding: 14px;
-        border-radius: 12px;
+        gap: 16px;
+        padding: 16px 20px;
+        border-radius: 18px;
         background: white;
         border: 1px solid var(--border);
-        font-size: 0.9rem;
-        font-weight: 600;
+        font-size: 0.95rem;
+        font-weight: 750;
         color: #475569;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        cursor: default;
+    }
+
+    .content-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
     }
 
     .content-item i {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         color: #94a3b8;
+        transition: color 0.3s;
     }
 
     .content-item.active {
-        background: var(--accent-soft);
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.04));
         color: var(--accent);
-        border-color: rgba(99, 102, 241, 0.2);
+        border-color: rgba(99, 102, 241, 0.4);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.1);
     }
 
     .content-item.active i {
@@ -209,7 +341,7 @@
 
         .hero-text {
             padding-right: 0;
-            margin-bottom: 80px;
+            margin-bottom: 60px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -222,8 +354,8 @@
         }
 
         .hero-app-window {
-            width: 320px;
-            height: 380px;
+            width: 340px;
+            height: 420px;
         }
     }
 </style>
@@ -232,30 +364,34 @@
 
 <section class="hero">
     <div class="hero-content">
-        <div class="hero-text" data-aos="fade-right" data-aos-delay="100">
+        <div class="hero-text" data-sa="fade-right" data-sa-delay="100">
             <h1>Вивчай мови <br><span class="text-gradient">без обмежень</span></h1>
-            <p class="subtitle" data-aos="fade-up" data-aos-delay="300">
-                Ми створили простір, де кожне слово має значення. Відкрий новий рівень розуміння з нашою системою.
+            <p class="subtitle" data-sa="fade-up" data-sa-delay="300">
+                Ми створили простір, де кожне слово має значення. Відкрийте новий рівень розуміння з нашою розумною
+                системою.
             </p>
             {% if not user.is_authenticated %}
-            <div class="hero-actions" data-aos="fade-up" data-aos-delay="500">
-                <a href="{% url 'users:register' %}" class="btn-hero-primary">Розпочати подорож</a>
-                <a href="#features" class="btn-hero-secondary">Дізнатись деталі</a>
+            <div class="hero-actions" data-sa="fade-up" data-sa-delay="500">
+                <a href="{% url 'users:register' %}" class="btn-hero-prime"><i class="fas fa-rocket"
+                        style="margin-right: 10px;"></i> Розпочати подорож</a>
+                <a href="#features" class="btn-hero-second">Дізнатись деталі</a>
             </div>
             {% endif %}
         </div>
 
-        <div class="hero-visual" data-aos="fade-left" data-aos-delay="400">
+        <div class="hero-visual" data-sa="fade-left" data-sa-delay="400">
             <div class="bg-dots"></div>
 
-            <div class="hero-dashboard-card mission-card" style="top: 15%; left: 0%; transform: rotate(-2deg);">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div class="icon-circle" style="background: #fffbeb; color: #f59e0b;">
+            <div class="hero-dashboard-card mission-card" style="top: 12%; left: -5%; --rot: -3deg;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="icon-circle"
+                        style="background: linear-gradient(135deg, #fffbeb, #fef3c7); color: #f59e0b; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);">
                         <i class="fas fa-fire"></i>
                     </div>
                     <div>
-                        <div style="font-weight: 850; font-size: 0.95rem; color: #1e293b;">14 Днів підряд</div>
-                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Ти в топі! 🔥</div>
+                        <div style="font-weight: 850; font-size: 1rem; color: #1e293b; letter-spacing: -0.02em;">14 Днів
+                            підряд</div>
+                        <div style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Ти в топі! 🔥</div>
                     </div>
                 </div>
             </div>
@@ -263,11 +399,13 @@
             <div class="hero-app-window">
                 <div class="window-header">
                     <div class="window-dots"><span></span><span></span><span></span></div>
-                    <div class="window-search">Англійська для бізнесу</div>
+                    <div class="window-search"><i class="fas fa-search" style="opacity: 0.5; margin-right: 8px;"></i>
+                        Англійська для бізнесу</div>
                 </div>
                 <div class="window-content">
                     <div class="content-item active">
-                        <i class="fas fa-play-circle"></i>
+                        <i class="fas fa-play-circle"
+                            style="background: white; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"></i>
                         <span>Урок 1: Вступ</span>
                     </div>
                     <div class="content-item">
@@ -279,23 +417,29 @@
                         <span>Урок 3: Фінансові терміни</span>
                     </div>
                     <div
-                        style="margin-top: 20px; height: 1px; background: var(--border); width: 100%; position: relative;">
+                        style="margin-top: 24px; height: 1px; background: rgba(226, 232, 240, 0.8); width: 100%; position: relative;">
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                        <div style="font-size: 0.75rem; font-weight: 800; color: #64748b;">ПРОГРЕС КУРСУ</div>
-                        <div style="font-size: 0.75rem; font-weight: 800; color: var(--accent);">35%</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                        <div style="font-size: 0.75rem; font-weight: 800; color: #64748b; letter-spacing: 0.05em;">
+                            ПРОГРЕС КУРСУ</div>
+                        <div
+                            style="font-size: 0.8rem; font-weight: 850; color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 10px;">
+                            35%</div>
                     </div>
                     <div
-                        style="height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: 5px;">
-                        <div style="width: 35%; height: 100%; background: var(--accent); border-radius: 3px;"></div>
+                        style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; margin-top: 8px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+                        <div
+                            style="width: 35%; height: 100%; background: linear-gradient(90deg, #2563eb, #10b981); border-radius: 4px;">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="hero-dashboard-card level-card"
-                style="bottom: 15%; right: 0%; transform: rotate(2deg); animation-delay: -2.5s;">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div class="icon-circle" style="background: #f5f3ff; color: #6366f1;">
+                style="bottom: 15%; right: -5%; --rot: 2deg; animation-delay: -3s;">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="icon-circle"
+                        style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); color: #2563eb; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);">
                         <i class="fas fa-award"></i>
                     </div>
                     <div>
@@ -315,7 +459,7 @@
 {% if user.is_authenticated and recommended_courses or recommended_tests %}
 <section class="recommendations" style="padding: 40px 0 60px; position: relative; z-index: 10;">
     <div class="container">
-        <div class="section-header-alt mb-5" data-aos="fade-right">
+        <div class="section-header-alt mb-5" data-sa="fade-right">
             <h2 style="font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; color: #1e293b; letter-spacing: -0.03em;">
                 Рекомендовано <span class="text-gradient-alt">саме для тебе</span></h2>
             <p style="font-size: 1.15rem; color: #64748b; max-width: 600px; margin-top: 15px;">Продовжуй розвиток з
@@ -393,11 +537,13 @@
                 <a href="{% url 'courses:courses-list' %}" class="back-link" style="padding: 5px 0;">Всі курси <i
                         class="fas fa-chevron-right" style="font-size: 0.8rem;"></i></a>
             </div>
-            <div class="recommendation-grid">
+            <div class="recommendation-grid sa-stagger">
                 {% for course in recommended_courses %}
                 <a href="{% url 'courses:course-detail' course.id %}" class="course-card">
                     <div class="course-badge-flag">
-                        <div class="course-flag-wrapper">{{ course.get_flag }}</div>
+                        <div class="course-flag-wrapper">
+                            <img src="{{ course.language|to_flag_url }}" alt="{{ course.get_language_display }}">
+                        </div>
                         <div class="language-code-bg"
                             style="position: absolute; font-size: 6rem; font-weight: 900; opacity: 0.05; color: var(--text-main); top: 50%; left: 50%; transform: translate(-50%, -50%);">
                             {{ course.get_code }}</div>
@@ -430,12 +576,14 @@
                 <a href="{% url 'tests:tests-list' %}" class="back-link" style="padding: 5px 0;">Всі тести <i
                         class="fas fa-chevron-right" style="font-size: 0.8rem;"></i></a>
             </div>
-            <div class="recommendation-grid">
+            <div class="recommendation-grid sa-stagger">
                 {% for test in recommended_tests %}
                 <a href="{% url 'tests:test-detail' test.id %}" class="course-card">
                     <div class="course-badge-flag"
                         style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
-                        <div class="course-flag-wrapper">{{ test.get_flag }}</div>
+                        <div class="course-flag-wrapper">
+                            <img src="{{ test.language|to_flag_url }}" alt="{{ test.get_language_display }}">
+                        </div>
                         <div class="language-code-bg"
                             style="position: absolute; font-size: 6rem; font-weight: 900; opacity: 0.05; color: #f59e0b; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                             {{ test.get_code }}</div>
@@ -465,7 +613,7 @@
 <link rel="stylesheet" href="{% static 'css/courses.css' %}?v=14.0">
 
 <section class="features" id="features">
-    <div class="features-intro" data-aos="fade-right" data-aos-offset="200">
+    <div class="features-intro" data-sa="fade-right">
         <div class="section-header-alt">
 
             <div class="section-header-content">
@@ -507,32 +655,35 @@
 
         .bento-card {
             position: relative;
-            border-radius: 32px;
+            border-radius: 36px;
             padding: 48px;
             overflow: hidden;
-            border: 1px solid rgba(15, 23, 42, 0.08);
-            background: white;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.04), inset 0 2px 0 rgba(255, 255, 255, 0.8);
         }
 
         .bento-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 30px 60px rgba(99, 102, 241, 0.1);
-            transform: translateY(-10px);
+            border-color: rgba(37, 99, 235, 0.4);
+            box-shadow: 0 40px 80px rgba(37, 99, 235, 0.12), inset 0 2px 0 rgba(255, 255, 255, 1);
+            transform: translateY(-8px) scale(1.01);
         }
 
         .card-main {
             grid-column: span 8;
             grid-row: span 2;
-            background: #0f172a;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
             color: white;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             display: flex;
             flex-direction: row;
             align-items: center;
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.1);
         }
 
         .card-main .card-content {
@@ -589,22 +740,31 @@
         .card-icon-wrapper {
             width: 56px;
             height: 56px;
-            border-radius: 18px;
-            background: #f8fafc;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f1f5f9, #ffffff);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.4rem;
             color: var(--accent);
             margin-bottom: 30px;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             flex-shrink: 0;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .bento-card:hover .card-icon-wrapper {
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.15);
+            border-color: rgba(37, 99, 235, 0.3);
         }
 
         .card-mini .card-icon-wrapper,
         .card-highlight .card-icon-wrapper {
             margin-bottom: 0;
-            background: var(--accent-soft);
+            background: linear-gradient(135deg, var(--accent-soft), #ffffff);
+            border-color: rgba(37, 99, 235, 0.1);
         }
 
         .bento-card h3 {
@@ -646,11 +806,25 @@
 
         .card-main .glass-circle {
             position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 60%);
             border-radius: 50%;
             z-index: 1;
+            filter: blur(20px);
+            animation: pulseCircle 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseCircle {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 1200px) {
@@ -692,18 +866,18 @@
     </style>
 
     <div class="bento-grid">
-        <div class="bento-card card-main">
+        <div class="bento-card card-main" data-sa="fade-up" data-sa-delay="0">
             <div class="card-content">
                 <div class="card-icon-wrapper"
-                    style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: white; margin-bottom: 40px;">
+                    style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
                     <i class="fas fa-brain"></i>
                 </div>
                 <h3>Логіка навчання</h3>
                 <p>Ми не просто вчимо слова — ми будуємо нейронні зв'язки через контекст і живу практику, що гарантує
                     результат.</p>
                 <div style="margin-top: 40px;">
-                    <a href="{% url 'users:register' %}" class="btn-hero-primary"
-                        style="padding: 16px 36px; font-size: 1rem; background: white; color: #0f172a !important;">Спробувати
+                    <a href="{% url 'users:register' %}" class="btn-hero-prime"
+                        style="padding: 18px 40px; font-size: 1.05rem; background: white; color: #0f172a !important; border: none;">Спробувати
                         безкоштовно</a>
                 </div>
             </div>
@@ -711,47 +885,47 @@
                 <div class="glass-circle"></div>
                 <div
                     style="width: 70%; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 2;">
-                    <div style="height: 10px; width: 100%; background: rgba(255,255,255,0.08); border-radius: 5px;">
+                    <div style="height: 12px; width: 100%; background: rgba(255,255,255,0.08); border-radius: 6px;">
                         <div
-                            style="height: 100%; width: 75%; background: var(--accent); border-radius: 5px; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);">
+                            style="height: 100%; width: 75%; background: linear-gradient(90deg, #2563eb, #0ea5e9); border-radius: 6px; box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);">
                         </div>
                     </div>
-                    <div style="height: 10px; width: 85%; background: rgba(255,255,255,0.04); border-radius: 5px;">
+                    <div style="height: 12px; width: 85%; background: rgba(255,255,255,0.04); border-radius: 6px;">
                     </div>
-                    <div style="height: 10px; width: 95%; background: rgba(255,255,255,0.04); border-radius: 5px;">
+                    <div style="height: 12px; width: 95%; background: rgba(255,255,255,0.04); border-radius: 6px;">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bento-card card-step">
+        <div class="bento-card card-step" data-sa="fade-up" data-sa-delay="100">
             <div class="card-icon-wrapper">
                 <i class="fas fa-magic"></i>
             </div>
             <h3>AI-Корекція</h3>
             <p>Система помічає, де ви помиляєтесь найчастіше, і автоматично підлаштовує програму, щоб заповнити
                 прогалини.</p>
-            <div style="margin-top: 30px;">
+            <div style="margin-top: 35px; width: 100%;">
                 <div
-                    style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(99, 102, 241, 0.05); border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.1);">
-                    <i class="fas fa-check-circle" style="color: var(--accent);"></i>
-                    <span style="font-size: 0.85rem; font-weight: 700; color: #475569;">Персоналізація 100%</span>
+                    style="display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.03)); border-radius: 16px; border: 1px solid rgba(37, 99, 235, 0.1);">
+                    <i class="fas fa-check-circle" style="color: var(--accent); font-size: 1.1rem;"></i>
+                    <span style="font-size: 0.9rem; font-weight: 750; color: #475569;">Персоналізація 100%</span>
                 </div>
             </div>
         </div>
 
-        <div class="bento-card card-mini">
+        <div class="bento-card card-mini" data-sa="fade-up" data-sa-delay="200">
             <div class="card-icon-wrapper">
                 <i class="fas fa-bolt"></i>
             </div>
-            <div style="flex: 1;">
+            <div>
                 <h3>Ваш ритм</h3>
-                <p style="font-size: 0.95rem; line-height: 1.4; margin-top: 4px;">Займайтесь від 5 хвилин на день —
+                <p style="font-size: 1rem; line-height: 1.5; margin-top: 8px;">Займайтесь від 5 хвилин на день —
                     система адаптує обсяг матеріалу під ваш вільний час.</p>
             </div>
         </div>
 
-        <div class="bento-card card-highlight">
+        <div class="bento-card card-highlight" data-sa="fade-up" data-sa-delay="300">
             <div class="card-icon-wrapper">
                 <i class="fas fa-microchip"></i>
             </div>
@@ -788,12 +962,14 @@
     }
 
     .lang-card {
-        background: white;
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 32px;
         padding: 40px 24px;
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-        transition: all 0.3s ease;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.03), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         cursor: pointer;
         position: relative;
         display: flex;
@@ -807,15 +983,15 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent);
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent);
         opacity: 0;
-        transition: opacity 0.4s ease;
+        transition: opacity 0.5s ease;
     }
 
     .lang-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
-        border-color: var(--accent);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 35px 70px rgba(37, 99, 235, 0.12), inset 0 2px 0 rgba(255, 255, 255, 1);
+        border-color: rgba(37, 99, 235, 0.4);
     }
 
     .lang-card:hover::before {
@@ -843,15 +1019,27 @@
     }
 
     .lang-flag-wrapper {
-        font-size: 3.8rem;
-        margin-bottom: 24px;
-        filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.12));
-        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        width: 100px;
+        height: 75px;
+        margin-bottom: 28px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         z-index: 2;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .lang-flag-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
     }
 
     .lang-card:hover .lang-flag-wrapper {
-        transform: scale(1.1);
+        transform: scale(1.08) translateY(-4px);
+        box-shadow: 0 15px 35px rgba(37, 99, 235, 0.25);
     }
 
     .lang-name {
@@ -869,8 +1057,8 @@
     }
 
     .lang-card.featured {
-        background: var(--bg-subtle);
-        border-color: var(--accent);
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(37, 99, 235, 0.02));
+        border-color: rgba(37, 99, 235, 0.3);
     }
 
     .lang-badge {
@@ -878,15 +1066,15 @@
         top: 20px;
         right: 20px;
         font-size: 0.65rem;
-        font-weight: 800;
-        padding: 5px 12px;
+        font-weight: 850;
+        padding: 6px 14px;
         border-radius: 100px;
-        background: var(--accent);
+        background: linear-gradient(135deg, #2563eb, #10b981);
         color: white;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         z-index: 3;
-        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
     }
 
 
@@ -915,16 +1103,14 @@
     }
 
     .promo-mobile {
-        background: radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
-            radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.05) 0%, transparent 40%),
-            #ffffff;
+        background: radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+            #0f172a;
         text-align: center;
-        padding: 120px 0;
+        padding: 140px 0;
         position: relative;
         overflow: hidden;
         margin-top: 100px;
-        border-top: 1px solid #e2e8f0;
-        border-bottom: 1px solid #e2e8f0;
         width: 100vw;
         margin-left: calc(-50vw + 50%);
         margin-right: calc(-50vw + 50%);
@@ -935,9 +1121,9 @@
         content: '';
         position: absolute;
         inset: 0;
-        background-image: radial-gradient(rgba(99, 102, 241, 0.1) 1.5px, transparent 1.5px);
+        background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
         background-size: 40px 40px;
-        opacity: 0.3;
+        opacity: 0.2;
         z-index: 1;
         pointer-events: none;
     }
@@ -951,35 +1137,65 @@
     }
 
     .promo-title {
-        font-family: var(--font-serif);
-        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-family: var(--font-accent);
+        font-size: clamp(2.8rem, 6vw, 5rem);
         font-weight: 900;
-        color: #1e293b;
+        color: white;
         margin-bottom: 4rem;
-        line-height: 0.95;
-        letter-spacing: -0.05em;
+        line-height: 1;
+        letter-spacing: -0.04em;
     }
 
     .store-btn {
         display: inline-flex;
         align-items: center;
         gap: 1.25rem;
-        background: white;
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 20px;
         padding: 1rem 2.5rem;
         text-decoration: none !important;
-        color: var(--text-main) !important;
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-        transition: all 0.3s ease;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         min-width: 220px;
-        height: 80px;
+        height: 85px;
     }
 
     .store-btn:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        border-color: var(--accent);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 45px rgba(99, 102, 241, 0.3), inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        border-color: rgba(99, 102, 241, 0.6);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-text {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .btn-text span {
+        font-size: 0.75rem;
+        font-weight: 600;
+        opacity: 0.8;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .btn-text strong {
+        font-size: 1.4rem;
+        font-weight: 850;
+        letter-spacing: -0.02em;
+        line-height: 1;
+    }
+
+    .store-btn svg path {
+        fill: white;
     }
 
     .store-buttons {
@@ -987,7 +1203,7 @@
         justify-content: center;
         gap: 20px;
         flex-wrap: wrap;
-        margin-bottom: 40px;
+        margin-bottom: 50px;
     }
 
     .promo-trust {
@@ -995,12 +1211,11 @@
         flex-direction: column;
         align-items: center;
         gap: 12px;
-        opacity: 0.8;
     }
 
     .trust-text {
-        font-size: 0.9rem;
-        color: #64748b;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.7);
         font-weight: 600;
         letter-spacing: 0.02em;
     }
@@ -1047,7 +1262,7 @@
         position: absolute;
         width: 800px;
         height: 800px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
         border-radius: 50%;
         filter: blur(80px);
         z-index: 1;
@@ -1062,43 +1277,53 @@
 <div class="languages-container">
     <div class="languages-text">
         <h2 style="font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; letter-spacing: -0.05em; color: #0f172a;"
-            data-aos="fade-down" data-aos-duration="1000">
+            data-sa="fade-down">
             Обери свою мову</h2>
         <p class="languages-description"
             style="font-size: 1.2rem; color: #64748b; max-width: 500px; margin: 15px auto 0; font-weight: 500;"
-            data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
+            data-sa="fade-up" data-sa-delay="200">
             Розкрий нові горизонти разом з найкращою спільнотою у світі.
         </p>
     </div>
 
-    <div class="lang-card-grid">
-        <div class="lang-card featured" data-aos="fade-up" data-aos-delay="100">
+    <div class="lang-card-grid sa-stagger">
+        <a href="{% url 'courses:courses-list' %}?lang=en" class="lang-card featured">
             <span class="lang-badge">Популярно</span>
-            <div class="lang-flag-wrapper">🇬🇧</div>
+            <div class="lang-flag-wrapper">
+                <img src="https://flagicons.lipis.dev/flags/4x3/gb.svg" alt="English">
+            </div>
             <div class="lang-name">English</div>
-        </div>
-        <div class="lang-card" data-aos="fade-up" data-aos-delay="200">
-            <div class="lang-flag-wrapper">🇩🇪</div>
+        </a>
+        <a href="{% url 'courses:courses-list' %}?lang=de" class="lang-card">
+            <div class="lang-flag-wrapper">
+                <img src="https://flagicons.lipis.dev/flags/4x3/de.svg" alt="Deutsch">
+            </div>
             <div class="lang-name">Deutsch</div>
-        </div>
-        <div class="lang-card" data-aos="fade-up" data-aos-delay="300">
-            <div class="lang-flag-wrapper">🇫🇷</div>
+        </a>
+        <a href="{% url 'courses:courses-list' %}?lang=fr" class="lang-card">
+            <div class="lang-flag-wrapper">
+                <img src="https://flagicons.lipis.dev/flags/4x3/fr.svg" alt="Français">
+            </div>
             <div class="lang-name">Français</div>
-        </div>
-        <div class="lang-card" data-aos="fade-up" data-aos-delay="400">
-            <div class="lang-flag-wrapper">🇪🇸</div>
+        </a>
+        <a href="{% url 'courses:courses-list' %}?lang=es" class="lang-card">
+            <div class="lang-flag-wrapper">
+                <img src="https://flagicons.lipis.dev/flags/4x3/es.svg" alt="Español">
+            </div>
             <div class="lang-name">Español</div>
-        </div>
-        <div class="lang-card" data-aos="fade-up" data-aos-delay="500">
-            <div class="lang-flag-wrapper">🇮🇹</div>
+        </a>
+        <a href="{% url 'courses:courses-list' %}?lang=it" class="lang-card">
+            <div class="lang-flag-wrapper">
+                <img src="https://flagicons.lipis.dev/flags/4x3/it.svg" alt="Italiano">
+            </div>
             <div class="lang-name">Italiano</div>
-        </div>
+        </a>
     </div>
 </div>
 </section>
 
 <section class="promo-mobile">
-    <div class="promo-content" data-aos="zoom-in-up" data-aos-duration="1200" data-aos-anchor-placement="center-bottom">
+    <div class="promo-content" data-sa="zoom-in">
         <h2 class="promo-title">Навчайтеся будь-де,<br>будь-коли</h2>
 
         <div class="store-buttons">
@@ -1114,13 +1339,13 @@
             </a>
             <a href="#" class="store-btn google-btn">
                 <svg viewBox="0 0 512 512" width="30" height="30">
-                    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="#ff6d00" />
+                    <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1z" fill="white" />
                     <path d="M25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0c-13 6.8-21.7 19.2-21.7 35.3z"
-                        fill="#32c5ff" />
+                        fill="white" />
                     <path
                         d="M486.7 234.2c10.9 6.3 18.2 17.9 18.2 30.8s-7.3 24.5-18.2 30.8l-80.8 46.7L287.5 234.3l99.2-101.9 100 101.8z"
-                        fill="#ff3d00" />
-                    <path d="M104.6 499l280.8-161.4-97.9-97.9-182.9 259.3z" fill="#afb42b" />
+                        fill="white" />
+                    <path d="M104.6 499l280.8-161.4-97.9-97.9-182.9 259.3z" fill="white" />
                 </svg>
                 <div class="btn-text">
                     <span>Завантажити з</span>
@@ -1132,7 +1357,6 @@
         <div class="promo-trust">
             <p class="trust-text">Приєднуйся до 50,000+ студентів по всьому світу</p>
         </div>
+    </div>
 </section>
-
-</script>
 {% endblock %}

@@ -111,7 +111,9 @@ def profile_view(request):
         "completed_tests": completed_tests,
         "daily_progress_percent": daily_progress_percent,
         "remaining_xp": remaining_xp,
-        "badges": user.badges.all().select_related("badge"),
+        "badges": user.badges.exclude(
+            badge__criteria_type__in=["course_completed", "test_completed"]
+        ).select_related("badge"),
         "failed_mistakes_count": failed_mistakes_count,
     }
 
@@ -134,8 +136,6 @@ def missions_view(request):
     end_of_day = make_aware(datetime.datetime.combine(today, datetime.time.max))
 
     # Seconds until midnight (for countdown)
-    import datetime
-
     midnight = datetime.datetime.combine(
         today + datetime.timedelta(days=1), datetime.time.min
     )
@@ -378,6 +378,30 @@ def missions_view(request):
         "current_streak": progress.current_streak,
     }
     return render(request, "users/missions.html", context)
+
+
+@login_required
+def leaderboard_view(request):
+    from django.db.models import F
+
+    top_users = (
+        UserProgress.objects.select_related("user")
+        .order_by("-total_xp")[:10]
+    )
+
+    # Знайдемо позицію поточного юзера
+    try:
+        user_progress = UserProgress.objects.get(user=request.user)
+        user_rank = (
+            UserProgress.objects.filter(total_xp__gt=user_progress.total_xp).count() + 1
+        )
+    except UserProgress.DoesNotExist:
+        user_rank = None
+
+    return render(request, "users/leaderboard.html", {
+        "top_users": top_users,
+        "user_rank": user_rank,
+    })
 
 
 def logout_view(request):

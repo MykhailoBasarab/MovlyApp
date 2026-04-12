@@ -1,5 +1,4 @@
 from datetime import timedelta
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Q
@@ -137,6 +136,26 @@ class UserProgress(models.Model):
     @property
     def level(self):
         return (self.total_xp // 1000) + 1
+
+    @property
+    def rank_title(self):
+        xp = self.total_xp
+        if xp < 1000:
+            return "Новачок"
+        elif xp < 3000:
+            return "Початківець"
+        elif xp < 5000:
+            return "Дослідник"
+        elif xp < 10000:
+            return "Знавець"
+        elif xp < 20000:
+            return "Експерт"
+        elif xp < 35000:
+            return "Професіонал"
+        elif xp < 50000:
+            return "Майстер"
+        else:
+            return "Легенда"
 
     @property
     def xp_to_next_level(self):

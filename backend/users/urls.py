@@ -10,6 +10,7 @@ urlpatterns = [
     path("register/", views.register_view, name="register"),
     path("profile/", views.profile_view, name="profile"),
     path("missions/", views.missions_view, name="missions"),
+    path("leaderboard/", views.leaderboard_view, name="leaderboard"),
     path("logout/", views.logout_view, name="logout"),
     # API endpoints
     path("api/profile/", views.ProfileView.as_view(), name="api-profile"),

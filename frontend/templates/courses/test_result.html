@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Результати тесту: {{ course.title }} — MOVLY{% endblock %}
@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="test-container-centered">
-    <div class="test-card-simple" data-aos="zoom-in">
+    <div class="test-card-simple" data-sa="zoom-in">
         <div class="result-header">
             <h1 class="test-title-plain">{% if passed %}Вітаємо!{% else %}Спробуйте ще раз{% endif %}</h1>
             <p class="test-subtitle">Результати фінального тесту</p>
@@ -51,8 +51,8 @@
         <h3 class="section-title" style="margin-bottom: 2rem;">Детальний аналіз відповідей</h3>
 
         {% for result in results %}
-        <div class="result-item {% if result.is_correct %}correct{% else %}incorrect{% endif %}" data-aos="fade-up"
-            data-aos-delay="{{ forloop.counter0 }}00">
+        <div class="result-item {% if result.is_correct %}correct{% else %}incorrect{% endif %}" data-sa="fade-up"
+            data-sa-delay="{{ forloop.counter0 }}00">
             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
                 <div class="exercise-type-tag">
                     <span class="exercise-num">{{ forloop.counter }}</span>
