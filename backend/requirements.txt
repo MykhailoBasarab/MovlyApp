@@ -9,7 +9,7 @@ cffi==2.0.0
 charset-normalizer==3.4.7
 click==8.3.2
 click-didyoumean==0.3.1
-click-plugins==1.1.1.post2
+click-plugins==1.1.1
 click-repl==0.3.0
 colorama==0.4.6
 cryptography==46.0.7
@@ -32,7 +32,7 @@ pydantic==2.12.5
 pydantic_core==2.41.5
 PyJWT==2.11.0
 PyMySQL==1.1.0
-python-dateutil==2.9.0.post0
+python-dateutil==2.9.0
 python-dotenv==1.0.0
 pytz==2026.1
 redis==5.0.1
