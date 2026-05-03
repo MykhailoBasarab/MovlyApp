@@ -455,10 +455,31 @@ def complete_lesson_view(request, pk):
                 ).first()
                 if course_badge:
                     UserBadge.objects.get_or_create(user=user, badge=course_badge)
+                    
+                    from django.urls import reverse
+                    from users.models import Notification
+                    Notification.objects.create(
+                        user=user,
+                        title="Курс завершено! 🎓",
+                        message=f"Вітаємо! Ви повністю пройшли курс: {lesson.course.title}",
+                        notification_type='achievement',
+                        link=reverse("courses:course-detail", kwargs={"pk": lesson.course.id})
+                    )
+                    
                     messages.success(
                         request, f"Вітаємо! Ви отримали значок: {course_badge.name}!"
                     )
 
+        from django.urls import reverse
+        from users.models import Notification
+        Notification.objects.create(
+            user=user,
+            title="Урок завершено! ✅",
+            message=f"Ви пройшли урок: {lesson.title} з оцінкою {score}%",
+            notification_type='success',
+            link=reverse("courses:lesson-detail", kwargs={"pk": lesson.id})
+        )
+        
         messages.success(request, f"Урок завершено! Ваша оцінка: {score}%")
 
     return redirect("courses:course-detail", pk=lesson.course.id)
@@ -548,9 +569,20 @@ def course_test_take_view(request, pk):
                 before_missions = get_missions_status(request.user)
 
                 user_progress, _ = UserProgress.objects.get_or_create(user=request.user)
-                leveled_up = user_progress.add_xp(500)  # Бонус за завершення курсу
+                leveled_up = user_progress.add_xp(500)
 
                 check_mission_completions(request, before_missions)
+                
+                from django.urls import reverse
+                from users.models import Notification
+                Notification.objects.create(
+                    user=request.user,
+                    title="Іспит складено! 🎓",
+                    message=f"Ви успішно склали фінальний іспит курсу '{course.title}'!",
+                    notification_type='achievement',
+                    link=reverse("courses:course-detail", kwargs={"pk": course.id})
+                )
+
                 if leveled_up:
                     messages.info(
                         request, f"Вітаємо! Ви досягли рівня {user_progress.level}!"

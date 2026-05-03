@@ -296,6 +296,16 @@ def complete_test_view(request, pk):
 
     user_progress.award_badge("test_completed", criteria_value=attempt.test.id)
 
+    from django.urls import reverse
+    from users.models import Notification
+    Notification.objects.create(
+        user=request.user,
+        title="Тест завершено! 📝",
+        message=f"Ви пройшли тест '{attempt.test.title}' з результатом {total_score}/{attempt.max_score}.",
+        notification_type='success',
+        link=reverse("tests:test-detail", kwargs={"pk": attempt.test.id})
+    )
+
     messages.success(
         request,
         f"Тест завершено! Ваш результат: {total_score}/{attempt.max_score} балів",

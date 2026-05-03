@@ -95,6 +95,7 @@ def check_mission_completions(request, before_statuses):
     """
     Compares current mission statuses with before_statuses and adds messages for new completions.
     """
+    from .models import Notification
     current_statuses = get_missions_status(request.user)
 
     mission_names = {
@@ -111,5 +112,15 @@ def check_mission_completions(request, before_statuses):
             # Mission was just completed!
             name = mission_names.get(mission_id, mission_id)
             messages.info(request, f"🎉 Місія виконана: {name}!")
+            
+            # Create persistent notification
+            from django.urls import reverse
+            Notification.objects.create(
+                user=request.user,
+                title="Місія виконана! 🎯",
+                message=f"Ви успішно виконали місію: {name}",
+                notification_type='success',
+                link=reverse("users:missions")
+            )
 
     return current_statuses

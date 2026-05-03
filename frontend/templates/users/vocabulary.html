@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Vocabulary Library — Dashboard & Trainer{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #2563eb;
+        --dark: #0f172a;
+        --slate-500: #64748b;
+    }
+
+    body { background-color: #f8fafc; font-family: 'Space Grotesk', sans-serif; }
+
+    /* Дашборд Статистики */
+    .dashboard-panel {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px; margin: 40px 0;
+    }
+    .db-box {
+        background: white; padding: 25px; border-radius: 24px; text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #f1f5f9;
+        transition: transform 0.3s;
+    }
+    .db-box:hover { transform: translateY(-3px); }
+    .db-num { font-size: 2.5rem; font-weight: 900; color: var(--primary); line-height: 1; }
+    .db-txt { font-size: 0.8rem; font-weight: 800; color: var(--slate-500); text-transform: uppercase; margin-top: 8px; }
+
+    /* Пошук */
+    .search-container { position: relative; max-width: 650px; margin: 0 auto 60px; }
+    .search-input-field {
+        width: 100%; padding: 18px 30px 18px 60px; border-radius: 50px;
+        border: 2px solid transparent; background: white; font-size: 1.1rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04); transition: 0.3s;
+    }
+    .search-input-field:focus { border-color: var(--primary); outline: none; }
+    .s-icon { position: absolute; left: 25px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.2rem; }
+
+    /* Секції Тем */
+    .theme-card-wrap { background: white; border-radius: 32px; padding: 35px; margin-bottom: 60px; border: 1px solid #e2e8f0; }
+    .theme-label-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .theme-label-header h2 { font-size: 2rem; font-weight: 800; color: var(--dark); margin: 0; }
+
+    .btn-play-all {
+        background: var(--dark); color: white; border: none; padding: 14px 34px;
+        border-radius: 18px; font-weight: 800; transition: 0.3s;
+    }
+    .btn-play-all:hover { background: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(37,99,235,0.2); }
+
+    /* Сітка карток */
+    .vocab-grid-main { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .vocab-block {
+        background: #fdfdfd; border-radius: 22px; padding: 25px; border: 1px solid #f1f5f9;
+        transition: all 0.3s ease; position: relative; display: flex; flex-direction: column; justify-content: center;
+    }
+    .vocab-block:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+
+    .v-lang-tag { position: absolute; top: 15px; right: 15px; font-size: 0.65rem; color: #cbd5e1; font-weight: 900; text-transform: uppercase; }
+    .v-word-main { font-size: 1.2rem; font-weight: 800; color: var(--dark); margin-bottom: 3px; }
+    .v-word-trans { font-size: 1.05rem; color: var(--primary); font-weight: 600; opacity: 0; transition: 0.3s; transform: translateY(5px); }
+    .vocab-block:hover .v-word-trans { opacity: 1; transform: translateY(0); }
+
+    /* ТРЕНАЖЕР (МОДАЛКА) */
+    #trainingModalOverlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.98); z-index: 99999;
+        display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .t-content-area { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; }
+    .t-status-lbl { color: rgba(255,255,255,0.4); font-weight: 700; margin-bottom: 40px; font-size: 0.85rem; letter-spacing: 2px; }
+
+    .t-arena { perspective: 2000px; width: 100%; height: 360px; margin-bottom: 50px; }
+    .t-card-obj {
+        width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer;
+    }
+    .t-face-3d {
+        position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+        border-radius: 50px; display: flex; align-items: center; justify-content: center;
+        padding: 40px; text-align: center; border: 4px solid rgba(255,255,255,0.05);
+    }
+    .t-side-f { background: white; color: var(--dark); box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+    .t-side-b { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; transform: rotateY(180deg); box-shadow: 0 30px 60px rgba(59,130,246,0.3); }
+
+    .t-display-val { font-size: clamp(1.4rem, 5vw, 2.5rem); font-weight: 900; line-height: 1.2; }
+
+    .t-btns-group { width: 100%; display: flex; flex-direction: column; gap: 15px; }
+    .t-ui-btn { height: 75px; border-radius: 24px; border: none; font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: 0.2s; }
+    .t-btn-reveal { background: white; color: var(--dark); }
+    .t-btn-next-word { background: #10b981; color: white; display: none; }
+    .t-btn-close { background: transparent; color: white; opacity: 0.5; font-size: 1rem; border: none; margin-top: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    <!-- Дашборд Статистики -->
+    <div class="dashboard-panel">
+        <div class="db-box">
+            <div class="db-num">{{ total_words }}</div>
+            <div class="db-txt">Слів вивчено</div>
+        </div>
+        <div class="db-box">
+            <div class="db-num">{{ available_languages|length }}</div>
+            <div class="db-txt">Мови</div>
+        </div>
+        <div class="db-box">
+            <div class="db-num">{% if total_words > 0 %}{{ total_words|add:total_words }}{% else %}0{% endif %}%</div>
+            <div class="db-txt">Прогрес за місяць</div>
+        </div>
+    </div>
+
+    <!-- Пошук -->
+    <div class="search-container">
+        <i class="fas fa-search s-icon"></i>
+        <input type="text" class="search-input-field" id="globalSearch" placeholder="Швидкий пошук фрази..." onkeyup="filterVocab()">
+    </div>
+
+    <!-- Список тем та карток -->
+    {% for group in grouped_vocabulary %}
+    <div class="theme-card-wrap">
+        <div class="theme-label-header">
+            <h2>{% if group.course %}{{ group.course.title }}{% else %}Різне{% endif %}</h2>
+            <button class="btn-play-all" onclick="startTrainingSession({{ forloop.counter0 }})">
+                <i class="fas fa-play me-2"></i>ТРЕНУВАТИ ТЕМУ
+            </button>
+        </div>
+
+        <div class="vocab-grid-main">
+            {% for word in group.words %}
+            <div class="vocab-block searchable-block" data-search="{{ word.word|lower }}">
+                <span class="v-lang-tag">{{ word.language|upper }}</span>
+                <div class="v-word-main">{{ word.word }}</div>
+                <div class="v-word-trans">{{ word.translation }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ТРЕНАЖЕР (МОДАЛКА) -->
+<div id="trainingModalOverlay">
+    <div class="t-content-area">
+        <div class="t-status-lbl" id="trainerStatus">СЛОВО 1 З 10</div>
+        
+        <div class="t-arena">
+            <div class="t-card-obj" id="cardToFlip" onclick="handleTrainingFlip()">
+                <div class="t-face-3d t-side-f">
+                    <div class="t-display-val" id="textF">Word</div>
+                </div>
+                <div class="t-face-3d t-side-b">
+                    <div class="t-display-val" id="textB">Translation</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-btns-group">
+            <button class="t-ui-btn t-btn-reveal" id="btnR" onclick="handleTrainingFlip()">ПОКАЗАТИ ВІДПОВІДЬ</button>
+            <button class="t-ui-btn t-btn-next-word" id="btnN" onclick="moveToNext()">НАСТУПНЕ СЛОВО <i class="fas fa-arrow-right ms-2"></i></button>
+            <button class="t-btn-close" onclick="stopTrainingSession()">ЗАКРИТИ</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    const fullDataset = [
+        {% for group in grouped_vocabulary %}
+        {
+            topic: "{% if group.course %}{{ group.course.title|escapejs }}{% else %}Різне{% endif %}",
+            words: [
+                {% for word in group.words %}
+                { q: "{{ word.word|escapejs }}", a: "{{ word.translation|escapejs }}" },
+                {% endfor %}
+            ]
+        },
+        {% endfor %}
+    ];
+
+    let gIndex = 0, wIndex = 0, fStatus = false;
+
+    function startTrainingSession(idx) {
+        gIndex = idx; wIndex = 0;
+        document.getElementById('trainingModalOverlay').style.display = 'flex';
+        renderStepData();
+    }
+
+    function stopTrainingSession() {
+        document.getElementById('trainingModalOverlay').style.display = 'none';
+    }
+
+    function renderStepData() {
+        const item = fullDataset[gIndex].words[wIndex];
+        document.getElementById('textF').innerText = item.q;
+        document.getElementById('textB').innerText = item.a;
+        document.getElementById('trainerStatus').innerText = `ТЕМА: ${fullDataset[gIndex].topic} | КАРТКА ${wIndex + 1} З ${fullDataset[gIndex].words.length}`;
+        
+        fStatus = false;
+        gsap.set("#cardToFlip", { rotationY: 0 });
+        document.getElementById('btnR').style.display = 'block';
+        document.getElementById('btnR').innerText = 'ПОКАЗАТИ ВІДПОВІДЬ';
+        document.getElementById('btnN').style.display = 'none';
+    }
+
+    function handleTrainingFlip() {
+        if (!fStatus) {
+            fStatus = true;
+            gsap.to("#cardToFlip", { duration: 0.6, rotationY: 180, ease: "back.out(1.4)" });
+            document.getElementById('btnR').innerText = 'ПОКАЗАТИ ОРИГІНАЛ';
+            document.getElementById('btnN').style.display = 'block';
+        } else {
+            fStatus = false;
+            gsap.to("#cardToFlip", { duration: 0.6, rotationY: 0, ease: "back.out(1.4)" });
+            document.getElementById('btnR').innerText = 'ПОКАЗАТИ ВІДПОВІДЬ';
+        }
+    }
+
+    function moveToNext() {
+        wIndex++;
+        if (wIndex < fullDataset[gIndex].words.length) renderStepData();
+        else {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            setTimeout(() => { alert('Готово! Ви повторили всю тему.'); stopTrainingSession(); }, 1000);
+        }
+    }
+
+    function filterVocab() {
+        const q = document.getElementById('globalSearch').value.toLowerCase();
+        document.querySelectorAll('.searchable-block').forEach(el => {
+            el.style.display = el.getAttribute('data-search').includes(q) ? 'flex' : 'none';
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') stopTrainingSession();
+        if (e.key === ' ' || e.key === 'Enter') handleTrainingFlip();
+    });
+</script>
+{% endblock %}

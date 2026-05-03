@@ -248,6 +248,130 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.95rem;
+            color: var(--slate-400);
+            transition: background 0.18s, color 0.18s;
+        }
+
+        /* Notifications Styles */
+        .notification-dropdown {
+            position: relative;
+            margin-right: 15px;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: var(--slate-600);
+            font-size: 1.3rem;
+            cursor: pointer;
+            position: relative;
+            padding: 8px;
+            border-radius: 12px;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-btn:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 800;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+        }
+
+        .notification-menu {
+            position: fixed;
+            width: 320px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 24px 64px rgba(15,23,42,0.14);
+            border: 1px solid #eef0f8;
+            padding: 10px;
+            z-index: 99999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px) scale(0.97);
+            transform-origin: top right;
+            transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+        }
+
+        .notification-menu.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 14px;
+            transition: background 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+
+        .notification-item.unread {
+            background: #f0f7ff;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+
+        .notification-icon.success { background: #ecfdf5; color: #10b981; }
+        .notification-icon.info { background: #eff6ff; color: #3b82f6; }
+        .notification-icon.warning { background: #fffbeb; color: #f59e0b; }
+        .notification-icon.achievement { background: #faf5ff; color: #a855f7; }
+
+        .notification-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--slate-800);
+            margin-bottom: 2px;
+        }
+
+        .notification-desc {
+            font-size: 0.8rem;
+            color: var(--slate-500);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
             font-size: 0.85rem;
             color: var(--primary);
             transition: background 0.18s;
@@ -343,6 +467,57 @@
                 <a href="{% url 'users:missions' %}">Місії</a>
                 <a href="{% url 'users:leaderboard' %}">Лідерборд</a>
                 {% if user.is_authenticated %}
+                
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <a href="{% url 'chat:inbox' %}" class="notification-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <i class="far fa-comment-dots"></i>
+                        {% if unread_messages_count > 0 %}
+                        <span class="notification-badge" style="background: var(--indigo-600);">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+
+                    <div class="notification-dropdown">
+                    <button class="notification-btn" id="notificationBtn">
+                        <i class="far fa-bell"></i>
+                        {% if unread_count > 0 %}
+                        <span class="notification-badge">{{ unread_count }}</span>
+                        {% endif %}
+                    </button>
+                    
+                    <div class="notification-menu" id="notificationMenu">
+                        <div style="padding: 12px 15px; font-weight: 800; color: var(--slate-800); border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                            Сповіщення
+                            {% if unread_count > 0 %}
+                            <a href="{% url 'users:mark-all-notifications-read' %}" style="font-size: 0.75rem; color: var(--primary); font-weight: 700;">Прочитати все</a>
+                            {% endif %}
+                        </div>
+                        
+                        <div style="max-height: 350px; overflow-y: auto; padding: 5px;">
+                            {% if unread_notifications %}
+                                {% for n in unread_notifications %}
+                                <a href="{% url 'users:mark-notification-read' n.id %}" class="notification-item unread">
+                                    <div class="notification-icon {{ n.notification_type }}">
+                                        {% if n.notification_type == 'success' %}<i class="fas fa-check-circle"></i>
+                                        {% elif n.notification_type == 'achievement' %}<i class="fas fa-trophy"></i>
+                                        {% elif n.notification_type == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+                                        {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                                    </div>
+                                    <div class="notification-info">
+                                        <div class="notification-title">{{ n.title }}</div>
+                                        <div class="notification-desc">{{ n.message }}</div>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            {% else %}
+                                <div style="padding: 30px 20px; text-align: center; color: var(--slate-400);">
+                                    <i class="far fa-bell-slash" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.3;"></i>
+                                    Немає нових сповіщень
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="profile-dropdown">
                     <button class="profile-btn nav-no-style" id="profileDropdownBtn" aria-expanded="false" aria-haspopup="true">
                         <div class="user-avatar {% if not user.avatar %}placeholder{% endif %}">
@@ -384,6 +559,10 @@
                             <span class="menu-icon"><i class="fas fa-fire"></i></span>
                             Місії
                         </a>
+                        <a href="{% url 'users:vocabulary' %}" role="menuitem">
+                            <span class="menu-icon"><i class="fas fa-book"></i></span>
+                            Мій словник
+                        </a>
 
 
                         <div class="menu-divider"></div>
@@ -393,6 +572,7 @@
                             Вийти
                         </a>
                     </div>
+                </div>
                 </div>
                 {% else %}
                 <a href="{% url 'users:login' %}" class="btn-login">Вхід</a>
@@ -459,53 +639,60 @@
 
             const dropdownBtn  = document.getElementById('profileDropdownBtn');
             const dropdownMenu = document.getElementById('profileDropdownMenu');
+            const notifBtn     = document.getElementById('notificationBtn');
+            const notifMenu    = document.getElementById('notificationMenu');
 
-            function positionMenu() {
-                const rect = dropdownBtn.getBoundingClientRect();
-                const menuWidth = 248;
+            function positionMenu(btn, menu, width) {
+                const rect = btn.getBoundingClientRect();
                 const gap = 10;
-
                 let right = window.innerWidth - rect.right;
-
-                if (rect.right - menuWidth < 8) right = window.innerWidth - rect.left - menuWidth;
+                if (rect.right - width < 8) right = window.innerWidth - rect.left - width;
                 right = Math.max(8, right);
-
-                dropdownMenu.style.top  = (rect.bottom + gap) + 'px';
-                dropdownMenu.style.right = right + 'px';
-                dropdownMenu.style.left  = 'auto';
+                menu.style.top   = (rect.bottom + gap) + 'px';
+                menu.style.right = right + 'px';
+                menu.style.left  = 'auto';
             }
 
             if (dropdownBtn && dropdownMenu) {
                 dropdownBtn.addEventListener('click', function (e) {
                     e.stopPropagation();
+                    if (notifMenu) notifMenu.classList.remove('open');
                     const willOpen = !dropdownMenu.classList.contains('open');
-                    if (willOpen) positionMenu();
+                    if (willOpen) positionMenu(dropdownBtn, dropdownMenu, 248);
                     dropdownMenu.classList.toggle('open', willOpen);
-                    dropdownBtn.classList.toggle('active', willOpen);
-                    dropdownBtn.setAttribute('aria-expanded', willOpen);
-                });
-
-                window.addEventListener('resize', function () {
-                    if (dropdownMenu.classList.contains('open')) positionMenu();
-                });
-
-                document.addEventListener('click', function (e) {
-                    if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                        dropdownMenu.classList.remove('open');
-                        dropdownBtn.classList.remove('active');
-                        dropdownBtn.setAttribute('aria-expanded', 'false');
-                    }
-                });
-
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape') {
-                        dropdownMenu.classList.remove('open');
-                        dropdownBtn.classList.remove('active');
-                        dropdownBtn.setAttribute('aria-expanded', 'false');
-                        dropdownBtn.focus();
-                    }
                 });
             }
+
+            if (notifBtn && notifMenu) {
+                notifBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (dropdownMenu) dropdownMenu.classList.remove('open');
+                    const willOpen = !notifMenu.classList.contains('open');
+                    if (willOpen) positionMenu(notifBtn, notifMenu, 320);
+                    notifMenu.classList.toggle('open', willOpen);
+                });
+            }
+
+            window.addEventListener('resize', function () {
+                if (dropdownMenu && dropdownMenu.classList.contains('open')) positionMenu(dropdownBtn, dropdownMenu, 248);
+                if (notifMenu && notifMenu.classList.contains('open')) positionMenu(notifBtn, notifMenu, 320);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (dropdownMenu && !dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('open');
+                }
+                if (notifMenu && !notifBtn.contains(e.target) && !notifMenu.contains(e.target)) {
+                    notifMenu.classList.remove('open');
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    if (dropdownMenu) dropdownMenu.classList.remove('open');
+                    if (notifMenu) notifMenu.classList.remove('open');
+                }
+            });
         });
     </script>
     {% block extra_js %}{% endblock %}

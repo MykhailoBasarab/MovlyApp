@@ -13,8 +13,47 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import CustomUserCreationForm, LoginForm, UserProfileForm
-from .models import CustomUser, UserProgress
+from .models import CustomUser, UserProgress, UserWord, Notification
 from .services import get_missions_status
+
+
+@login_required
+def vocabulary_view(request):
+    """
+    Відображає особистий словник користувача, згрупований за темами (курсами).
+    """
+    user_words = (
+        request.user.vocabulary.all()
+        .select_related("course")
+        .order_by("course__title", "-created_at")
+    )
+
+    # Фільтрація за мовою
+    lang_filter = request.GET.get("lang")
+    if lang_filter:
+        user_words = user_words.filter(language=lang_filter)
+
+    # Список мов для фільтра
+    available_languages = (
+        request.user.vocabulary.values_list("language", flat=True)
+        .distinct()
+        .order_by("language")
+    )
+
+    # Групування слів за курсами (темами)
+    from itertools import groupby
+
+    grouped_vocabulary = []
+    for course, words in groupby(user_words, lambda x: x.course):
+        grouped_vocabulary.append({"course": course, "words": list(words)})
+
+    context = {
+        "grouped_vocabulary": grouped_vocabulary,
+        "total_words": user_words.count(),
+        "available_languages": available_languages,
+        "current_lang": lang_filter,
+    }
+    return render(request, "users/vocabulary.html", context)
 
 
 def login_view(request):
@@ -102,6 +141,8 @@ def profile_view(request):
         .count()
     )
 
+    total_words_count = user.vocabulary.count()
+
     context = {
         "user": user,
         "progress": progress,
@@ -109,6 +150,7 @@ def profile_view(request):
         "completed_courses_count": completed_courses_count,
         "completed_courses": completed_progress,
         "completed_tests": completed_tests,
+        "total_words_count": total_words_count,
         "daily_progress_percent": daily_progress_percent,
         "remaining_xp": remaining_xp,
         "badges": user.badges.exclude(
@@ -453,3 +495,25 @@ class ProgressView(APIView):
                 "last_activity_date": progress.last_activity_date,
             }
         )
+
+@login_required
+def mark_notification_as_read(request, notification_id):
+    from django.http import JsonResponse
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success'})
+    
+    if notification.link:
+        return redirect(notification.link)
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+@login_required
+def mark_all_notifications_read(request):
+    from django.http import JsonResponse
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success'})
+    return redirect(request.META.get('HTTP_REFERER', 'home'))

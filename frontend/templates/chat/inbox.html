@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Повідомлення - MOVLY{% endblock %}
+
+{% block content %}
+<div class="inbox-wrapper" style="min-height: 80vh; padding: 60px 0; position: relative; overflow: hidden;">
+    <!-- Декоративні фонові градієнти -->
+    <div style="position: absolute; top: -10%; right: -5%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(255, 255, 255, 0) 70%); z-index: -1;"></div>
+    <div style="position: absolute; bottom: 10%; left: -5%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(79, 70, 229, 0.08) 0%, rgba(255, 255, 255, 0) 70%); z-index: -1;"></div>
+
+    <div class="inbox-container" style="max-width: 900px; margin: 0 auto; animation: slideUp 0.6s ease-out;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <h1 style="font-size: 3rem; font-weight: 900; color: var(--slate-900); letter-spacing: -1px;">
+                Ваші <span style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">діалоги</span>
+            </h1>
+        <a href="{% url 'chat:partners' %}" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; font-weight: 600; text-decoration: none; background: #fff; color: var(--slate-800); border: 1px solid var(--slate-200); transition: all 0.2s;">
+            <i class="fas fa-search"></i> Знайти партнера
+        </a>
+    </div>
+
+    <div class="thread-list" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden;">
+        {% for thread in threads %}
+        <a href="{% url 'chat:chat-detail' thread.other_user.id %}" class="thread-item" style="display: flex; align-items: center; gap: 20px; padding: 20px 30px; text-decoration: none; color: inherit; border-bottom: 1px solid var(--slate-100); transition: background 0.2s;">
+            <div class="thread-avatar" style="width: 60px; height: 60px; border-radius: 16px; background: var(--indigo-50); color: var(--indigo-600); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; flex-shrink: 0; overflow: hidden; position: relative;">
+                {% if thread.other_user.avatar %}
+                    <img src="{{ thread.other_user.avatar.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    {{ thread.other_user.username|slice:":1"|upper }}
+                {% endif %}
+                
+                {% if thread.unread_count > 0 %}
+                <div style="position: absolute; top: -5px; right: -5px; width: 14px; height: 14px; background: #ef4444; border-radius: 50%; border: 2px solid #fff;"></div>
+                {% endif %}
+            </div>
+
+            <div style="flex-grow: 1; min-width: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+                    <h4 style="margin: 0; font-weight: 700; color: var(--slate-900);">{{ thread.other_user.username }}</h4>
+                    <span style="font-size: 0.8rem; color: var(--slate-400);">{{ thread.updated_at|date:"H:i" }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <p style="margin: 0; color: var(--slate-500); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {% if thread.last_message %}
+                            {% if thread.last_message.sender == user %}Ви: {% endif %}
+                            {{ thread.last_message.text }}
+                        {% else %}
+                            Немає повідомлень
+                        {% endif %}
+                    </p>
+                    {% if thread.unread_count > 0 %}
+                    <span style="background: var(--indigo-600); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600;">{{ thread.unread_count }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color: var(--slate-200); font-size: 0.8rem;"></i>
+        </a>
+        {% empty %}
+        <div style="text-align: center; padding: 80px 40px;">
+            <div style="width: 80px; height: 80px; background: var(--slate-50); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--slate-300);">
+                <i class="fas fa-comments" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 style="color: var(--slate-600); margin-bottom: 10px;">Ваша скринька поки пуста</h3>
+            <p style="color: var(--slate-400); margin-bottom: 30px;">Знайдіть партнерів, щоб почати практикувати мову!</p>
+            <a href="{% url 'chat:partners' %}" class="btn-primary" style="text-decoration: none; padding: 12px 30px; border-radius: 14px;">Почати спілкування</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+
+<style>
+    .thread-item:hover {
+        background: rgba(248, 250, 252, 0.5);
+    }
+    .thread-item:last-child {
+        border-bottom: none;
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

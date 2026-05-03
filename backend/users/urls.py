@@ -11,10 +11,13 @@ urlpatterns = [
     path("profile/", views.profile_view, name="profile"),
     path("missions/", views.missions_view, name="missions"),
     path("leaderboard/", views.leaderboard_view, name="leaderboard"),
+    path("vocabulary/", views.vocabulary_view, name="vocabulary"),
     path("logout/", views.logout_view, name="logout"),
     # API endpoints
     path("api/profile/", views.ProfileView.as_view(), name="api-profile"),
     path("api/progress/", views.ProgressView.as_view(), name="api-progress"),
+    path("notifications/mark-read/<int:notification_id>/", views.mark_notification_as_read, name="mark-notification-read"),
+    path("notifications/mark-all-read/", views.mark_all_notifications_read, name="mark-all-notifications-read"),
     path(
         "password-reset/",
         auth_views.PasswordResetView.as_view(

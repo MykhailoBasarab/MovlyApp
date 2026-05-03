@@ -19,6 +19,7 @@ urlpatterns = [
     path("tests/", include(("tests.urls", "tests"), namespace="tests")),
     path("api/ai/", include("ai_services.urls")),
     path("api/tests/", include(("tests.urls", "tests"), namespace="tests_api")),
+    path("chat/", include("chat.urls", namespace="chat")),
 ]
 
 if settings.DEBUG:
